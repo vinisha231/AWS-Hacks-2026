@@ -1,240 +1,183 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { supabase } from '../lib/supabase'
 import { useEmberStore } from '../store/emberStore'
+import Layout from '../components/Layout'
 
 const ADDICTION_OPTIONS = [
-  { label: 'Nicotine', emoji: '🚬' },
-  { label: 'Alcohol', emoji: '🍺' },
-  { label: 'Cannabis', emoji: '🌿' },
-  { label: 'Gambling', emoji: '🎰' },
-  { label: 'Social media', emoji: '📱' },
-  { label: 'Gaming', emoji: '🎮' },
-  { label: 'Opioids', emoji: '💊' },
-  { label: 'Food', emoji: '🍔' },
-  { label: 'Shopping', emoji: '🛍️' },
-  { label: 'Other', emoji: '•' },
+  { label: 'Nicotine',      emoji: '🚬' },
+  { label: 'Alcohol',       emoji: '🍺' },
+  { label: 'Cannabis',      emoji: '🌿' },
+  { label: 'Gambling',      emoji: '🎰' },
+  { label: 'Social media',  emoji: '📱' },
+  { label: 'Gaming',        emoji: '🎮' },
+  { label: 'Opioids',       emoji: '💊' },
+  { label: 'Food',          emoji: '🍔' },
+  { label: 'Shopping',      emoji: '🛍️' },
+  { label: 'Other',         emoji: '•'  },
 ]
 
 const SPARK_INTERESTS = [
-  'Drawing', 'Poetry', 'Origami', 'Coding',
-  'Languages', 'Magic tricks', 'Photography', 'Music',
-  'Astronomy', 'History', 'Philosophy', 'Puzzles',
+  'Drawing', 'Poetry', 'Origami', 'Coding', 'Languages', 'Magic tricks',
+  'Photography', 'Music', 'Astronomy', 'History', 'Philosophy', 'Puzzles',
   'Cooking new things', 'Gardening', 'Writing', 'Chess',
 ]
 
 export default function Profile() {
-  const navigate = useNavigate()
-  const { user: auth0User } = useAuth0()
-  const { user, setUser, setSparkProfile, setFlaggedTriggers } = useEmberStore()
+  const { user: auth0User, logout } = useAuth0()
+  const { user, setUser, setFlaggedTriggers } = useEmberStore()
 
   const [addictions, setAddictions] = useState([])
   const [wantToTry, setWantToTry] = useState([])
   const [customTry, setCustomTry] = useState('')
   const [hobbies, setHobbies] = useState('')
   const [heavyTopics, setHeavyTopics] = useState('')
-  const [supportCode, setSupportCode] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     if (!user) return
-    setAddictions(user.addiction_type ? user.addiction_type.split(',').map(s => s.trim()) : [])
-    setSupportCode(user.support_code || '')
+    setAddictions(user.addiction_type ? user.addiction_type.split(',').map(s => s.trim()).filter(Boolean) : [])
   }, [user])
 
-  const toggleAddiction = (label) => {
-    setAddictions(prev =>
-      prev.includes(label) ? prev.filter(a => a !== label) : [...prev, label]
-    )
-  }
+  const toggle = (list, setList, val) =>
+    setList(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val])
 
-  const toggleWantToTry = (item) => {
-    setWantToTry(prev =>
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
-    )
-  }
-
-  const addCustomTry = () => {
-    const trimmed = customTry.trim()
-    if (trimmed && !wantToTry.includes(trimmed)) {
-      setWantToTry(prev => [...prev, trimmed])
-      setCustomTry('')
-    }
+  const addCustom = () => {
+    const t = customTry.trim()
+    if (t && !wantToTry.includes(t)) { setWantToTry(p => [...p, t]); setCustomTry('') }
   }
 
   const handleSave = async () => {
     if (!auth0User) return
     setSaving(true)
-
-    const addictionStr = addictions.join(', ')
     const heavyArr = heavyTopics.split(',').map(s => s.trim()).filter(Boolean)
-    const sparkCuriosities = [...wantToTry, ...hobbies.split(',').map(s => s.trim()).filter(Boolean)]
 
     const { data } = await supabase.from('users')
-      .update({ addiction_type: addictionStr })
-      .eq('auth0_id', auth0User.sub)
-      .select().single()
-
+      .update({ addiction_type: addictions.join(', ') })
+      .eq('auth0_id', auth0User.sub).select().single()
     if (data) setUser(data)
 
-    if (heavyArr.length > 0 && user?.id) {
-      await Promise.all(
-        heavyArr.map(topic =>
-          supabase.from('flagged_triggers')
-            .upsert({ user_id: user.id, topic, reason: 'user_set' }, { onConflict: 'user_id,topic' })
-            .then(() => {})
-        )
-      )
+    if (heavyArr.length && user?.id) {
+      await Promise.all(heavyArr.map(topic =>
+        supabase.from('flagged_triggers')
+          .insert({ user_id: user.id, topic, reason: 'user_set' })
+          .then(() => {})
+      ))
       setFlaggedTriggers(heavyArr)
     }
-
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setSaving(false); setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
   }
 
   const copySupport = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/support/${supportCode}`)
+    if (user?.support_code)
+      navigator.clipboard.writeText(`${window.location.origin}/support/${user.support_code}`)
   }
 
   return (
-    <div className="min-h-screen bg-stone-950 text-white">
-      <header className="flex items-center justify-between p-6 border-b border-stone-800">
-        <button onClick={() => navigate('/home')} className="text-stone-400 hover:text-white transition-colors flex items-center gap-2">
-          <span>←</span> Back
-        </button>
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🔥</span>
-          <span className="font-bold">Profile</span>
-        </div>
-        <div className="w-16" />
-      </header>
+    <Layout>
+      <div className="max-w-2xl flex flex-col gap-10">
 
-      <main className="max-w-lg mx-auto p-6 flex flex-col gap-8 pb-24">
+        <div>
+          <h1 className="text-3xl font-black mb-1">Profile</h1>
+          <p className="text-stone-500">Everything stays private. We use this to personalise your sparks.</p>
+        </div>
 
         {/* What you're working on */}
-        <section>
-          <h2 className="text-lg font-semibold mb-1">What are you working on?</h2>
-          <p className="text-stone-500 text-sm mb-4">Select all that apply. No judgment here.</p>
-          <div className="grid grid-cols-2 gap-2">
+        <Section title="What are you working on?" sub="Select all that apply.">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {ADDICTION_OPTIONS.map(({ label, emoji }) => (
-              <button
-                key={label}
-                onClick={() => toggleAddiction(label)}
+              <button key={label} onClick={() => toggle(addictions, setAddictions, label)}
                 className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all text-left
                   ${addictions.includes(label)
                     ? 'border-amber-500 bg-amber-500/10 text-amber-300'
-                    : 'border-stone-700 text-stone-400 hover:border-stone-500'}`}
-              >
+                    : 'border-white/8 text-stone-400 hover:border-white/20 hover:text-white'}`}>
                 <span>{emoji}</span> {label}
               </button>
             ))}
           </div>
-        </section>
+        </Section>
 
         {/* Spark interests */}
-        <section>
-          <h2 className="text-lg font-semibold mb-1">What have you always wanted to try?</h2>
-          <p className="text-stone-500 text-sm mb-4">These become your Spark activities — fresh territory with no baggage.</p>
+        <Section title="What have you always wanted to try?" sub="These become your Spark activities — zero emotional baggage, all new territory.">
           <div className="flex flex-wrap gap-2 mb-3">
             {SPARK_INTERESTS.map(item => (
-              <button
-                key={item}
-                onClick={() => toggleWantToTry(item)}
+              <button key={item} onClick={() => toggle(wantToTry, setWantToTry, item)}
                 className={`px-3 py-1.5 rounded-full border text-sm transition-all
                   ${wantToTry.includes(item)
                     ? 'border-amber-500 bg-amber-500/10 text-amber-300'
-                    : 'border-stone-700 text-stone-500 hover:border-stone-500'}`}
-              >
+                    : 'border-white/8 text-stone-500 hover:border-white/20 hover:text-white'}`}>
                 {item}
               </button>
             ))}
           </div>
           <div className="flex gap-2">
-            <input
-              value={customTry}
-              onChange={e => setCustomTry(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && addCustomTry()}
+            <input value={customTry} onChange={e => setCustomTry(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addCustom()}
               placeholder="Add your own..."
-              className="flex-1 bg-stone-900 border border-stone-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"
-            />
-            <button
-              onClick={addCustomTry}
-              className="bg-stone-800 hover:bg-stone-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
-            >
-              Add
-            </button>
+              className="flex-1 bg-stone-800 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-amber-500/50" />
+            <button onClick={addCustom} className="bg-stone-800 hover:bg-stone-700 border border-white/8 px-4 py-2.5 rounded-xl text-sm font-medium transition-all text-white">Add</button>
           </div>
           {wantToTry.filter(i => !SPARK_INTERESTS.includes(i)).length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-3">
               {wantToTry.filter(i => !SPARK_INTERESTS.includes(i)).map(item => (
-                <span key={item} className="px-3 py-1.5 rounded-full border border-amber-500 bg-amber-500/10 text-amber-300 text-sm flex items-center gap-1">
+                <span key={item} className="px-3 py-1.5 rounded-full border border-amber-500 bg-amber-500/10 text-amber-300 text-sm flex items-center gap-1.5">
                   {item}
-                  <button onClick={() => toggleWantToTry(item)} className="text-amber-500 hover:text-amber-300 ml-1">×</button>
+                  <button onClick={() => toggle(wantToTry, setWantToTry, item)} className="text-amber-500 hover:text-amber-300 leading-none">×</button>
                 </span>
               ))}
             </div>
           )}
-        </section>
+        </Section>
 
-        {/* Current hobbies */}
-        <section>
-          <h2 className="text-lg font-semibold mb-1">Current hobbies or interests</h2>
-          <p className="text-stone-500 text-sm mb-3">We use these to understand your world — not to suggest them during cravings.</p>
-          <textarea
-            value={hobbies}
-            onChange={e => setHobbies(e.target.value)}
-            placeholder="e.g. hiking, cooking, reading thrillers, watching football..."
-            className="w-full bg-stone-900 border border-stone-700 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500"
-          />
-        </section>
+        {/* Hobbies */}
+        <Section title="Current hobbies" sub="We use these to understand your world — not to suggest them during cravings.">
+          <textarea value={hobbies} onChange={e => setHobbies(e.target.value)}
+            placeholder="e.g. hiking, cooking, reading thrillers, football..."
+            className="w-full bg-stone-800 border border-white/8 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500/50" />
+        </Section>
 
         {/* Heavy topics */}
-        <section>
-          <h2 className="text-lg font-semibold mb-1">Topics that feel heavy</h2>
-          <p className="text-stone-500 text-sm mb-3">Ember will never suggest anything linked to these. Separate with commas.</p>
-          <textarea
-            value={heavyTopics}
-            onChange={e => setHeavyTopics(e.target.value)}
+        <Section title="Topics that feel heavy" sub="Ember will never bring these up. Separate with commas.">
+          <textarea value={heavyTopics} onChange={e => setHeavyTopics(e.target.value)}
             placeholder="e.g. cooking (reminds me of someone), bars, casinos..."
-            className="w-full bg-stone-900 border border-stone-700 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500"
-          />
-        </section>
+            className="w-full bg-stone-800 border border-white/8 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500/50" />
+        </Section>
 
         {/* Support circle */}
-        {supportCode && (
-          <section>
-            <h2 className="text-lg font-semibold mb-1">Support circle</h2>
-            <p className="text-stone-500 text-sm mb-3">Share this link with someone you trust. They'll see your progress — no personal details.</p>
-            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 flex items-center justify-between gap-3">
+        {user?.support_code && (
+          <Section title="Support circle" sub="Share this with someone you trust. They see your progress — nothing personal.">
+            <div className="flex items-center justify-between gap-4 bg-stone-800 border border-white/8 rounded-xl px-4 py-3">
               <span className="text-amber-400 text-sm font-mono truncate">
-                {window.location.origin}/support/{supportCode}
+                {window.location.origin}/support/{user.support_code}
               </span>
-              <button
-                onClick={copySupport}
-                className="text-stone-400 hover:text-white text-sm shrink-0 transition-colors"
-              >
-                Copy
-              </button>
+              <button onClick={copySupport} className="text-stone-400 hover:text-white text-sm shrink-0 transition-colors font-medium">Copy</button>
             </div>
-          </section>
+          </Section>
         )}
 
-        {/* Save */}
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className={`w-full font-bold py-4 rounded-2xl transition-all text-lg
-            ${saved
-              ? 'bg-emerald-500 text-white'
-              : 'bg-amber-500 hover:bg-amber-400 text-black'
-            } disabled:opacity-50`}
-        >
+        <button onClick={handleSave} disabled={saving}
+          className={`w-full font-bold py-4 rounded-xl transition-all text-base
+            ${saved ? 'bg-emerald-500 text-white' : 'bg-amber-500 hover:bg-amber-400 text-black'} disabled:opacity-50`}>
           {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save profile'}
         </button>
-      </main>
+
+        <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+          className="text-stone-600 hover:text-stone-400 text-sm text-center transition-colors pb-8">
+          Sign out
+        </button>
+      </div>
+    </Layout>
+  )
+}
+
+function Section({ title, sub, children }) {
+  return (
+    <div>
+      <h2 className="text-white font-semibold text-lg mb-0.5">{title}</h2>
+      {sub && <p className="text-stone-500 text-sm mb-4">{sub}</p>}
+      {children}
     </div>
   )
 }

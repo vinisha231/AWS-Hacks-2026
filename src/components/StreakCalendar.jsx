@@ -14,16 +14,12 @@ export default function StreakCalendar() {
         const d = new Date(today)
         d.setDate(today.getDate() - (27 - i))
         const dateStr = d.toISOString().split('T')[0]
-        const events = history.filter(e =>
-          e.triggered_at?.startsWith(dateStr)
-        )
-        const hasSurvived = events.some(e => e.survived)
-        const hasRelapsed = events.some(e => !e.survived)
+        const events = history.filter(e => e.triggered_at?.startsWith(dateStr))
         return {
           date: d,
-          label: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][d.getDay()],
-          day: d.getDate(),
-          status: hasSurvived ? 'survived' : hasRelapsed ? 'relapsed' : 'empty',
+          label: ['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()],
+          status: events.some(e => e.survived) ? 'survived'
+                : events.some(e => !e.survived) ? 'relapsed' : 'empty',
           isToday: dateStr === today.toISOString().split('T')[0],
         }
       })
@@ -31,41 +27,38 @@ export default function StreakCalendar() {
     })
   }, [user])
 
-  const colorMap = {
-    survived: 'bg-amber-500',
-    relapsed: 'bg-stone-700',
-    empty: 'bg-stone-800/60',
-  }
-
-  const weeks = []
-  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7))
+  const weeks = Array.from({ length: 4 }, (_, i) => days.slice(i * 7, i * 7 + 7))
 
   return (
-    <div className="bg-stone-900 rounded-2xl p-5 border border-stone-800">
-      <p className="text-stone-400 text-xs uppercase tracking-widest mb-4">Last 28 days</p>
+    <div className="bg-stone-900 border border-white/5 rounded-2xl p-6">
+      <p className="text-stone-400 text-xs uppercase tracking-widest font-medium mb-5">28-day heatmap</p>
       <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-7 gap-1.5 mb-1">
+          {['Su','Mo','Tu','We','Th','Fr','Sa'].map(l => (
+            <p key={l} className="text-center text-stone-600 text-xs">{l}</p>
+          ))}
+        </div>
         {weeks.map((week, wi) => (
           <div key={wi} className="grid grid-cols-7 gap-1.5">
             {week.map((d, di) => (
-              <div key={di} className="flex flex-col items-center gap-1">
-                {wi === 0 && (
-                  <span className="text-stone-600 text-xs">{d.label}</span>
-                )}
-                <div
-                  className={`w-full aspect-square rounded-md ${colorMap[d.status]} ${
-                    d.isToday ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-stone-900' : ''
-                  }`}
-                  title={`${d.date.toDateString()} — ${d.status}`}
-                />
-              </div>
+              <div key={di}
+                title={`${d.date.toDateString()} — ${d.status}`}
+                className={`aspect-square rounded-md transition-all ${
+                  d.status === 'survived' ? 'bg-amber-500' :
+                  d.status === 'relapsed' ? 'bg-stone-700' : 'bg-stone-800'
+                } ${d.isToday ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-stone-900' : ''}`}
+              />
             ))}
           </div>
         ))}
       </div>
       <div className="flex items-center gap-4 mt-4">
-        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-amber-500" /><span className="text-stone-500 text-xs">Survived</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-stone-700" /><span className="text-stone-500 text-xs">Reset</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-stone-800" /><span className="text-stone-500 text-xs">Quiet day</span></div>
+        {[['bg-amber-500','Survived'],['bg-stone-700','Reset'],['bg-stone-800','Quiet']].map(([cls,label]) => (
+          <div key={label} className="flex items-center gap-1.5">
+            <div className={`w-3 h-3 rounded-sm ${cls}`} />
+            <span className="text-stone-600 text-xs">{label}</span>
+          </div>
+        ))}
       </div>
     </div>
   )
