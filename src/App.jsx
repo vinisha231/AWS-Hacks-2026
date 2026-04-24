@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Onboarding from './pages/Onboarding'
 import Support from './pages/Support'
+import Profile from './pages/Profile'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth0()
@@ -47,6 +48,7 @@ export default function App() {
         } />
         <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/support/:supportCode" element={<Support />} />
       </Routes>
     </BrowserRouter>

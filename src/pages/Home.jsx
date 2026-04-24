@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useEmberStore } from '../store/emberStore'
 import { useEmberAuth } from '../hooks/useEmberAuth'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
@@ -8,6 +9,7 @@ import Dashboard from '../components/Dashboard'
 export default function Home() {
   const [showInterceptor, setShowInterceptor] = useState(false)
   const { dayCount, activateCraving } = useEmberStore()
+  const navigate = useNavigate()
   useEmberAuth()
 
   const handleCravingButton = () => {
@@ -22,7 +24,16 @@ export default function Home() {
           <span className="text-2xl">🔥</span>
           <span className="font-bold text-lg">Ember</span>
         </div>
-        <WalletMultiButton style={{ background: '#1c1917', fontSize: '13px' }} />
+        <div className="flex items-center gap-3">
+          <WalletMultiButton style={{ background: '#1c1917', fontSize: '13px' }} />
+          <button
+            onClick={() => navigate('/profile')}
+            className="w-9 h-9 rounded-full bg-stone-800 hover:bg-stone-700 flex items-center justify-center text-lg transition-colors"
+            title="Profile & settings"
+          >
+            👤
+          </button>
+        </div>
       </header>
 
       <main className="max-w-lg mx-auto p-6 flex flex-col gap-6">

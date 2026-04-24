@@ -68,7 +68,30 @@ export default function CravingInterceptor({ onClose }) {
 
       } catch (err) {
         console.error('Spark generation failed:', err)
-        setPhase('error')
+        // Show a built-in fallback spark so the interceptor always works
+        const fallback = {
+          title: 'One Mindful Minute',
+          instruction: 'Close your eyes and take 10 slow, deep breaths — counting each one out loud as a whisper. Notice the feeling of air filling your lungs, and let every exhale carry the tension with it.',
+          durationMinutes: 7,
+          hormoneTarget: 'serotonin',
+          category: 'mindfulness',
+          openingLine: "Hey. I'm right here with you. Let's breathe through this together."
+        }
+        sparkRef.current = fallback
+        setSpark(fallback)
+        setPhase('redirecting')
+        addUsedActivity(fallback.title)
+
+        timerRef.current = setInterval(() => {
+          setTimeLeft(t => {
+            if (t <= 1) {
+              clearInterval(timerRef.current)
+              handleSurvived(sparkRef.current)
+              return 0
+            }
+            return t - 1
+          })
+        }, 1000)
       }
     }
 
