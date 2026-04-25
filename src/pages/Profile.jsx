@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useEmberStore } from '../store/emberStore'
 import Layout from '../components/Layout'
+import VoicePicker from '../components/VoicePicker'
 
 const ADDICTION_OPTIONS = [
   { label: 'Nicotine',     emoji: '🚬' },
@@ -130,6 +131,10 @@ export default function Profile() {
           <textarea value={heavyTopics} onChange={e => setHeavyTopics(e.target.value)}
             placeholder="e.g. cooking (reminds me of someone), bars, casinos..."
             className="w-full bg-stone-800 border border-white/8 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500/50" />
+        </Section>
+
+        <Section title="Companion voice" sub="Who speaks to you when you need it most.">
+          <VoicePicker />
         </Section>
 
         {user?.support_code && (

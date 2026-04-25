@@ -1,6 +1,14 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// Built-in ElevenLabs pre-made voices — free on all plans
+export const PRESET_VOICES = [
+  { id: 'preset_mother',   label: 'Mother',   voiceId: 'pFZP5JQG7iQjIQuC4Bku', role: 'mother'   },
+  { id: 'preset_father',   label: 'Father',   voiceId: 'VR6AewLTigWG4xSOukaG', role: 'father'   },
+  { id: 'preset_daughter', label: 'Daughter', voiceId: 'MF3mGyEYCl7XYWbV9V6O', role: 'daughter' },
+  { id: 'preset_son',      label: 'Son',      voiceId: 'TxGEqnHWrfWFTfGW9XjX', role: 'son'      },
+]
+
 export const useEmberStore = create(
   persist(
     (set, get) => ({
@@ -10,6 +18,10 @@ export const useEmberStore = create(
       sparkProfile: {},
       flaggedTriggers: [],
       usedActivitiesToday: [],
+      // Voice system
+      voices: [],           // [{ id, label, voiceId, role, isClone }]
+      activeVoice: null,    // the currently selected voice object
+      // Legacy single voiceId kept for back-compat
       primaryVoiceId: null,
       walletAddress: null,
       cravingActive: false,
@@ -21,6 +33,18 @@ export const useEmberStore = create(
       setWallet: (addr) => set({ walletAddress: addr }),
       setSparkProfile: (profile) => set({ sparkProfile: profile }),
       setFlaggedTriggers: (triggers) => set({ flaggedTriggers: triggers }),
+
+      setActiveVoice: (voice) => set({ activeVoice: voice, primaryVoiceId: voice?.voiceId || null }),
+
+      addVoice: (voice) => set(state => {
+        const voices = state.voices.filter(v => v.id !== voice.id)
+        return { voices: [...voices, voice].slice(-10) } // max 10
+      }),
+
+      removeVoice: (id) => set(state => ({
+        voices: state.voices.filter(v => v.id !== id),
+        activeVoice: state.activeVoice?.id === id ? null : state.activeVoice
+      })),
 
       activateCraving: () => set({ cravingActive: true, cravingStartTime: Date.now() }),
 
@@ -45,6 +69,6 @@ export const useEmberStore = create(
 
       setLastMoodAnalysis: (analysis) => set({ lastMoodAnalysis: analysis }),
     }),
-    { name: 'ember-v1' }
+    { name: 'ember-v3' }
   )
 )

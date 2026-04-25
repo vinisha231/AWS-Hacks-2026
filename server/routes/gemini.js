@@ -116,6 +116,25 @@ Return ONLY valid JSON:
   }
 })
 
+router.post('/companion-response', async (req, res) => {
+  const { userText, role, dayCount, sparkTitle } = req.body
+  const prompt = `You are roleplaying as someone's ${role || 'loved one'} who deeply loves them and is helping them through addiction recovery.
+They are currently doing a 7-minute craving activity called "${sparkTitle || 'a spark activity'}". They are on day ${dayCount || 0} of their recovery.
+
+The user just said: "${userText}"
+
+HARASSMENT CHECK: If the message contains sexual content, slurs, or abuse directed at you, respond ONLY with:
+{"blocked": true, "reply": "Hey — I love you too much to let you talk like this right now. Let's get back to what matters."}
+
+Otherwise respond warmly AS THEIR ${(role || 'loved one').toUpperCase()} — proud, loving, present. Keep it to 1-2 sentences max. Spoken aloud.
+{"blocked": false, "reply": "<your warm response as their ${role || 'loved one'}>"}`
+  try {
+    res.json(await callGemini(prompt))
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 router.post('/loved-one-message', async (req, res) => {
   const { dayCount, sessionsCompleted, sparkCategories } = req.body
   const prompt = `You are writing a short, deeply personal voice message from a loved one to someone in addiction recovery.

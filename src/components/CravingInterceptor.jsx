@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useEmberStore } from '../store/emberStore'
 import { generateSpark } from '../services/gemini'
-import { playVoiceMessage } from '../services/elevenlabs'
+import { playVoiceMessage, stopCurrentAudio } from '../services/elevenlabs'
 import { mintMilestone } from '../services/solana'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { logCravingEvent, updateSparkResonance } from '../lib/supabase'
-import { TimerIcon, CheckIcon, SeedIcon, AlertIcon, FlameIcon } from './Icons'
+import { TimerIcon, CheckIcon, SeedIcon, FlameIcon, MicIcon } from './Icons'
 
+const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
 const CRAVING_SECONDS = 420
 
 const FALLBACK_SPARKS = [
@@ -14,19 +15,19 @@ const FALLBACK_SPARKS = [
     title: 'Breathe Through It',
     instruction: 'Place one hand on your chest and breathe in for 4 counts, hold for 4, out for 6. Repeat slowly, feeling your heartbeat settle with each cycle.',
     durationMinutes: 7, hormoneTarget: 'serotonin', category: 'mindfulness',
-    openingLine: "I'm right here. Let's breathe through this together, one breath at a time."
+    openingLine: "I'm right here with you. Let's breathe through this together, one breath at a time."
   },
   {
     title: 'Count Everything Blue',
-    instruction: 'Look around your space and count every single blue object you can find — objects, patterns, hints of blue anywhere. Then count again more slowly.',
+    instruction: 'Look around your space and count every single blue object you can find. Then count again more slowly.',
     durationMinutes: 7, hormoneTarget: 'dopamine', category: 'curiosity',
-    openingLine: "Let's give your mind something new to chase. Look for blue — everywhere."
+    openingLine: "Let's give that restless mind somewhere new to go. Look for blue — everywhere around you."
   },
   {
     title: 'Move for 7 Minutes',
     instruction: 'Stand up and march in place, roll your shoulders back 10 times, do 10 slow arm circles each direction. Keep moving until the timer ends.',
     durationMinutes: 7, hormoneTarget: 'endorphins', category: 'movement',
-    openingLine: "Your body needs to move right now. Let's get you out of your head and into your body."
+    openingLine: "Your body needs to move right now. Come on, I'm so proud of you for showing up."
   },
 ]
 
@@ -36,17 +37,28 @@ export default function CravingInterceptor({ onClose }) {
   const [timeLeft, setTimeLeft] = useState(CRAVING_SECONDS)
   const [photoUrl, setPhotoUrl] = useState(null)
   const [lovedOneMessage, setLovedOneMessage] = useState('')
+  const [companionStatus, setCompanionStatus] = useState('idle') // idle | listening | responding
+
   const timerRef = useRef(null)
   const sparkRef = useRef(null)
   const fileRef = useRef(null)
+  const companionRecRef = useRef(null)
 
-  const { user, sparkProfile, flaggedTriggers, usedActivitiesToday, primaryVoiceId,
-    resolveCraving, addUsedActivity, dayCount, sessionsCompleted, lastMoodAnalysis } = useEmberStore()
+  const { user, sparkProfile, flaggedTriggers, usedActivitiesToday,
+    activeVoice, primaryVoiceId, resolveCraving, addUsedActivity,
+    dayCount, sessionsCompleted, lastMoodAnalysis } = useEmberStore()
+
+  const voiceId = activeVoice?.voiceId || primaryVoiceId
+  const voiceRole = activeVoice?.role || 'loved one'
+
   const wallet = useWallet()
 
   useEffect(() => {
     init()
-    return () => clearInterval(timerRef.current)
+    return () => {
+      clearInterval(timerRef.current)
+      stopCompanionListening()
+    }
   }, [])
 
   async function init() {
@@ -63,9 +75,8 @@ export default function CravingInterceptor({ onClose }) {
       let sparkData
       try {
         sparkData = await generateSpark({ depletedHormone, contextFlags, sparkProfile, usedActivities: usedActivitiesToday, flaggedTriggers })
-        if (!sparkData?.title) throw new Error('Bad spark response')
-      } catch (e) {
-        console.warn('Gemini failed, using fallback:', e.message)
+        if (!sparkData?.title) throw new Error('Bad spark')
+      } catch {
         sparkData = FALLBACK_SPARKS[Math.floor(Math.random() * FALLBACK_SPARKS.length)]
       }
 
@@ -75,22 +86,19 @@ export default function CravingInterceptor({ onClose }) {
       addUsedActivity(sparkData.title)
 
       try {
-        // Read the opening line then the full instruction
-        await playVoiceMessage(sparkData.openingLine, primaryVoiceId)
-        await playVoiceMessage(sparkData.instruction, primaryVoiceId)
-      } catch (e) {
-        console.warn('Voice failed:', e.message)
-      }
+        await playVoiceMessage(sparkData.openingLine, voiceId)
+        await playVoiceMessage(sparkData.instruction, voiceId)
+      } catch {}
 
       startTimer()
+      startCompanionListening(sparkData)
     } catch (err) {
-      console.error('Init failed:', err)
-      // Even on total failure, show a fallback
       const fallback = FALLBACK_SPARKS[0]
       sparkRef.current = fallback
       setSpark(fallback)
       setPhase('redirecting')
       startTimer()
+      startCompanionListening(fallback)
     }
   }
 
@@ -103,71 +111,120 @@ export default function CravingInterceptor({ onClose }) {
     }, 1000)
   }
 
+  // ── Always-on companion listener ──────────────────────────────────────────
+  function startCompanionListening(sparkData) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return
+
+    const rec = new SR()
+    rec.continuous = true
+    rec.interimResults = false
+    rec.lang = 'en-US'
+    companionRecRef.current = rec
+
+    let parts = []
+    rec.onresult = async (e) => {
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) parts.push(e.results[i][0].transcript)
+      }
+      const text = parts.join(' ').trim()
+      if (text.length < 3) return
+      parts = []
+
+      stopCurrentAudio() // interrupt ElevenLabs immediately
+      setCompanionStatus('responding')
+
+      try {
+        const res = await fetch(`${BASE}/api/gemini/companion-response`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userText: text,
+            role: voiceRole,
+            dayCount,
+            sparkTitle: sparkData?.title
+          })
+        })
+        if (res.ok) {
+          const data = await res.json()
+          await playVoiceMessage(data.reply, voiceId)
+        }
+      } catch {}
+
+      setCompanionStatus('listening')
+    }
+
+    rec.onerror = (e) => {
+      if (e.error === 'no-speech') return
+      // Restart on recoverable errors
+      setTimeout(() => rec.start(), 500)
+    }
+
+    rec.onend = () => {
+      // Keep restarting so it's truly always-on during the session
+      if (phase === 'redirecting') setTimeout(() => rec.start(), 300)
+    }
+
+    rec.start()
+    setCompanionStatus('listening')
+  }
+
+  function stopCompanionListening() {
+    try { companionRecRef.current?.stop() } catch {}
+    companionRecRef.current = null
+    setCompanionStatus('idle')
+  }
+
+  // ── Survived ──────────────────────────────────────────────────────────────
   const handleSurvived = useCallback(async (sparkData) => {
+    stopCompanionListening()
     setPhase('survived')
     resolveCraving(true, sparkData?.category)
 
     if (user?.id) {
-      await logCravingEvent(user.id, {
-        survived: true,
-        spark_used: sparkData?.title,
-        hormone_targeted: sparkData?.hormoneTarget,
-        duration_secs: CRAVING_SECONDS
-      })
+      await logCravingEvent(user.id, { survived: true, spark_used: sparkData?.title, hormone_targeted: sparkData?.hormoneTarget, duration_secs: CRAVING_SECONDS })
       if (sparkData?.category) await updateSparkResonance(user.id, sparkData.category, 1)
     }
 
     if (wallet.connected) {
-      try {
-        await mintMilestone(wallet, 'craving_survived', dayCount)
-      } catch (e) {
-        console.warn('Solana:', e.message)
-      }
+      try { await mintMilestone(wallet, 'craving_survived', dayCount) } catch {}
     }
 
     const nextSession = sessionsCompleted + 1
     const isMilestone = nextSession >= 5 && nextSession % 5 === 0
 
-    if (isMilestone && primaryVoiceId) {
+    if (isMilestone && voiceId) {
       try {
-        const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
-        const categories = Object.keys(sparkProfile || {})
         const r = await fetch(`${BASE}/api/gemini/loved-one-message`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dayCount: dayCount + 1, sessionsCompleted: nextSession, sparkCategories: categories })
+          body: JSON.stringify({ dayCount: dayCount + 1, sessionsCompleted: nextSession, sparkCategories: Object.keys(sparkProfile || {}) })
         })
         if (r.ok) {
           const { message } = await r.json()
           if (message) {
             setLovedOneMessage(message)
-            await playVoiceMessage(message, primaryVoiceId)
+            await playVoiceMessage(message, voiceId)
             return
           }
         }
-      } catch (e) {
-        console.warn('Loved one message failed:', e.message)
-      }
+      } catch {}
     }
 
     try {
       await playVoiceMessage(
-        `You did it. Day ${dayCount + 1}. That was real strength — I'm proud of you.`,
-        primaryVoiceId
+        `You did it. Day ${dayCount + 1}. I am so incredibly proud of you — you just proved exactly who you are.`,
+        voiceId
       )
-    } catch (e) {}
-  }, [user, wallet, dayCount, sessionsCompleted, primaryVoiceId, sparkProfile])
+    } catch {}
+  }, [user, wallet, dayCount, sessionsCompleted, voiceId, sparkProfile])
 
   const handleRelapse = () => {
     clearInterval(timerRef.current)
+    stopCompanionListening()
     setPhase('relapsed')
     resolveCraving(false)
     if (user?.id) logCravingEvent(user.id, { survived: false, duration_secs: CRAVING_SECONDS - timeLeft })
-  }
-
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) setPhotoUrl(URL.createObjectURL(file))
   }
 
   const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
@@ -177,7 +234,6 @@ export default function CravingInterceptor({ onClose }) {
   return (
     <div className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center z-50 p-6 overflow-y-auto">
 
-      {/* Loading */}
       {phase === 'loading' && (
         <div className="flex flex-col items-center gap-4 text-center">
           <FlameIcon size={48} className="text-amber-500 animate-pulse" />
@@ -185,7 +241,6 @@ export default function CravingInterceptor({ onClose }) {
         </div>
       )}
 
-      {/* Active timer */}
       {phase === 'redirecting' && spark && (
         <div className="flex flex-col items-center gap-6 max-w-md w-full">
 
@@ -195,13 +250,23 @@ export default function CravingInterceptor({ onClose }) {
               <circle cx="50" cy="50" r="45" fill="none" stroke="#1c1917" strokeWidth="5" />
               <circle cx="50" cy="50" r="45" fill="none" stroke="#f59e0b" strokeWidth="5"
                 strokeDasharray={`${(progress / 100) * circ} ${circ}`}
-                strokeLinecap="round"
-                style={{ transition: 'stroke-dasharray 1s linear' }} />
+                strokeLinecap="round" style={{ transition: 'stroke-dasharray 1s linear' }} />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-white text-3xl font-black font-mono">{fmt(timeLeft)}</span>
               <span className="text-stone-600 text-xs">remaining</span>
             </div>
+          </div>
+
+          {/* Companion status */}
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs transition-all
+            ${companionStatus === 'listening' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' :
+              companionStatus === 'responding' ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' :
+              'bg-stone-900 border border-white/[0.06] text-stone-600'}`}>
+            <MicIcon size={12} className={companionStatus === 'listening' ? 'text-emerald-400' : 'text-stone-600'} />
+            {companionStatus === 'listening'
+              ? `${activeVoice?.label || 'Ember'} is listening — talk to me anytime`
+              : companionStatus === 'responding' ? 'Responding…' : ''}
           </div>
 
           {/* Spark card */}
@@ -220,45 +285,36 @@ export default function CravingInterceptor({ onClose }) {
             {photoUrl ? (
               <div className="relative">
                 <img src={photoUrl} alt="Activity" className="w-full h-40 object-cover rounded-xl" />
-                <button onClick={() => setPhotoUrl(null)}
-                  className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
+                <button onClick={() => setPhotoUrl(null)} className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
               </div>
             ) : (
               <button onClick={() => fileRef.current?.click()}
                 className="w-full border border-white/[0.06] border-dashed rounded-xl py-3 text-stone-600 text-sm hover:border-white/20 hover:text-stone-400 transition-all flex items-center justify-center gap-2">
-                <span>📷</span> Capture a moment from this activity
+                📷 Capture a moment from this activity
               </button>
             )}
-            <input ref={fileRef} type="file" accept="image/*" capture="environment"
-              className="hidden" onChange={handlePhotoUpload} />
+            <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) setPhotoUrl(URL.createObjectURL(f)) }} />
           </div>
 
-          <button onClick={handleRelapse}
-            className="text-stone-600 text-xs underline underline-offset-4 hover:text-stone-400 transition-colors">
+          <button onClick={handleRelapse} className="text-stone-600 text-xs underline underline-offset-4 hover:text-stone-400 transition-colors">
             I need more help
           </button>
         </div>
       )}
 
-      {/* SURVIVED — celebration */}
       {phase === 'survived' && (
         <div className="flex flex-col items-center gap-6 max-w-sm w-full text-center">
-
-          {/* Glow orb */}
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-amber-500 blur-3xl opacity-20 scale-150" />
             <div className="relative w-28 h-28 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
               <FlameIcon size={52} className="text-amber-400" />
             </div>
           </div>
-
           <div>
             <h2 className="text-4xl font-black text-white mb-2">You made it.</h2>
             <p className="text-amber-400 text-xl font-bold">Day {dayCount}</p>
             <p className="text-stone-400 mt-1">The craving had no power over you.</p>
           </div>
-
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-3 w-full">
             {[
               { label: 'Minutes held', value: '7' },
@@ -271,20 +327,15 @@ export default function CravingInterceptor({ onClose }) {
               </div>
             ))}
           </div>
-
-          {/* Photo if taken */}
           {photoUrl && (
-            <div className="w-full">
-              <img src={photoUrl} alt="Activity moment" className="w-full h-44 object-cover rounded-2xl" />
-              <p className="text-stone-500 text-xs mt-2 text-center">Your moment from today's spark</p>
-            </div>
+            <img src={photoUrl} alt="Activity moment" className="w-full h-44 object-cover rounded-2xl" />
           )}
-
-          {/* Loved one message or default */}
           <div className="bg-gradient-to-br from-amber-950/60 to-stone-900 border border-amber-900/30 rounded-2xl p-5 w-full text-left">
             {lovedOneMessage ? (
               <>
-                <p className="text-amber-400 text-xs uppercase tracking-widest font-semibold mb-2">A message from someone who loves you</p>
+                <p className="text-amber-400 text-xs uppercase tracking-widest font-semibold mb-2">
+                  A message from {activeVoice?.label || 'someone who loves you'}
+                </p>
                 <p className="text-stone-200 text-sm leading-relaxed italic">"{lovedOneMessage}"</p>
               </>
             ) : (
@@ -294,14 +345,11 @@ export default function CravingInterceptor({ onClose }) {
               </p>
             )}
           </div>
-
           {wallet.connected && (
             <p className="text-cyan-400 text-xs flex items-center gap-1.5">
-              <CheckIcon size={14} className="text-cyan-400" />
-              Milestone minted on Solana devnet
+              <CheckIcon size={14} className="text-cyan-400" /> Milestone minted on Solana devnet
             </p>
           )}
-
           <button onClick={onClose}
             className="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-black font-black text-lg py-4 rounded-2xl transition-all shadow-lg shadow-amber-500/20">
             Keep the flame alive
@@ -309,7 +357,6 @@ export default function CravingInterceptor({ onClose }) {
         </div>
       )}
 
-      {/* RELAPSED */}
       {phase === 'relapsed' && (
         <div className="flex flex-col items-center gap-6 max-w-sm w-full text-center">
           <div className="w-24 h-24 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center">
@@ -325,8 +372,7 @@ export default function CravingInterceptor({ onClose }) {
               Day 1 starts now — and it counts just as much as any other day.
             </p>
           </div>
-          <button onClick={onClose}
-            className="w-full bg-stone-800 hover:bg-stone-700 text-white font-bold py-4 rounded-2xl transition-all">
+          <button onClick={onClose} className="w-full bg-stone-800 hover:bg-stone-700 text-white font-bold py-4 rounded-2xl transition-all">
             Start again — I'm still here
           </button>
         </div>
