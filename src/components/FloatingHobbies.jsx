@@ -21,8 +21,7 @@ const HOBBY_ELEMENTS = {
 
 const DEFAULTS = ['🌿', '⭐', '🍃', '✨', '🌸', '🦋', '☀️', '🌊', '🍀', '🌺']
 
-// Speeds: slow=0.3-0.7, medium=0.8-1.3, fast=1.4-2.2
-const SPEED_TIERS = [0.35, 0.5, 0.65, 0.9, 1.1, 1.3, 1.6, 1.9, 2.1]
+const UNIFORM_SPEED = 0.45
 
 export default function FloatingHobbies({ interests = [] }) {
   const containerRef = useRef(null)
@@ -43,7 +42,7 @@ export default function FloatingHobbies({ interests = [] }) {
       const isText = !elem.match(/\p{Emoji}/u)
       const sizeStep = Math.floor(Math.random() * 5)
       const size = isText ? 36 + sizeStep * 10 : 44 + sizeStep * 10  // 36-76px text, 44-84px emoji
-      const speed = SPEED_TIERS[Math.floor(Math.random() * SPEED_TIERS.length)]
+      const speed = UNIFORM_SPEED
       const angle = Math.random() * Math.PI * 2
       return {
         elem, isText, size, speed,
