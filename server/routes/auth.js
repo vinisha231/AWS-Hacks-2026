@@ -14,7 +14,11 @@ function toEmail(username) {
 }
 
 function extractMsg(data) {
-  const v = data?.error_description || data?.description || data?.message || data?.error || 'Unknown error'
+  // Auth0 password policy error has a human-readable `policy` field
+  if (data?.code === 'invalid_password' || data?.name === 'PasswordStrengthError') {
+    return 'Password needs: 8+ characters, uppercase letter, and a special character (e.g. TestPass123!)'
+  }
+  const v = data?.error_description || data?.message || data?.error || 'Unknown error'
   return typeof v === 'string' ? v : JSON.stringify(v)
 }
 

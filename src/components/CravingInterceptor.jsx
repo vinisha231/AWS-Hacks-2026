@@ -75,7 +75,9 @@ export default function CravingInterceptor({ onClose }) {
       addUsedActivity(sparkData.title)
 
       try {
+        // Read the opening line then the full instruction
         await playVoiceMessage(sparkData.openingLine, primaryVoiceId)
+        await playVoiceMessage(sparkData.instruction, primaryVoiceId)
       } catch (e) {
         console.warn('Voice failed:', e.message)
       }
