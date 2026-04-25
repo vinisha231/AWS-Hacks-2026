@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useEmberStore } from '../store/emberStore'
 import { useEmberAuth } from '../hooks/useEmberAuth'
 import Layout from '../components/Layout'
@@ -11,25 +11,24 @@ import RecentActivity from '../components/RecentActivity'
 import DailyCheckin from '../components/DailyCheckin'
 import FloatingHobbies from '../components/FloatingHobbies'
 import ProfileSetupModal from '../components/ProfileSetupModal'
+import RelapseModal from '../components/RelapseModal'
 import CalmPage from './CalmPage'
 
 export default function Home() {
   const [phase, setPhase] = useState('idle') // idle | calm | voice | craving
-  const { dayCount, activateCraving, setLastMoodAnalysis, profileSetupDone, userInterests } = useEmberStore()
+  const [showRelapse, setShowRelapse] = useState(false)
+
+  const { dayCount, activateCraving, setLastMoodAnalysis,
+    profileSetupDone, userInterests, recordLogin } = useEmberStore()
+
   useEmberAuth()
 
-  const handleCravingButton = () => {
-    activateCraving()
-    setPhase('calm')
-  }
+  // Mark today as a login day on mount
+  useEffect(() => { recordLogin() }, [])
 
+  const handleCravingButton = () => { activateCraving(); setPhase('calm') }
   const handleCalmContinue = () => setPhase('voice')
-
-  const handleVoiceComplete = (moodAnalysis) => {
-    setLastMoodAnalysis(moodAnalysis)
-    setPhase('craving')
-  }
-
+  const handleVoiceComplete = (moodAnalysis) => { setLastMoodAnalysis(moodAnalysis); setPhase('craving') }
   const handleVoiceSkip = () => setPhase('craving')
   const handleClose = () => setPhase('idle')
 
@@ -40,25 +39,22 @@ export default function Home() {
       <Layout>
         <div className="flex flex-col gap-6">
 
-          {/* Hero card — notebook paper look with floating hobbies */}
+          {/* Hero card — notebook paper with floating hobby elements */}
           <div className="relative rounded-3xl overflow-hidden border border-stone-200 shadow-sm"
-            style={{ background: '#fffef9', minHeight: '280px' }}>
+            style={{ background: '#fffef9', minHeight: '300px' }}>
 
             <FloatingHobbies interests={userInterests} />
 
             <div className="relative z-10 p-8 md:p-10 flex flex-col items-start">
-
               <p className="text-xs uppercase tracking-[0.18em] text-stone-400 font-semibold mb-2">
                 Current streak
               </p>
-
               <div className="flex items-end gap-3 mb-3">
                 <span className="text-7xl md:text-8xl font-black text-amber-500 leading-none tabular-nums drop-shadow-sm">
                   {dayCount}
                 </span>
                 <span className="text-stone-400 text-xl mb-2">{dayCount === 1 ? 'day' : 'days'}</span>
               </div>
-
               <p className="text-stone-500 text-sm mb-8 max-w-xs leading-relaxed">
                 {dayCount === 0 && "Every ember starts with a single spark. You've got this."}
                 {dayCount >= 1 && dayCount < 7 && `${7 - dayCount} more days to your first week. Keep going.`}
@@ -66,10 +62,10 @@ export default function Home() {
                 {dayCount >= 30 && `Day ${dayCount}. You're in territory most people never reach.`}
               </p>
 
-              {/* THE BIG RED BUTTON */}
+              {/* THE BIG RED CRAVING BUTTON */}
               <button
                 onClick={handleCravingButton}
-                className="animate-pulse-ring relative group flex items-center gap-3 text-white font-black text-lg px-8 py-5 rounded-2xl transition-all active:scale-[0.97] shadow-xl"
+                className="animate-pulse-ring relative flex items-center gap-3 text-white font-black text-lg px-8 py-5 rounded-2xl transition-all active:scale-[0.97] shadow-xl mb-3"
                 style={{
                   background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                   boxShadow: '0 8px 32px rgba(239,68,68,0.4), 0 2px 8px rgba(239,68,68,0.3)'
@@ -77,15 +73,22 @@ export default function Home() {
                 <span className="text-2xl">🆘</span>
                 I'm craving right now
               </button>
-              <p className="text-stone-400 text-xs mt-3 ml-1">Press this the moment you feel the urge</p>
+              <p className="text-stone-400 text-xs mb-4 ml-1">Press this the moment you feel the urge</p>
+
+              {/* I relapsed — secondary, understated */}
+              <button
+                onClick={() => setShowRelapse(true)}
+                className="text-stone-400 hover:text-stone-600 text-sm underline underline-offset-4 transition-colors ml-1">
+                I relapsed
+              </button>
             </div>
           </div>
 
-          {/* Quick stats — light notebook cards */}
+          {/* Quick stats */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Day streak',  value: dayCount,         color: 'text-amber-500' },
-              { label: 'Days clean',  value: dayCount,         color: 'text-emerald-600' },
+              { label: 'Day streak',  value: dayCount,  color: 'text-amber-500' },
+              { label: 'Days clean',  value: dayCount,  color: 'text-emerald-600' },
               { label: 'Milestone',   value: dayCount >= 30 ? '💎' : dayCount >= 7 ? '⚡' : dayCount >= 1 ? '🌱' : '—', color: 'text-stone-800' },
             ].map(({ label, value, color }) => (
               <div key={label} className="bg-white border border-stone-200 rounded-2xl p-4 text-center shadow-sm">
@@ -107,11 +110,10 @@ export default function Home() {
         </div>
       </Layout>
 
-      {phase === 'calm' && <CalmPage onContinue={handleCalmContinue} />}
-      {phase === 'voice' && (
-        <VoiceCheckin onComplete={handleVoiceComplete} onSkip={handleVoiceSkip} />
-      )}
+      {phase === 'calm'    && <CalmPage onContinue={handleCalmContinue} />}
+      {phase === 'voice'   && <VoiceCheckin onComplete={handleVoiceComplete} onSkip={handleVoiceSkip} />}
       {phase === 'craving' && <CravingInterceptor onClose={handleClose} />}
+      {showRelapse         && <RelapseModal onClose={() => setShowRelapse(false)} />}
     </>
   )
 }

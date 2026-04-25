@@ -6,6 +6,7 @@ import { mintMilestone } from '../services/solana'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { logCravingEvent, updateSparkResonance } from '../lib/supabase'
 import { TimerIcon, CheckIcon, SeedIcon, FlameIcon, MicIcon } from './Icons'
+import RelapseModal from './RelapseModal'
 
 const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
 const CRAVING_SECONDS = 420
@@ -37,12 +38,14 @@ export default function CravingInterceptor({ onClose }) {
   const [timeLeft, setTimeLeft] = useState(CRAVING_SECONDS)
   const [photoUrl, setPhotoUrl] = useState(null)
   const [lovedOneMessage, setLovedOneMessage] = useState('')
-  const [companionStatus, setCompanionStatus] = useState('idle') // idle | listening | responding
+  const [companionStatus, setCompanionStatus] = useState('idle')
+  const [showRelapse, setShowRelapse] = useState(false)
 
   const timerRef = useRef(null)
   const sparkRef = useRef(null)
   const fileRef = useRef(null)
   const companionRecRef = useRef(null)
+  const phaseRef = useRef('loading')
 
   const { user, sparkProfile, flaggedTriggers, usedActivitiesToday,
     activeVoice, primaryVoiceId, resolveCraving, addUsedActivity,
@@ -50,16 +53,32 @@ export default function CravingInterceptor({ onClose }) {
 
   const voiceId = activeVoice?.voiceId || primaryVoiceId
   const voiceRole = activeVoice?.role || 'loved one'
-
   const wallet = useWallet()
+
+  // Keep phaseRef in sync so onend callback can read it
+  useEffect(() => { phaseRef.current = phase }, [phase])
 
   useEffect(() => {
     init()
     return () => {
       clearInterval(timerRef.current)
-      stopCompanionListening()
+      stopSession()
     }
   }, [])
+
+  function stopSession() {
+    clearInterval(timerRef.current)
+    stopCurrentAudio()
+    try { companionRecRef.current?.stop() } catch {}
+    companionRecRef.current = null
+    setCompanionStatus('idle')
+  }
+
+  // Close WITHOUT saving — streak unchanged
+  const handleClose = () => {
+    stopSession()
+    onClose()
+  }
 
   async function init() {
     try {
@@ -92,7 +111,7 @@ export default function CravingInterceptor({ onClose }) {
 
       startTimer()
       startCompanionListening(sparkData)
-    } catch (err) {
+    } catch {
       const fallback = FALLBACK_SPARKS[0]
       sparkRef.current = fallback
       setSpark(fallback)
@@ -105,13 +124,17 @@ export default function CravingInterceptor({ onClose }) {
   function startTimer() {
     timerRef.current = setInterval(() => {
       setTimeLeft(t => {
-        if (t <= 1) { clearInterval(timerRef.current); handleSurvived(sparkRef.current); return 0 }
+        if (t <= 1) {
+          clearInterval(timerRef.current)
+          handleSurvived(sparkRef.current)
+          return 0
+        }
         return t - 1
       })
     }, 1000)
   }
 
-  // ── Always-on companion listener ──────────────────────────────────────────
+  // ── Always-on companion listener — ONLY active during session ─────────────
   function startCompanionListening(sparkData) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SR) return
@@ -131,19 +154,14 @@ export default function CravingInterceptor({ onClose }) {
       if (text.length < 3) return
       parts = []
 
-      stopCurrentAudio() // interrupt ElevenLabs immediately
+      stopCurrentAudio()
       setCompanionStatus('responding')
 
       try {
         const res = await fetch(`${BASE}/api/gemini/companion-response`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userText: text,
-            role: voiceRole,
-            dayCount,
-            sparkTitle: sparkData?.title
-          })
+          body: JSON.stringify({ userText: text, role: voiceRole, dayCount, sparkTitle: sparkData?.title })
         })
         if (res.ok) {
           const data = await res.json()
@@ -156,28 +174,24 @@ export default function CravingInterceptor({ onClose }) {
 
     rec.onerror = (e) => {
       if (e.error === 'no-speech') return
-      // Restart on recoverable errors
-      setTimeout(() => rec.start(), 500)
+      setTimeout(() => {
+        if (phaseRef.current === 'redirecting') { try { rec.start() } catch {} }
+      }, 500)
     }
 
     rec.onend = () => {
-      // Keep restarting so it's truly always-on during the session
-      if (phase === 'redirecting') setTimeout(() => rec.start(), 300)
+      if (phaseRef.current === 'redirecting') {
+        setTimeout(() => { try { rec.start() } catch {} }, 300)
+      }
     }
 
     rec.start()
     setCompanionStatus('listening')
   }
 
-  function stopCompanionListening() {
-    try { companionRecRef.current?.stop() } catch {}
-    companionRecRef.current = null
-    setCompanionStatus('idle')
-  }
-
   // ── Survived ──────────────────────────────────────────────────────────────
   const handleSurvived = useCallback(async (sparkData) => {
-    stopCompanionListening()
+    stopSession()
     setPhase('survived')
     resolveCraving(true, sparkData?.category)
 
@@ -202,11 +216,7 @@ export default function CravingInterceptor({ onClose }) {
         })
         if (r.ok) {
           const { message } = await r.json()
-          if (message) {
-            setLovedOneMessage(message)
-            await playVoiceMessage(message, voiceId)
-            return
-          }
+          if (message) { setLovedOneMessage(message); await playVoiceMessage(message, voiceId); return }
         }
       } catch {}
     }
@@ -219,164 +229,153 @@ export default function CravingInterceptor({ onClose }) {
     } catch {}
   }, [user, wallet, dayCount, sessionsCompleted, voiceId, sparkProfile])
 
-  const handleRelapse = () => {
-    clearInterval(timerRef.current)
-    stopCompanionListening()
-    setPhase('relapsed')
-    resolveCraving(false)
-    if (user?.id) logCravingEvent(user.id, { survived: false, duration_secs: CRAVING_SECONDS - timeLeft })
-  }
-
   const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
   const progress = ((CRAVING_SECONDS - timeLeft) / CRAVING_SECONDS) * 100
   const circ = 2 * Math.PI * 45
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center z-50 p-6 overflow-y-auto">
+    <>
+      <div className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center z-50 p-6 overflow-y-auto">
 
-      {phase === 'loading' && (
-        <div className="flex flex-col items-center gap-4 text-center">
-          <FlameIcon size={48} className="text-amber-500 animate-pulse" />
-          <p className="text-stone-400">Finding your spark…</p>
-        </div>
-      )}
-
-      {phase === 'redirecting' && spark && (
-        <div className="flex flex-col items-center gap-6 max-w-md w-full">
-
-          {/* Timer ring */}
-          <div className="relative w-40 h-40 shrink-0">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#1c1917" strokeWidth="5" />
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#f59e0b" strokeWidth="5"
-                strokeDasharray={`${(progress / 100) * circ} ${circ}`}
-                strokeLinecap="round" style={{ transition: 'stroke-dasharray 1s linear' }} />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-white text-3xl font-black font-mono">{fmt(timeLeft)}</span>
-              <span className="text-stone-600 text-xs">remaining</span>
-            </div>
-          </div>
-
-          {/* Companion status */}
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs transition-all
-            ${companionStatus === 'listening' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' :
-              companionStatus === 'responding' ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' :
-              'bg-stone-900 border border-white/[0.06] text-stone-600'}`}>
-            <MicIcon size={12} className={companionStatus === 'listening' ? 'text-emerald-400' : 'text-stone-600'} />
-            {companionStatus === 'listening'
-              ? `${activeVoice?.label || 'Ember'} is listening — talk to me anytime`
-              : companionStatus === 'responding' ? 'Responding…' : ''}
-          </div>
-
-          {/* Spark card */}
-          <div className="bg-stone-900 border border-white/[0.06] rounded-2xl p-6 w-full">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs text-amber-500 uppercase tracking-widest font-semibold">{spark.category}</span>
-              <span className="text-stone-700">·</span>
-              <span className="text-xs text-stone-500 capitalize">{spark.hormoneTarget}</span>
-            </div>
-            <h2 className="text-white text-2xl font-bold mb-3">{spark.title}</h2>
-            <p className="text-stone-300 leading-relaxed text-sm">{spark.instruction}</p>
-          </div>
-
-          {/* Photo capture */}
-          <div className="w-full">
-            {photoUrl ? (
-              <div className="relative">
-                <img src={photoUrl} alt="Activity" className="w-full h-40 object-cover rounded-xl" />
-                <button onClick={() => setPhotoUrl(null)} className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
-              </div>
-            ) : (
-              <button onClick={() => fileRef.current?.click()}
-                className="w-full border border-white/[0.06] border-dashed rounded-xl py-3 text-stone-600 text-sm hover:border-white/20 hover:text-stone-400 transition-all flex items-center justify-center gap-2">
-                📷 Capture a moment from this activity
-              </button>
-            )}
-            <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) setPhotoUrl(URL.createObjectURL(f)) }} />
-          </div>
-
-          <button onClick={handleRelapse} className="text-stone-600 text-xs underline underline-offset-4 hover:text-stone-400 transition-colors">
-            I need more help
+        {/* Always-visible close button — no session saved */}
+        {phase !== 'survived' && (
+          <button
+            onClick={handleClose}
+            className="fixed top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-stone-800/80 hover:bg-stone-700 text-stone-400 hover:text-white text-xl transition-all backdrop-blur-sm border border-white/[0.06]"
+            title="Close (session won't be saved)">
+            ×
           </button>
-        </div>
-      )}
+        )}
 
-      {phase === 'survived' && (
-        <div className="flex flex-col items-center gap-6 max-w-sm w-full text-center">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-amber-500 blur-3xl opacity-20 scale-150" />
-            <div className="relative w-28 h-28 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-              <FlameIcon size={52} className="text-amber-400" />
-            </div>
+        {phase === 'loading' && (
+          <div className="flex flex-col items-center gap-4 text-center">
+            <FlameIcon size={48} className="text-amber-500 animate-pulse" />
+            <p className="text-stone-400">Finding your spark…</p>
           </div>
-          <div>
-            <h2 className="text-4xl font-black text-white mb-2">You made it.</h2>
-            <p className="text-amber-400 text-xl font-bold">Day {dayCount}</p>
-            <p className="text-stone-400 mt-1">The craving had no power over you.</p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 w-full">
-            {[
-              { label: 'Minutes held', value: '7' },
-              { label: 'Day streak',   value: dayCount },
-              { label: 'On-chain',     value: wallet.connected ? '✓' : '—' },
-            ].map(({ label, value }) => (
-              <div key={label} className="bg-stone-900 border border-white/[0.06] rounded-xl p-3 text-center">
-                <p className="text-white font-bold text-xl">{value}</p>
-                <p className="text-stone-500 text-xs mt-0.5">{label}</p>
+        )}
+
+        {phase === 'redirecting' && spark && (
+          <div className="flex flex-col items-center gap-6 max-w-md w-full pt-8">
+
+            {/* Timer ring */}
+            <div className="relative w-40 h-40 shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1c1917" strokeWidth="5" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#f59e0b" strokeWidth="5"
+                  strokeDasharray={`${(progress / 100) * circ} ${circ}`}
+                  strokeLinecap="round" style={{ transition: 'stroke-dasharray 1s linear' }} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-white text-3xl font-black font-mono">{fmt(timeLeft)}</span>
+                <span className="text-stone-600 text-xs">remaining</span>
               </div>
-            ))}
+            </div>
+
+            {/* Companion status */}
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs transition-all
+              ${companionStatus === 'listening' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' :
+                companionStatus === 'responding' ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' :
+                'bg-stone-900 border border-white/[0.06] text-stone-600'}`}>
+              <MicIcon size={12} className={companionStatus === 'listening' ? 'text-emerald-400' : 'text-stone-600'} />
+              {companionStatus === 'listening'
+                ? `${activeVoice?.label || 'Ember'} is listening — talk to me anytime`
+                : companionStatus === 'responding' ? 'Responding…' : ''}
+            </div>
+
+            {/* Spark card */}
+            <div className="bg-stone-900 border border-white/[0.06] rounded-2xl p-6 w-full">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs text-amber-500 uppercase tracking-widest font-semibold">{spark.category}</span>
+                <span className="text-stone-700">·</span>
+                <span className="text-xs text-stone-500 capitalize">{spark.hormoneTarget}</span>
+              </div>
+              <h2 className="text-white text-2xl font-bold mb-3">{spark.title}</h2>
+              <p className="text-stone-300 leading-relaxed text-sm">{spark.instruction}</p>
+            </div>
+
+            {/* Photo capture */}
+            <div className="w-full">
+              {photoUrl ? (
+                <div className="relative">
+                  <img src={photoUrl} alt="Activity" className="w-full h-40 object-cover rounded-xl" />
+                  <button onClick={() => setPhotoUrl(null)} className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
+                </div>
+              ) : (
+                <button onClick={() => fileRef.current?.click()}
+                  className="w-full border border-white/[0.06] border-dashed rounded-xl py-3 text-stone-600 text-sm hover:border-white/20 hover:text-stone-400 transition-all flex items-center justify-center gap-2">
+                  📷 Capture a moment from this activity
+                </button>
+              )}
+              <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden"
+                onChange={e => { const f = e.target.files[0]; if (f) setPhotoUrl(URL.createObjectURL(f)) }} />
+            </div>
+
+            {/* I relapsed button */}
+            <button
+              onClick={() => { stopSession(); setShowRelapse(true) }}
+              className="w-full border border-red-900/40 text-red-400 hover:bg-red-950/20 text-sm font-medium py-3 rounded-2xl transition-all">
+              I relapsed
+            </button>
           </div>
-          {photoUrl && (
-            <img src={photoUrl} alt="Activity moment" className="w-full h-44 object-cover rounded-2xl" />
-          )}
-          <div className="bg-gradient-to-br from-amber-950/60 to-stone-900 border border-amber-900/30 rounded-2xl p-5 w-full text-left">
-            {lovedOneMessage ? (
-              <>
-                <p className="text-amber-400 text-xs uppercase tracking-widest font-semibold mb-2">
-                  A message from {activeVoice?.label || 'someone who loves you'}
+        )}
+
+        {phase === 'survived' && (
+          <div className="flex flex-col items-center gap-6 max-w-sm w-full text-center">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-amber-500 blur-3xl opacity-20 scale-150" />
+              <div className="relative w-28 h-28 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                <FlameIcon size={52} className="text-amber-400" />
+              </div>
+            </div>
+            <div>
+              <h2 className="text-4xl font-black text-white mb-2">You made it.</h2>
+              <p className="text-amber-400 text-xl font-bold">Day {dayCount}</p>
+              <p className="text-stone-400 mt-1">The craving had no power over you.</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 w-full">
+              {[
+                { label: 'Minutes held', value: '7' },
+                { label: 'Day streak',   value: dayCount },
+                { label: 'On-chain',     value: wallet.connected ? '✓' : '—' },
+              ].map(({ label, value }) => (
+                <div key={label} className="bg-stone-900 border border-white/[0.06] rounded-xl p-3 text-center">
+                  <p className="text-white font-bold text-xl">{value}</p>
+                  <p className="text-stone-500 text-xs mt-0.5">{label}</p>
+                </div>
+              ))}
+            </div>
+            {photoUrl && <img src={photoUrl} alt="Activity moment" className="w-full h-44 object-cover rounded-2xl" />}
+            <div className="bg-gradient-to-br from-amber-950/60 to-stone-900 border border-amber-900/30 rounded-2xl p-5 w-full text-left">
+              {lovedOneMessage ? (
+                <>
+                  <p className="text-amber-400 text-xs uppercase tracking-widest font-semibold mb-2">
+                    A message from {activeVoice?.label || 'someone who loves you'}
+                  </p>
+                  <p className="text-stone-200 text-sm leading-relaxed italic">"{lovedOneMessage}"</p>
+                </>
+              ) : (
+                <p className="text-stone-300 text-sm leading-relaxed">
+                  Every time you do this — every single time — you're rewiring your brain.
+                  You're not just surviving a craving. You're becoming someone who does.
                 </p>
-                <p className="text-stone-200 text-sm leading-relaxed italic">"{lovedOneMessage}"</p>
-              </>
-            ) : (
-              <p className="text-stone-300 text-sm leading-relaxed">
-                Every time you do this — every single time — you're rewiring your brain.
-                You're not just surviving a craving. You're becoming someone who does.
+              )}
+            </div>
+            {wallet.connected && (
+              <p className="text-cyan-400 text-xs flex items-center gap-1.5">
+                <CheckIcon size={14} className="text-cyan-400" /> Milestone minted on Solana devnet
               </p>
             )}
+            <button onClick={onClose}
+              className="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-black font-black text-lg py-4 rounded-2xl transition-all shadow-lg shadow-amber-500/20">
+              Keep the flame alive
+            </button>
           </div>
-          {wallet.connected && (
-            <p className="text-cyan-400 text-xs flex items-center gap-1.5">
-              <CheckIcon size={14} className="text-cyan-400" /> Milestone minted on Solana devnet
-            </p>
-          )}
-          <button onClick={onClose}
-            className="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-black font-black text-lg py-4 rounded-2xl transition-all shadow-lg shadow-amber-500/20">
-            Keep the flame alive
-          </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {phase === 'relapsed' && (
-        <div className="flex flex-col items-center gap-6 max-w-sm w-full text-center">
-          <div className="w-24 h-24 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center">
-            <SeedIcon size={44} className="text-emerald-400" />
-          </div>
-          <div>
-            <h2 className="text-3xl font-black text-white mb-2">It's okay.</h2>
-            <p className="text-stone-400">Relapses are part of recovery, not the end of it.</p>
-          </div>
-          <div className="bg-stone-900 border border-white/[0.06] rounded-2xl p-5 w-full text-left">
-            <p className="text-stone-300 text-sm leading-relaxed">
-              Every person who made it through came back after moments like this.
-              Day 1 starts now — and it counts just as much as any other day.
-            </p>
-          </div>
-          <button onClick={onClose} className="w-full bg-stone-800 hover:bg-stone-700 text-white font-bold py-4 rounded-2xl transition-all">
-            Start again — I'm still here
-          </button>
-        </div>
+      {showRelapse && (
+        <RelapseModal onClose={() => { setShowRelapse(false); onClose() }} />
       )}
-    </div>
+    </>
   )
 }

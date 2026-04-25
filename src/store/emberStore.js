@@ -21,6 +21,7 @@ export const useEmberStore = create(
       userInterests: [],       // from profile setup
       userAddictions: [],      // from profile setup
       profileSetupDone: false,
+      loginDays: [],           // ['2026-04-25', ...] days user opened the app
       // Voice system
       voices: [],           // [{ id, label, voiceId, role, isClone }]
       activeVoice: null,    // the currently selected voice object
@@ -35,6 +36,14 @@ export const useEmberStore = create(
       setUserInterests: (interests) => set({ userInterests: interests }),
       setUserAddictions: (addictions) => set({ userAddictions: addictions }),
       completeProfileSetup: (interests, addictions) => set({ userInterests: interests, userAddictions: addictions, profileSetupDone: true }),
+
+      recordLogin: () => set(state => {
+        const today = new Date().toISOString().split('T')[0]
+        if (state.loginDays.includes(today)) return {}
+        return { loginDays: [...state.loginDays, today] }
+      }),
+
+      recordRelapse: () => set({ dayCount: 0, cravingActive: false, cravingStartTime: null }),
       setVoiceId: (id) => set({ primaryVoiceId: id }),
       setWallet: (addr) => set({ walletAddress: addr }),
       setSparkProfile: (profile) => set({ sparkProfile: profile }),

@@ -1,52 +1,86 @@
 import { useMemo } from 'react'
 
-const INTEREST_EMOJI = {
-  'Drawing': '✏️',      'Music': '🎵',        'Cooking': '🍳',
-  'Gardening': '🌱',    'Photography': '📷',  'Writing': '✍️',
-  'Puzzles': '🧩',      'Coding': '💻',       'Astronomy': '🔭',
-  'Chess': '♟️',        'Languages': '🌍',    'Magic tricks': '🪄',
-  'Origami': '🦢',      'Hiking': '🥾',       'Reading': '📚',
-  'Poetry': '📜',       'Philosophy': '🧠',   'History': '🏛️',
+const HOBBY_ELEMENTS = {
+  'Chess':        ['♔', '♕', '♖', '♗', '♘', '♙', '♚', '♛'],
+  'Music':        ['♩', '♪', '♫', '♬', '🎸', '🎹', '🎺', '🥁'],
+  'Drawing':      ['✏️', '🖍️', '🖌️', '🎨', '✒️', '🖊️'],
+  'Gardening':    ['🌱', '🌸', '🌺', '🍀', '🌻', '🌿', '🌾', '🪴'],
+  'Photography':  ['📷', '📸', '🔍', '🖼️', '🎞️'],
+  'Writing':      ['✍️', '📝', '📖', '🖊️', '📜', '🗒️'],
+  'Puzzles':      ['🧩', '🔷', '🔹', '◈', '⬡', '🔵'],
+  'Coding':       ['💻', '⌨️', '{ }', '</>', '⚙️', '🖥️'],
+  'Astronomy':    ['⭐', '🌙', '🔭', '✨', '🪐', '☄️', '🌟', '💫'],
+  'Hiking':       ['🥾', '🏔️', '🌲', '🦅', '🗺️', '⛺', '🧭'],
+  'Reading':      ['📚', '📖', '📕', '📗', '📘', '🔖', '📙'],
+  'Poetry':       ['📜', '✍️', '🖋️', '💭', '🌙', '🕯️'],
+  'Cooking':      ['🍳', '🥄', '🫙', '🔪', '🍽️', '🧂', '🫕'],
+  'Origami':      ['🦢', '🦋', '🦉', '🐢', '🦅', '🌸'],
+  'Languages':    ['🌍', '🗣️', '✈️', '🗺️', '📖', '🌐'],
+  'Magic tricks': ['🪄', '🎩', '🐇', '✨', '⭐', '🌟', '🔮'],
 }
 
-const DEFAULTS = ['🌿', '⭐', '🍃', '✨', '🌸', '🦋']
+const DEFAULTS = ['🌿', '⭐', '🍃', '✨', '🌸', '🦋', '☀️', '🌊']
+
+function seededRandom(seed) {
+  let s = seed
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0xffffffff
+    return (s >>> 0) / 0xffffffff
+  }
+}
 
 export default function FloatingHobbies({ interests = [] }) {
   const items = useMemo(() => {
-    const emojis = interests.length > 0
-      ? interests.map(i => INTEREST_EMOJI[i] || '✨').slice(0, 12)
-      : DEFAULTS
+    const rand = seededRandom(interests.length * 7 + 13)
 
-    // Spread across the canvas with fixed positions and unique timings
-    const positions = [
-      { left: '8%',  top: '12%' }, { left: '22%', top: '65%' },
-      { left: '38%', top: '20%' }, { left: '55%', top: '78%' },
-      { left: '68%', top: '15%' }, { left: '80%', top: '55%' },
-      { left: '15%', top: '40%' }, { left: '45%', top: '50%' },
-      { left: '72%', top: '35%' }, { left: '90%', top: '75%' },
-      { left: '32%', top: '85%' }, { left: '88%', top: '25%' },
-    ]
+    // Build pool: for each interest, grab 3-4 elements
+    const pool = []
+    if (interests.length > 0) {
+      interests.forEach(interest => {
+        const elems = HOBBY_ELEMENTS[interest] || ['✨']
+        // Take up to 4 from each hobby
+        const take = Math.min(4, elems.length)
+        for (let i = 0; i < take; i++) pool.push(elems[i])
+      })
+    } else {
+      pool.push(...DEFAULTS)
+    }
 
-    return emojis.map((emoji, i) => ({
-      emoji,
-      style: {
-        left: positions[i % positions.length].left,
-        top:  positions[i % positions.length].top,
-        animationDuration: `${7 + (i * 1.3) % 6}s`,
-        animationDelay: `${(i * 0.9) % 4}s`,
-        fontSize: `${20 + (i % 3) * 8}px`,
+    // Generate 16 floating items spread across the canvas
+    return Array.from({ length: 16 }, (_, i) => {
+      const elem = pool[i % pool.length]
+      const r = rand()
+      const r2 = rand()
+      const r3 = rand()
+      const r4 = rand()
+      const isText = !elem.match(/\p{Emoji}/u) // chess pieces etc are text chars
+      return {
+        elem,
+        isText,
+        style: {
+          left: `${4 + r * 88}%`,
+          top: `${5 + r2 * 85}%`,
+          animationDuration: `${7 + r3 * 8}s`,
+          animationDelay: `${r4 * 5}s`,
+          fontSize: isText
+            ? `${16 + Math.floor(r * 3) * 6}px`   // chess: 16/22/28px
+            : `${14 + Math.floor(r * 4) * 5}px`,  // emoji: 14/19/24/29px
+          opacity: 0.18,
+          fontFamily: isText ? 'serif' : undefined,
+          color: isText ? '#78716c' : undefined,
+        }
       }
-    }))
+    })
   }, [interests])
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden>
-      {items.map(({ emoji, style }, i) => (
+      {items.map(({ elem, style }, i) => (
         <span
           key={i}
           className={i % 2 === 0 ? 'float-hobby' : 'float-hobby-alt'}
           style={{ position: 'absolute', ...style }}>
-          {emoji}
+          {elem}
         </span>
       ))}
     </div>

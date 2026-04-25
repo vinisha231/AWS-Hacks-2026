@@ -25,7 +25,7 @@ router.post('/speak', async (req, res) => {
         body: JSON.stringify({
           text,
           model_id: 'eleven_multilingual_v2',
-          voice_settings: { stability: 0.35, similarity_boost: 0.90, style: 0.65, use_speaker_boost: true }
+          voice_settings: { stability: 0.35, similarity_boost: 0.90, style: 0.65, use_speaker_boost: true, speed: 1.15 }
         })
       }
     )

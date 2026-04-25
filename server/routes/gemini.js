@@ -165,4 +165,31 @@ Return ONLY valid JSON:
   }
 })
 
+router.post('/relapse-reflect', async (req, res) => {
+  const { userReflection, flaggedTriggers, dayCount } = req.body
+  const prompt = `You are Ember, a compassionate addiction recovery companion. Someone just relapsed after ${dayCount} days clean.
+They shared this reflection about what happened: "${userReflection}"
+Topics to avoid: ${JSON.stringify(flaggedTriggers || [])}
+
+Respond with:
+1. Warm, non-judgmental acknowledgment of what they shared (1-2 sentences — name the specific trigger if they mentioned one)
+2. A concrete, personalized suggestion for how to handle that specific trigger differently next time (2-3 sentences)
+3. A brief, powerful closing that reminds them Day 1 starts NOW and that counts (1 sentence)
+
+Keep the whole response under 6 sentences. Warm, human, spoken-aloud tone.
+
+Return ONLY valid JSON:
+{
+  "response": "<your spoken response>",
+  "triggerIdentified": "<the main trigger they described, or 'unspecified'>",
+  "strategies": ["<strategy 1>", "<strategy 2>", "<strategy 3>"]
+}`
+  try {
+    res.json(await callGemini(prompt))
+  } catch (err) {
+    console.error('relapse-reflect error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 export default router

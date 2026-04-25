@@ -20,11 +20,14 @@ export default function PeerConnect() {
   const [endReason, setEndReason] = useState('')
   const [modWarning, setModWarning] = useState('')
   const [isRecording, setIsRecording] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)   // speech-to-text active
 
   const socketRef = useRef(null)
   const messagesEndRef = useRef(null)
   const mediaRef = useRef(null)
   const mySocketId = useRef(null)
+  const holdTimerRef = useRef(null)
+  const speechRecRef = useRef(null)
 
   useEffect(() => {
     const sock = getSocket()
@@ -111,6 +114,44 @@ export default function PeerConnect() {
     if (roomId) socketRef.current?.emit('peer:end', { roomId })
     setPhase(PHASE.ENDED)
     setEndReason('You ended the session.')
+  }
+
+  // Tap = speech-to-text; hold 350ms = voice message
+  const micDown = () => {
+    holdTimerRef.current = setTimeout(() => {
+      holdTimerRef.current = null
+      startVoice()
+    }, 350)
+  }
+
+  const micUp = () => {
+    if (holdTimerRef.current) {
+      // Was a tap — do speech-to-text
+      clearTimeout(holdTimerRef.current)
+      holdTimerRef.current = null
+      startSpeechToText()
+    } else {
+      // Was a hold — stop voice recording
+      stopVoice()
+    }
+  }
+
+  const startSpeechToText = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return
+    const rec = new SR()
+    rec.continuous = false
+    rec.interimResults = false
+    rec.lang = 'en-US'
+    speechRecRef.current = rec
+    rec.onresult = e => {
+      const text = e.results[0]?.[0]?.transcript || ''
+      setInput(p => p ? p + ' ' + text : text)
+    }
+    rec.onend = () => setIsSpeaking(false)
+    rec.onerror = () => setIsSpeaking(false)
+    rec.start()
+    setIsSpeaking(true)
   }
 
   const startVoice = async () => {
@@ -274,18 +315,19 @@ export default function PeerConnect() {
               </button>
               <button
                 type="button"
-                onMouseDown={startVoice}
-                onMouseUp={stopVoice}
-                onTouchStart={startVoice}
-                onTouchEnd={stopVoice}
+                onMouseDown={micDown}
+                onMouseUp={micUp}
+                onTouchStart={micDown}
+                onTouchEnd={micUp}
+                title="Tap: speak to type  |  Hold: send voice message"
                 className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all shrink-0
-                  ${isRecording
-                    ? 'bg-red-500/20 border-2 border-red-500/50'
-                    : 'bg-stone-800 border border-white/[0.08] hover:border-white/20'}`}>
-                <MicIcon size={18} className={isRecording ? 'text-red-400' : 'text-stone-400'} />
+                  ${isRecording ? 'bg-red-500/20 border-2 border-red-500/50' :
+                    isSpeaking  ? 'bg-violet-500/20 border-2 border-violet-500/50' :
+                    'bg-stone-800 border border-white/[0.08] hover:border-white/20'}`}>
+                <MicIcon size={18} className={isRecording ? 'text-red-400' : isSpeaking ? 'text-violet-400' : 'text-stone-400'} />
               </button>
             </form>
-            <p className="text-stone-700 text-xs text-center">Hold mic button to send a voice message</p>
+            <p className="text-stone-700 text-xs text-center">Tap mic to speak · Hold mic to send voice message</p>
           </div>
         )}
 
