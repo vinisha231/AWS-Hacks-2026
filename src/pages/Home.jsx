@@ -15,20 +15,17 @@ import RelapseModal from '../components/RelapseModal'
 import CalmPage from './CalmPage'
 
 export default function Home() {
-  const [phase, setPhase] = useState('idle') // idle | calm | voice | craving
+  const [phase, setPhase] = useState('idle')
   const [showRelapse, setShowRelapse] = useState(false)
-
   const { dayCount, activateCraving, setLastMoodAnalysis,
     profileSetupDone, userInterests, recordLogin } = useEmberStore()
-
   useEmberAuth()
 
-  // Mark today as a login day on mount
   useEffect(() => { recordLogin() }, [])
 
   const handleCravingButton = () => { activateCraving(); setPhase('calm') }
   const handleCalmContinue = () => setPhase('voice')
-  const handleVoiceComplete = (moodAnalysis) => { setLastMoodAnalysis(moodAnalysis); setPhase('craving') }
+  const handleVoiceComplete = (m) => { setLastMoodAnalysis(m); setPhase('craving') }
   const handleVoiceSkip = () => setPhase('craving')
   const handleClose = () => setPhase('idle')
 
@@ -37,66 +34,88 @@ export default function Home() {
       {!profileSetupDone && <ProfileSetupModal />}
 
       <Layout>
-        <div className="flex flex-col gap-6">
+        {/* ── Full-bleed hero canvas ── */}
+        <div className="relative overflow-hidden" style={{ minHeight: '88vh' }}>
 
-          {/* Hero card — notebook paper with floating hobby elements */}
-          <div className="relative rounded-3xl overflow-hidden border border-stone-200 shadow-sm"
-            style={{ background: '#fffef9', minHeight: '300px' }}>
+          {/* Hobby elements float across the ENTIRE hero canvas */}
+          <FloatingHobbies interests={userInterests} />
 
-            <FloatingHobbies interests={userInterests} />
+          {/* Very subtle radial glow centers on the button area */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse 60% 50% at 30% 55%, rgba(251,191,36,0.07) 0%, transparent 70%)' }} />
 
-            <div className="relative z-10 p-8 md:p-10 flex flex-col items-start">
-              <p className="text-xs uppercase tracking-[0.18em] text-stone-400 font-semibold mb-2">
-                Current streak
-              </p>
-              <div className="flex items-end gap-3 mb-3">
-                <span className="text-7xl md:text-8xl font-black text-amber-500 leading-none tabular-nums drop-shadow-sm">
-                  {dayCount}
-                </span>
-                <span className="text-stone-400 text-xl mb-2">{dayCount === 1 ? 'day' : 'days'}</span>
-              </div>
-              <p className="text-stone-500 text-sm mb-8 max-w-xs leading-relaxed">
-                {dayCount === 0 && "Every ember starts with a single spark. You've got this."}
-                {dayCount >= 1 && dayCount < 7 && `${7 - dayCount} more days to your first week. Keep going.`}
-                {dayCount >= 7 && dayCount < 30 && `${30 - dayCount} days to one month. The hardest part is behind you.`}
-                {dayCount >= 30 && `Day ${dayCount}. You're in territory most people never reach.`}
-              </p>
+          {/* Content — directly on the canvas, no card */}
+          <div className="relative z-10 flex flex-col justify-center min-h-[88vh] px-8 md:px-16 lg:px-24">
 
-              {/* THE BIG RED CRAVING BUTTON */}
+            <p className="text-xs uppercase tracking-[0.22em] text-stone-400 font-semibold mb-4">
+              Current streak
+            </p>
+
+            <div className="flex items-end gap-4 mb-4">
+              <span className="font-black text-amber-500 leading-none tabular-nums"
+                style={{ fontSize: 'clamp(5rem, 18vw, 11rem)' }}>
+                {dayCount}
+              </span>
+              <span className="text-stone-400 text-2xl md:text-3xl mb-3 font-light">
+                {dayCount === 1 ? 'day' : 'days'}
+              </span>
+            </div>
+
+            <p className="text-stone-400 text-base md:text-lg mb-12 max-w-sm leading-relaxed font-light">
+              {dayCount === 0 && "Every journey starts with a single day. You've got this."}
+              {dayCount >= 1 && dayCount < 7 && `${7 - dayCount} more days to your first week. Keep going.`}
+              {dayCount >= 7 && dayCount < 30 && `${30 - dayCount} days to one month. The hardest part is behind you.`}
+              {dayCount >= 30 && `Day ${dayCount}. You're in territory most people never reach.`}
+            </p>
+
+            {/* THE BIG RED BUTTON */}
+            <div className="flex flex-col items-start gap-4">
               <button
                 onClick={handleCravingButton}
-                className="animate-pulse-ring relative flex items-center gap-3 text-white font-black text-lg px-8 py-5 rounded-2xl transition-all active:scale-[0.97] shadow-xl mb-3"
+                className="animate-pulse-ring relative flex items-center gap-4 text-white font-black text-xl md:text-2xl px-10 py-6 rounded-2xl transition-all active:scale-[0.97]"
                 style={{
                   background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                  boxShadow: '0 8px 32px rgba(239,68,68,0.4), 0 2px 8px rgba(239,68,68,0.3)'
+                  boxShadow: '0 12px 48px rgba(239,68,68,0.35), 0 4px 16px rgba(239,68,68,0.25)'
                 }}>
-                <span className="text-2xl">🆘</span>
+                <span className="text-3xl">🆘</span>
                 I'm craving right now
               </button>
-              <p className="text-stone-400 text-xs mb-4 ml-1">Press this the moment you feel the urge</p>
 
-              {/* I relapsed — secondary, understated */}
+              <p className="text-stone-400 text-sm ml-1">Press this the moment you feel the urge</p>
+
               <button
                 onClick={() => setShowRelapse(true)}
-                className="text-stone-400 hover:text-stone-600 text-sm underline underline-offset-4 transition-colors ml-1">
+                className="text-stone-400 hover:text-red-400 text-sm underline underline-offset-4 transition-colors ml-1 mt-2">
                 I relapsed
               </button>
             </div>
           </div>
 
-          {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-3">
+          {/* Scroll hint */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-30">
+            <div className="w-px h-8 bg-stone-400" />
+            <span className="text-stone-400 text-xs tracking-widest uppercase">scroll</span>
+          </div>
+        </div>
+
+        {/* ── Content section below — contained ── */}
+        <div className="px-6 md:px-12 lg:px-20 py-12 flex flex-col gap-6 max-w-4xl">
+
+          {/* Quick stats — inline, no heavy cards */}
+          <div className="flex gap-6 md:gap-10">
             {[
               { label: 'Day streak',  value: dayCount,  color: 'text-amber-500' },
               { label: 'Days clean',  value: dayCount,  color: 'text-emerald-600' },
-              { label: 'Milestone',   value: dayCount >= 30 ? '💎' : dayCount >= 7 ? '⚡' : dayCount >= 1 ? '🌱' : '—', color: 'text-stone-800' },
+              { label: 'Milestone',   value: dayCount >= 30 ? '💎' : dayCount >= 7 ? '⚡' : dayCount >= 1 ? '🌱' : '—', color: 'text-stone-700' },
             ].map(({ label, value, color }) => (
-              <div key={label} className="bg-white border border-stone-200 rounded-2xl p-4 text-center shadow-sm">
-                <p className={`text-3xl font-black ${color}`}>{value}</p>
-                <p className="text-stone-400 text-xs mt-1">{label}</p>
+              <div key={label}>
+                <p className={`text-4xl font-black ${color}`}>{value}</p>
+                <p className="text-stone-400 text-xs mt-0.5">{label}</p>
               </div>
             ))}
           </div>
+
+          <div className="h-px bg-stone-200" />
 
           <DailyAffirmation />
           <DailyCheckin />

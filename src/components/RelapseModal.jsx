@@ -18,12 +18,9 @@ export default function RelapseModal({ onClose }) {
   const [error, setError] = useState('')
 
   const recRef = useRef(null)
-  const didSpeak = useRef(false)
-
-  // Speak opening line on mount
+  // Speak opening line immediately on mount
   useEffect(() => {
-    if (didSpeak.current) return
-    didSpeak.current = true
+    setPhase('opening')
     ;(async () => {
       if (voiceId) {
         try { await playVoiceMessage(OPENING_LINE, voiceId) } catch {}
@@ -31,7 +28,7 @@ export default function RelapseModal({ onClose }) {
       setPhase('listening')
     })()
     return () => stopCurrentAudio()
-  }, [])
+  }, [])  // intentionally empty — run once on mount
 
   // Mic recording via SpeechRecognition
   const startMic = () => {

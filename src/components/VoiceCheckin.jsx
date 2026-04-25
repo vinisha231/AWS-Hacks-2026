@@ -125,7 +125,8 @@ export default function VoiceCheckin({ onComplete, onSkip }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0a]/98 backdrop-blur-md flex flex-col items-center justify-center z-50 p-6">
+    <div className="fixed inset-0 flex flex-col items-center justify-center z-50 p-6"
+      style={{ background: 'linear-gradient(to bottom, #1a3d28 0%, #0f2419 100%)' }}>
       <div className="max-w-sm w-full flex flex-col items-center gap-8 text-center">
 
         {phase === 'starting' && (

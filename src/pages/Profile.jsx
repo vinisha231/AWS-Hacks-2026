@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useEmberStore } from '../store/emberStore'
-import Layout from '../components/Layout'
+import Layout, { PageShell } from '../components/Layout'
 import VoicePicker from '../components/VoicePicker'
 
 const ADDICTION_OPTIONS = [
@@ -75,7 +75,8 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="max-w-2xl flex flex-col gap-10">
+      <PageShell>
+      <div className="flex flex-col gap-10">
         <div>
           <h1 className="text-3xl font-black mb-1">Profile</h1>
           <p className="text-stone-500">Everything stays private. We use this to personalise your sparks.</p>
@@ -156,6 +157,7 @@ export default function Profile() {
           Sign out
         </button>
       </div>
+      </PageShell>
     </Layout>
   )
 }
@@ -163,7 +165,7 @@ export default function Profile() {
 function Section({ title, sub, children }) {
   return (
     <div>
-      <h2 className="text-white font-semibold text-lg mb-0.5">{title}</h2>
+      <h2 className="text-stone-800 font-semibold text-lg mb-0.5">{title}</h2>
       {sub && <p className="text-stone-500 text-sm mb-4">{sub}</p>}
       {children}
     </div>

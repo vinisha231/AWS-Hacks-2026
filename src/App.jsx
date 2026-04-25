@@ -9,6 +9,7 @@ import PeerConnect from './pages/PeerConnect'
 import Support from './pages/Support'
 import SupportView from './pages/SupportView'
 import { FlameIcon, BrainIcon, WaveformIcon, ChainIcon, ShieldIcon } from './components/Icons'
+import FlareLogo from './components/FlareLogo'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -25,8 +26,8 @@ function LandingPage() {
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
       <nav className="flex items-center justify-between px-8 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
-          <FlameIcon size={20} className="text-amber-500" />
-          <span className="font-black text-lg tracking-tight">Ember</span>
+          <FlareLogo size={20} className="text-amber-500" />
+          <span className="font-black text-lg tracking-tight">Flare</span>
         </div>
         <a href="/auth" className="text-sm text-stone-400 hover:text-white font-medium transition-colors">Sign in</a>
       </nav>
@@ -40,7 +41,7 @@ function LandingPage() {
           A craving lasts<br /><span className="text-amber-400">7 minutes.</span>
         </h1>
         <p className="text-stone-400 text-lg md:text-xl leading-relaxed mb-10 max-w-xl">
-          Ember intercepts the exact window a craving peaks — with a personalized activity,
+          Flare intercepts the exact window a craving peaks — with a personalized activity,
           spoken in a voice you love, backed by an unbreakable commitment on-chain.
         </p>
 
@@ -69,10 +70,10 @@ function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Pillar Icon={BrainIcon} iconColor="text-violet-400" iconBg="bg-violet-500/10 border-violet-500/20"
             tag="Gemini AI" title="Reads what you're feeling"
-            body="Speak into Ember when a craving hits. Gemini detects your emotional state and generates the exact 7-minute activity to intercept it." />
+            body="Speak into Flare when a craving hits. Gemini detects your emotional state and generates the exact 7-minute activity to intercept it." />
           <Pillar Icon={WaveformIcon} iconColor="text-pink-400" iconBg="bg-pink-500/10 border-pink-500/20"
             tag="ElevenLabs" title="Speaks in a voice you love"
-            body="Clone your mom's voice. Your sponsor's. Whoever keeps you grounded. Ember speaks your spark activity in that voice — because it makes every difference." />
+            body="Clone your mom's voice. Your sponsor's. Whoever keeps you grounded. Flare speaks your spark activity in that voice — because it makes every difference." />
           <Pillar Icon={ChainIcon} iconColor="text-cyan-400" iconBg="bg-cyan-500/10 border-cyan-500/20"
             tag="Solana" title="Makes your promise unbreakable"
             body="Every craving survived is minted on-chain. Your streak is an immutable record on Solana devnet." />
@@ -85,7 +86,7 @@ function LandingPage() {
       <footer className="border-t border-white/[0.06] px-8 py-5 flex items-center justify-between text-stone-700 text-xs">
         <div className="flex items-center gap-1.5">
           <FlameIcon size={14} className="text-stone-700" />
-          Ember · UW BHacks 2026
+          Flare · UW BHacks 2026
         </div>
         <span>Built in 48 hours</span>
       </footer>

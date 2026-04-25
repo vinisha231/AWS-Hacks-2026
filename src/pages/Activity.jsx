@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import Layout from '../components/Layout'
+import Layout, { PageShell } from '../components/Layout'
 import { useEmberStore } from '../store/emberStore'
 import { getCravingHistory } from '../lib/supabase'
 
@@ -34,6 +34,7 @@ export default function Activity() {
 
   return (
     <Layout>
+      <PageShell>
       <div className="flex flex-col gap-8">
 
         {/* Header */}
@@ -143,6 +144,7 @@ export default function Activity() {
           )}
         </div>
       </div>
+      </PageShell>
     </Layout>
   )
 }

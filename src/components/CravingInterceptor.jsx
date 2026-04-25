@@ -69,8 +69,13 @@ export default function CravingInterceptor({ onClose }) {
   function stopSession() {
     clearInterval(timerRef.current)
     stopCurrentAudio()
-    try { companionRecRef.current?.stop() } catch {}
+    phaseRef.current = 'closed'  // prevent onend from restarting
+    const rec = companionRecRef.current
     companionRecRef.current = null
+    if (rec) {
+      try { rec.abort() } catch {}
+      try { rec.stop() } catch {}
+    }
     setCompanionStatus('idle')
   }
 
@@ -175,12 +180,14 @@ export default function CravingInterceptor({ onClose }) {
     rec.onerror = (e) => {
       if (e.error === 'no-speech') return
       setTimeout(() => {
-        if (phaseRef.current === 'redirecting') { try { rec.start() } catch {} }
+        if (phaseRef.current === 'redirecting' && companionRecRef.current === rec) {
+          try { rec.start() } catch {}
+        }
       }, 500)
     }
 
     rec.onend = () => {
-      if (phaseRef.current === 'redirecting') {
+      if (phaseRef.current === 'redirecting' && companionRecRef.current === rec) {
         setTimeout(() => { try { rec.start() } catch {} }, 300)
       }
     }
@@ -235,7 +242,8 @@ export default function CravingInterceptor({ onClose }) {
 
   return (
     <>
-      <div className="fixed inset-0 bg-[#0a0a0a] flex flex-col items-center justify-center z-50 p-6 overflow-y-auto">
+      <div className="fixed inset-0 flex flex-col items-center justify-center z-50 p-6 overflow-y-auto"
+        style={{ background: 'linear-gradient(to bottom, #1a3d28 0%, #0f2419 100%)' }}>
 
         {/* Always-visible close button — no session saved */}
         {phase !== 'survived' && (

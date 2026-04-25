@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useEmberStore } from '../store/emberStore'
 import { getSocket, disconnectSocket } from '../services/socket'
-import Layout from '../components/Layout'
+import Layout, { PageShell } from '../components/Layout'
 import { MicIcon, WaveformIcon, HeartIcon, AlertIcon, CheckIcon } from '../components/Icons'
 
 const PHASE = {
@@ -187,7 +187,8 @@ export default function PeerConnect() {
 
   return (
     <Layout>
-      <div className="flex flex-col gap-6 max-w-xl">
+      <PageShell>
+      <div className="flex flex-col gap-6">
 
         <div>
           <h1 className="text-3xl font-black mb-1">Peer Connect</h1>
@@ -357,6 +358,7 @@ export default function PeerConnect() {
           </div>
         )}
       </div>
+      </PageShell>
     </Layout>
   )
 }
