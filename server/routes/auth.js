@@ -34,7 +34,7 @@ router.post('/signup', async (req, res) => {
     })
     const data = await r.json()
     if (!r.ok) {
-      const msg = data.description || data.message || 'Signup failed'
+      const msg = String(data.description || data.message || data.error_description || data.error || 'Signup failed')
       if (msg.includes('already exists') || msg.includes('registered')) {
         return res.status(409).json({ error: 'Username already taken.' })
       }
