@@ -1,10 +1,14 @@
 import express from 'express'
 
 const router = express.Router()
-const DOMAIN = process.env.AUTH0_DOMAIN
-const CLIENT_ID = process.env.AUTH0_CLIENT_ID
-const CLIENT_SECRET = process.env.AUTH0_CLIENT_SECRET
 const CONNECTION = 'Username-Password-Authentication'
+
+// Read at request-time so dotenv is already loaded
+const cfg = () => ({
+  DOMAIN: process.env.AUTH0_DOMAIN,
+  CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+  CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
+})
 
 function toEmail(username) {
   return `${username.toLowerCase().trim()}@ember.app`
@@ -16,6 +20,7 @@ router.post('/signup', async (req, res) => {
   if (!username || !password) return res.status(400).json({ error: 'Missing fields' })
 
   try {
+    const { DOMAIN, CLIENT_ID } = cfg()
     const r = await fetch(`https://${DOMAIN}/dbconnections/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -38,7 +43,8 @@ router.post('/signup', async (req, res) => {
     // Auto-login after signup
     return loginUser(username, password, res)
   } catch (e) {
-    res.status(500).json({ error: e.message })
+    console.error('SIGNUP ERROR:', e.message, e.cause)
+    res.status(500).json({ error: e.message, cause: e.cause?.message, code: e.cause?.code })
   }
 })
 
@@ -51,6 +57,7 @@ router.post('/login', async (req, res) => {
 
 async function loginUser(username, password, res) {
   try {
+    const { DOMAIN, CLIENT_ID, CLIENT_SECRET } = cfg()
     const r = await fetch(`https://${DOMAIN}/oauth/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
