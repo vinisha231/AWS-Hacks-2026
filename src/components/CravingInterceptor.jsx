@@ -49,7 +49,8 @@ export default function CravingInterceptor({ onClose }) {
 
   const { user, sparkProfile, flaggedTriggers, usedActivitiesToday,
     activeVoice, primaryVoiceId, resolveCraving, addUsedActivity,
-    dayCount, sessionsCompleted, lastMoodAnalysis } = useEmberStore()
+    dayCount, sessionsCompleted, lastMoodAnalysis,
+    journeyStage, pastBlockers } = useEmberStore()
 
   const voiceId = activeVoice?.voiceId || primaryVoiceId
   const voiceRole = activeVoice?.role || 'loved one'
@@ -98,7 +99,7 @@ export default function CravingInterceptor({ onClose }) {
 
       let sparkData
       try {
-        sparkData = await generateSpark({ depletedHormone, contextFlags, sparkProfile, usedActivities: usedActivitiesToday, flaggedTriggers })
+        sparkData = await generateSpark({ depletedHormone, contextFlags, sparkProfile, usedActivities: usedActivitiesToday, flaggedTriggers, journeyStage, pastBlockers })
         if (!sparkData?.title) throw new Error('Bad spark')
       } catch {
         sparkData = FALLBACK_SPARKS[Math.floor(Math.random() * FALLBACK_SPARKS.length)]

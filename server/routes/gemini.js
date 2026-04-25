@@ -29,12 +29,14 @@ async function callGemini(prompt, retries = 3) {
 }
 
 router.post('/analyze-mood', async (req, res) => {
-  const { transcript, flaggedTriggers, timeOfDay } = req.body
-  const prompt = `You are Ember's emotional intelligence engine for addiction recovery.
+  const { transcript, flaggedTriggers, timeOfDay, journeyStage, pastBlockers } = req.body
+  const prompt = `You are Flare's emotional intelligence engine for addiction recovery.
 Analyze this voice transcript and detect signs of craving or emotional distress.
 
 Transcript: "${transcript}"
 Time: ${timeOfDay}
+Where they are in their journey: ${journeyStage || 'unknown'}
+Known personal blockers from past attempts: ${JSON.stringify(pastBlockers || [])}
 Avoid suggesting these topics: ${JSON.stringify(flaggedTriggers || [])}
 
 Return ONLY valid JSON, no markdown:
@@ -60,11 +62,13 @@ Return ONLY valid JSON, no markdown:
 })
 
 router.post('/generate-spark', async (req, res) => {
-  const { depletedHormone, contextFlags, sparkProfile, usedActivities, flaggedTriggers } = req.body
-  const prompt = `You are Ember's Spark Engine. Generate a 7-minute craving redirect activity for someone in addiction recovery.
+  const { depletedHormone, contextFlags, sparkProfile, usedActivities, flaggedTriggers, journeyStage, pastBlockers } = req.body
+  const prompt = `You are Flare's Spark Engine. Generate a 7-minute craving redirect activity for someone in addiction recovery.
 
 Depleted hormone: ${depletedHormone}
 Context: ${JSON.stringify(contextFlags || {})}
+Where they are in their journey: ${journeyStage || 'unknown'}
+Known blockers from past attempts (tailor activity to address these): ${JSON.stringify(pastBlockers || [])}
 Topics to NEVER mention: ${JSON.stringify(flaggedTriggers || [])}
 Already used today (avoid): ${JSON.stringify(usedActivities || [])}
 Resonance scores (higher = preferred): ${JSON.stringify(sparkProfile || {})}
@@ -93,11 +97,13 @@ Return ONLY valid JSON, no markdown:
 })
 
 router.post('/daily-checkin', async (req, res) => {
-  const { transcript, flaggedTriggers } = req.body
-  const prompt = `You are Ember. Someone just shared their daily check-in with you.
+  const { transcript, flaggedTriggers, journeyStage, pastBlockers } = req.body
+  const prompt = `You are Flare. Someone just shared their daily check-in with you.
 Respond with warmth, insight, and genuine care. Keep it brief but meaningful.
 
 What they said: "${transcript}"
+Where they are in their journey: ${journeyStage || 'unknown'}
+Known personal blockers: ${JSON.stringify(pastBlockers || [])}
 Topics to avoid: ${JSON.stringify(flaggedTriggers || [])}
 
 Return ONLY valid JSON:
@@ -166,9 +172,12 @@ Return ONLY valid JSON:
 })
 
 router.post('/relapse-reflect', async (req, res) => {
-  const { userReflection, flaggedTriggers, dayCount } = req.body
-  const prompt = `You are Ember, a compassionate addiction recovery companion. Someone just relapsed after ${dayCount} days clean.
+  const { userReflection, flaggedTriggers, dayCount, journeyStage, pastBlockers } = req.body
+  const prompt = `You are Flare, a compassionate addiction recovery companion. Someone just relapsed after ${dayCount} days clean.
 They shared this reflection about what happened: "${userReflection}"
+Where they are in their journey: ${journeyStage || 'unknown'}
+Blockers that have tripped them up before: ${JSON.stringify(pastBlockers || [])}
+If the reflection connects to a known blocker, acknowledge the pattern directly and offer a concrete new approach.
 Topics to avoid: ${JSON.stringify(flaggedTriggers || [])}
 
 Respond with:

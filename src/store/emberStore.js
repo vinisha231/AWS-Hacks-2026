@@ -21,6 +21,8 @@ export const useEmberStore = create(
       userInterests: [],       // from profile setup
       userAddictions: [],      // from profile setup
       profileSetupDone: false,
+      journeyStage: null,      // 'starting' | 'tried_before' | 'been_at_it' | 'relapsed_restart'
+      pastBlockers: [],        // e.g. ['Stress', 'Boredom', 'Social pressure']
       loginDays: [],           // ['2026-04-25', ...] days user opened the app
       // Voice system
       voices: [],           // [{ id, label, voiceId, role, isClone }]
@@ -36,6 +38,7 @@ export const useEmberStore = create(
       setUserInterests: (interests) => set({ userInterests: interests }),
       setUserAddictions: (addictions) => set({ userAddictions: addictions }),
       completeProfileSetup: (interests, addictions) => set({ userInterests: interests, userAddictions: addictions, profileSetupDone: true }),
+      setJourneyProfile: (journeyStage, pastBlockers) => set({ journeyStage, pastBlockers }),
 
       recordLogin: () => set(state => {
         const today = new Date().toISOString().split('T')[0]

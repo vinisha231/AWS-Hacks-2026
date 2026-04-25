@@ -20,7 +20,7 @@ export default function DailyCheckin() {
   const chunksRef = useRef([])
   const recognitionRef = useRef(null)
   const [transcript, setTranscript] = useState('')
-  const { primaryVoiceId, flaggedTriggers } = useEmberStore()
+  const { primaryVoiceId, flaggedTriggers, journeyStage, pastBlockers } = useEmberStore()
 
   const todayPrompt = PROMPTS[new Date().getDay() % PROMPTS.length]
 
@@ -91,7 +91,7 @@ export default function DailyCheckin() {
       const res = await fetch('http://localhost:3001/api/gemini/daily-checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: text, flaggedTriggers })
+        body: JSON.stringify({ transcript: text, flaggedTriggers, journeyStage, pastBlockers })
       })
       if (res.ok) analysis = await res.json()
     } catch (e) {

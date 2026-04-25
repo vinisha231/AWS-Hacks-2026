@@ -26,13 +26,16 @@ const SPARK_INTERESTS = [
 
 export default function Profile() {
   const { user: authUser, logout } = useAuth()
-  const { user, setUser, setFlaggedTriggers } = useEmberStore()
+  const { user, setUser, setFlaggedTriggers, setJourneyProfile, journeyStage: savedStage, pastBlockers: savedBlockers } = useEmberStore()
 
   const [addictions, setAddictions] = useState([])
   const [wantToTry, setWantToTry] = useState([])
   const [customTry, setCustomTry] = useState('')
   const [hobbies, setHobbies] = useState('')
   const [heavyTopics, setHeavyTopics] = useState('')
+  const [journeyStage, setJourneyStage] = useState(savedStage || null)
+  const [blockers, setBlockers] = useState(savedBlockers || [])
+  const [customBlocker, setCustomBlocker] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -64,6 +67,7 @@ export default function Profile() {
         .upsert(heavyArr.map(topic => ({ user_id: user.id, topic, reason: 'user_set' })), { onConflict: 'user_id,topic' })
       setFlaggedTriggers(heavyArr)
     }
+    setJourneyProfile(journeyStage, blockers)
     setSaving(false); setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -125,6 +129,44 @@ export default function Profile() {
           <textarea value={hobbies} onChange={e => setHobbies(e.target.value)}
             placeholder="e.g. hiking, cooking, reading thrillers, football..."
             className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-stone-800 placeholder-stone-400 resize-none h-24 text-sm focus:outline-none focus:border-amber-400" />
+        </Section>
+
+        <Section title="Where are you in your journey?" sub="Helps Flare speak to you at the right level.">
+          <div className="flex flex-col gap-2">
+            {[
+              { value: 'starting',         label: 'Just starting out',              sub: 'This is my first real attempt' },
+              { value: 'tried_before',     label: "I've tried before",              sub: "I know what it's like but haven't cracked it yet" },
+              { value: 'been_at_it',       label: "Been at it a while",             sub: "I've had longer stretches of success" },
+              { value: 'relapsed_restart', label: "I relapsed — starting again",    sub: "I know the pattern, I'm getting back up" },
+            ].map(({ value, label, sub }) => (
+              <button key={value} onClick={() => setJourneyStage(value)}
+                className={`flex flex-col text-left p-4 rounded-2xl border transition-all
+                  ${journeyStage === value ? 'border-amber-400 bg-amber-50' : 'border-stone-200 hover:border-stone-300'}`}>
+                <span className={`text-sm font-semibold ${journeyStage === value ? 'text-amber-800' : 'text-stone-700'}`}>{label}</span>
+                <span className={`text-xs mt-0.5 ${journeyStage === value ? 'text-amber-600' : 'text-stone-400'}`}>{sub}</span>
+              </button>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="What's gotten in the way before?" sub="Flare will watch for these patterns and offer targeted support.">
+          <div className="flex flex-wrap gap-2 mb-3">
+            {['Stress', 'Boredom', 'Social pressure', 'Physical cravings', 'Loneliness', 'Anxiety', 'Routine triggers', 'Emotional pain', 'Celebrations', 'Insomnia'].map(b => (
+              <button key={b} onClick={() => toggle(blockers, setBlockers, b)}
+                className={`px-3 py-1.5 rounded-full border text-sm transition-all
+                  ${blockers.includes(b) ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-stone-200 text-stone-500 hover:border-stone-300'}`}>
+                {b}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input value={customBlocker} onChange={e => setCustomBlocker(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { const t = customBlocker.trim(); if (t && !blockers.includes(t)) { setBlockers(p => [...p, t]); setCustomBlocker('') } } }}
+              placeholder="Add your own…"
+              className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-400" />
+            <button onClick={() => { const t = customBlocker.trim(); if (t && !blockers.includes(t)) { setBlockers(p => [...p, t]); setCustomBlocker('') } }}
+              className="bg-stone-100 hover:bg-stone-200 border border-stone-200 px-4 py-2.5 rounded-xl text-sm font-medium text-stone-700">Add</button>
+          </div>
         </Section>
 
         <Section title="Topics that feel heavy" sub="Flare will never bring these up. Separate with commas.">

@@ -23,7 +23,7 @@ export default function VoiceCheckin({ onComplete, onSkip }) {
   const [analysis, setAnalysis] = useState(null)
   const recognitionRef = useRef(null)
   const silenceRef = useRef(null)
-  const { flaggedTriggers, setLastMoodAnalysis, primaryVoiceId } = useEmberStore()
+  const { flaggedTriggers, setLastMoodAnalysis, primaryVoiceId, journeyStage, pastBlockers } = useEmberStore()
 
   // Auto-start as soon as component mounts — greet then listen
   useEffect(() => {
@@ -105,7 +105,7 @@ export default function VoiceCheckin({ onComplete, onSkip }) {
       const res = await fetch('http://localhost:3001/api/gemini/analyze-mood', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript: text, flaggedTriggers, timeOfDay })
+        body: JSON.stringify({ transcript: text, flaggedTriggers, timeOfDay, journeyStage, pastBlockers })
       })
       if (res.ok) mood = await res.json()
     } catch (e) {

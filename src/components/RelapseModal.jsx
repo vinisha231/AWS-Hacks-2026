@@ -8,7 +8,7 @@ const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
 const OPENING_LINE = "Hey — I'm still right here with you. It's okay. I need you to tell me: what happened? What caused you to relapse? Take your time. I'm listening."
 
 export default function RelapseModal({ onClose }) {
-  const { activeVoice, primaryVoiceId, flaggedTriggers, dayCount, recordRelapse } = useEmberStore()
+  const { activeVoice, primaryVoiceId, flaggedTriggers, dayCount, recordRelapse, journeyStage, pastBlockers } = useEmberStore()
   const voiceId = activeVoice?.voiceId || primaryVoiceId
 
   const [phase, setPhase] = useState('opening')   // opening | listening | thinking | response | done
@@ -62,7 +62,7 @@ export default function RelapseModal({ onClose }) {
       const res = await fetch(`${BASE}/api/gemini/relapse-reflect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userReflection: input.trim(), flaggedTriggers, dayCount })
+        body: JSON.stringify({ userReflection: input.trim(), flaggedTriggers, dayCount, journeyStage, pastBlockers })
       })
       const data = await res.json()
       setReflection(data)
