@@ -12,6 +12,7 @@ import DailyCheckin from '../components/DailyCheckin'
 import ProfileSetupModal from '../components/ProfileSetupModal'
 import RelapseModal from '../components/RelapseModal'
 import CalmPage from './CalmPage'
+import GoalsPanel from '../components/GoalsPanel'
 
 export default function Home() {
   const [phase, setPhase] = useState('idle')
@@ -32,7 +33,7 @@ export default function Home() {
     <>
       {!profileSetupDone && <ProfileSetupModal />}
 
-      <Layout>
+      <Layout rightPanel={<GoalsPanel />}>
         {/* ── Full-bleed hero canvas ── */}
         <div className="relative overflow-hidden" style={{ minHeight: '88vh' }}>
 
@@ -94,34 +95,39 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Content section below — contained ── */}
-        <div className="px-6 md:px-12 lg:px-20 py-12 flex flex-col gap-6 max-w-4xl">
+        {/* ── Content section below ── */}
+        <div className="max-w-4xl mx-auto w-full px-6 md:px-12 lg:px-20">
 
-          {/* Quick stats — inline, no heavy cards */}
-          <div className="flex gap-6 md:gap-10">
+          {/* Quick stats */}
+          <div className="flex gap-8 md:gap-14 py-10 border-b border-stone-200">
             {[
               { label: 'Day streak',  value: dayCount,  color: 'text-amber-500' },
               { label: 'Days clean',  value: dayCount,  color: 'text-emerald-600' },
-              { label: 'Milestone',   value: dayCount >= 30 ? '💎' : dayCount >= 7 ? '⚡' : dayCount >= 1 ? '🌱' : '—', color: 'text-stone-700' },
+              { label: 'Milestone',   value: dayCount >= 30 ? '💎' : dayCount >= 7 ? '⚡' : dayCount >= 1 ? '🌱' : '—', color: 'text-stone-800' },
             ].map(({ label, value, color }) => (
               <div key={label}>
-                <p className={`text-4xl font-black ${color}`}>{value}</p>
-                <p className="text-stone-400 text-xs mt-0.5">{label}</p>
+                <p className={`text-5xl font-black leading-none ${color}`}>{value}</p>
+                <p className="text-stone-400 text-xs mt-2 uppercase tracking-widest">{label}</p>
               </div>
             ))}
           </div>
 
-          <div className="h-px bg-stone-200" />
+          <div className="py-8 border-b border-stone-200">
+            <DailyAffirmation />
+          </div>
 
-          <DailyAffirmation />
-          <DailyCheckin />
+          <div className="py-8 border-b border-stone-200">
+            <DailyCheckin />
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="py-10 border-b border-stone-200 grid grid-cols-1 md:grid-cols-2 gap-10">
             <StreakCalendar />
             <MilestoneBadges />
           </div>
 
-          <RecentActivity />
+          <div className="py-10 pb-20">
+            <RecentActivity />
+          </div>
         </div>
       </Layout>
 

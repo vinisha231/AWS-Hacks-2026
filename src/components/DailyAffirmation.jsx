@@ -19,11 +19,11 @@ export default function DailyAffirmation() {
   const quote = useMemo(() => QUOTES[Math.floor(Date.now() / 86400000) % QUOTES.length], [])
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-amber-900/20 bg-gradient-to-r from-amber-950/50 to-stone-900 px-6 py-5 flex items-center gap-4">
-      <div className="text-2xl shrink-0">💬</div>
+    <div className="flex items-start gap-3 py-2">
+      <span className="text-xl shrink-0 mt-0.5 opacity-70">💬</span>
       <div>
-        <p className="text-stone-400 text-xs uppercase tracking-widest mb-1">Today's truth</p>
-        <p className="text-stone-200 text-sm leading-relaxed italic">"{quote}"</p>
+        <p className="text-stone-400 text-xs uppercase tracking-widest font-medium mb-1.5">Today's truth</p>
+        <p className="text-stone-800 text-base leading-relaxed italic">"{quote}"</p>
       </div>
     </div>
   )

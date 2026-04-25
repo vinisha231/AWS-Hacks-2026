@@ -20,6 +20,7 @@ export const useEmberStore = create(
       usedActivitiesToday: [],
       userInterests: [],       // from profile setup
       userAddictions: [],      // from profile setup
+      goals: [],               // [{ id, text, done, createdAt }]
       profileSetupDone: false,
       journeyStage: null,      // 'starting' | 'tried_before' | 'been_at_it' | 'relapsed_restart'
       pastBlockers: [],        // e.g. ['Stress', 'Boredom', 'Social pressure']
@@ -41,6 +42,10 @@ export const useEmberStore = create(
 
       setUser: (user) => set({ user }),
       setUserInterests: (interests) => set({ userInterests: interests }),
+      addGoal:    (text) => set(s => ({ goals: [...s.goals, { id: Date.now(), text, done: false, createdAt: Date.now() }] })),
+      toggleGoal: (id)   => set(s => ({ goals: s.goals.map(g => g.id === id ? { ...g, done: !g.done } : g) })),
+      editGoal:   (id, text) => set(s => ({ goals: s.goals.map(g => g.id === id ? { ...g, text } : g) })),
+      deleteGoal: (id)   => set(s => ({ goals: s.goals.filter(g => g.id !== id) })),
       setUserAddictions: (addictions) => set({ userAddictions: addictions }),
       completeProfileSetup: (interests, addictions) => set({ userInterests: interests, userAddictions: addictions, profileSetupDone: true }),
       setJourneyProfile: (journeyStage, pastBlockers) => set({ journeyStage, pastBlockers }),

@@ -16,17 +16,14 @@ export default function StreakCalendar() {
         const events = history.filter(e => e.triggered_at?.startsWith(dateStr))
         const wasLoggedIn = loginDays.includes(dateStr)
         return {
-          date: d,
-          dateStr,
+          date: d, dateStr,
           status: events.some(e => e.survived) ? 'survived'
                 : events.some(e => !e.survived) ? 'relapsed'
-                : wasLoggedIn ? 'login'
-                : 'empty',
+                : wasLoggedIn ? 'login' : 'empty',
           isToday: dateStr === today.toISOString().split('T')[0],
         }
       })
     }
-
     if (user?.id) {
       getCravingHistory(user.id, 100).then(history => setDays(buildGrid(history)))
     } else {
@@ -44,7 +41,7 @@ export default function StreakCalendar() {
   }
 
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+    <div>
       <p className="text-stone-400 text-xs uppercase tracking-widest font-medium mb-5">28-day log</p>
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-7 gap-1.5 mb-1">
@@ -58,20 +55,18 @@ export default function StreakCalendar() {
               <div key={di}
                 title={`${d.date.toDateString()} — ${d.status}`}
                 className={`aspect-square rounded-md transition-all ${cellColor(d.status)}
-                  ${d.isToday ? 'ring-2 ring-amber-500 ring-offset-1 ring-offset-white' : ''}`}
+                  ${d.isToday ? 'ring-2 ring-amber-500 ring-offset-1' : ''}`}
               />
             ))}
           </div>
         ))}
       </div>
-
-      {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4">
         {[
-          ['bg-amber-400',    'Session survived'],
-          ['bg-sky-300/70',   'Logged in'],
-          ['bg-red-400/60',   'Relapsed'],
-          ['bg-stone-200',    'No activity'],
+          ['bg-amber-400',  'Session survived'],
+          ['bg-sky-300/70', 'Logged in'],
+          ['bg-red-400/60', 'Relapsed'],
+          ['bg-stone-200',  'No activity'],
         ].map(([cls, label]) => (
           <div key={label} className="flex items-center gap-1.5">
             <div className={`w-3 h-3 rounded-sm ${cls}`} />

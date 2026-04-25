@@ -29,7 +29,7 @@ export default function Profile() {
   const { user: authUser, logout } = useAuth()
   const {
     user, setUser, setFlaggedTriggers, setJourneyProfile, setUserInterests,
-    journeyStage: savedStage, pastBlockers: savedBlockers, userInterests: savedInterests
+    journeyStage: savedStage, pastBlockers: savedBlockers, userInterests: savedInterests,
   } = useEmberStore()
 
   const [addictions, setAddictions] = useState([])
