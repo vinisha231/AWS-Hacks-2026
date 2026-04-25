@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 import { useEmberStore } from '../store/emberStore'
-import { signOut } from '../lib/auth'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { HomeIcon, ActivityIcon, PersonIcon, HeartIcon, FlameIcon } from './Icons'
 
@@ -12,7 +12,8 @@ const NAV = [
 ]
 
 export default function Layout({ children }) {
-  const { dayCount, username } = useEmberStore()
+  const { logout, user } = useAuth0()
+  const { dayCount } = useEmberStore()
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex">
@@ -45,12 +46,6 @@ export default function Layout({ children }) {
         </nav>
 
         <div className="px-1 flex flex-col gap-3">
-          {username && (
-            <div className="px-3 py-2 rounded-xl">
-              <p className="text-stone-600 text-xs">Signed in as</p>
-              <p className="text-stone-300 text-sm font-medium">{username}</p>
-            </div>
-          )}
           <div className="px-3 py-3 rounded-xl bg-stone-900 border border-white/[0.06]">
             <p className="text-stone-500 text-xs mb-1">Streak</p>
             <p className="text-amber-400 font-black text-2xl leading-none">
@@ -59,7 +54,7 @@ export default function Layout({ children }) {
           </div>
           <WalletMultiButton style={{ background: '#161616', fontSize: '12px', width: '100%', justifyContent: 'center', borderRadius: '12px' }} />
           <button
-            onClick={() => signOut()}
+            onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
             className="text-stone-700 hover:text-stone-400 text-xs py-1 transition-colors text-center"
           >
             Sign out

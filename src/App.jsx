@@ -1,36 +1,44 @@
-import { useEffect, useState } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { getSession, onAuthChange } from './lib/auth'
 import Home from './pages/Home'
-import Auth from './pages/Auth'
+import Onboarding from './pages/Onboarding'
 import Activity from './pages/Activity'
 import Profile from './pages/Profile'
 import PeerConnect from './pages/PeerConnect'
 import Support from './pages/Support'
 import SupportView from './pages/SupportView'
-import Onboarding from './pages/Onboarding'
 import { FlameIcon, BrainIcon, WaveformIcon, ChainIcon, ShieldIcon } from './components/Icons'
 
-function ProtectedRoute({ children, session }) {
-  if (session === undefined) return (
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, isLoading } = useAuth0()
+  if (isLoading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
       <FlameIcon size={40} className="text-amber-500 animate-pulse" />
     </div>
   )
-  return session ? children : <Navigate to="/auth" />
+  return isAuthenticated ? children : <Navigate to="/" />
 }
 
 function LandingPage() {
+  const { loginWithRedirect } = useAuth0()
+
+  const handleSignup = () => loginWithRedirect({
+    authorizationParams: { screen_hint: 'signup' }
+  })
+  const handleLogin = () => loginWithRedirect()
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
+
       <nav className="flex items-center justify-between px-8 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
           <FlameIcon size={20} className="text-amber-500" />
           <span className="font-black text-lg tracking-tight">Ember</span>
         </div>
-        <a href="/auth" className="text-sm text-stone-400 hover:text-white font-medium transition-colors">
+        <button onClick={handleLogin}
+          className="text-sm text-stone-400 hover:text-white font-medium transition-colors">
           Sign in
-        </a>
+        </button>
       </nav>
 
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20 max-w-3xl mx-auto">
@@ -46,13 +54,27 @@ function LandingPage() {
           Ember intercepts the exact window a craving peaks — with a personalized activity,
           spoken in a voice you love, backed by an unbreakable commitment on-chain.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 items-center">
-          <a href="/auth"
-            className="bg-amber-500 hover:bg-amber-400 active:scale-[0.97] text-black font-bold text-base px-8 py-4 rounded-2xl transition-all shadow-xl shadow-amber-500/20">
-            Begin anonymously
-          </a>
-          <p className="text-stone-600 text-sm">No email. Just a username you choose.</p>
+
+        {/* Warning banner */}
+        <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-6 py-4 mb-8 max-w-sm text-left flex gap-3">
+          <ShieldIcon size={18} className="text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-amber-300/80 text-sm leading-relaxed">
+            <span className="font-semibold text-amber-300">No password recovery.</span>{' '}
+            If you forget your username or password, you'll need to create a new account. Write them down somewhere safe before signing up.
+          </p>
         </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 items-center">
+          <button onClick={handleSignup}
+            className="bg-amber-500 hover:bg-amber-400 active:scale-[0.97] text-black font-bold text-base px-8 py-4 rounded-2xl transition-all shadow-xl shadow-amber-500/20">
+            Create account
+          </button>
+          <button onClick={handleLogin}
+            className="text-stone-400 hover:text-white text-sm font-medium transition-colors px-4 py-4">
+            Already have one? Sign in
+          </button>
+        </div>
+        <p className="text-stone-600 text-xs mt-4">No email. No phone. 100% anonymous.</p>
       </section>
 
       <section className="max-w-4xl mx-auto px-6 pb-24 w-full">
@@ -68,8 +90,8 @@ function LandingPage() {
             tag="Solana" title="Makes your promise unbreakable"
             body="Every craving survived is minted on-chain. Your streak is an immutable record on Solana devnet." />
           <Pillar Icon={ShieldIcon} iconColor="text-emerald-400" iconBg="bg-emerald-500/10 border-emerald-500/20"
-            tag="Anonymous" title="Zero identity required"
-            body="No email. No phone number. Pick a username and a password — that's it. Recovery is hard enough without surrendering your privacy." />
+            tag="Auth0" title="Zero identity required"
+            body="No email. No phone number. Auth0 gives you a cryptographic identity — completely anonymous. Recovery is hard enough without surrendering your privacy too." />
         </div>
       </section>
 
@@ -102,15 +124,7 @@ function Pillar({ Icon, iconColor, iconBg, tag, title, body }) {
 }
 
 export default function App() {
-  const [session, setSession] = useState(undefined)
-
-  useEffect(() => {
-    getSession().then(s => setSession(s))
-    const { data: { subscription } } = onAuthChange(s => setSession(s))
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const isLoading = session === undefined
+  const { isAuthenticated, isLoading } = useAuth0()
 
   if (isLoading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -121,14 +135,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={session ? <Navigate to="/home" /> : <LandingPage />} />
-        <Route path="/auth" element={session ? <Navigate to="/home" /> : <Auth />} />
-        <Route path="/home"         element={<ProtectedRoute session={session}><Home /></ProtectedRoute>} />
-        <Route path="/activity"     element={<ProtectedRoute session={session}><Activity /></ProtectedRoute>} />
-        <Route path="/profile"      element={<ProtectedRoute session={session}><Profile /></ProtectedRoute>} />
-        <Route path="/connect"      element={<ProtectedRoute session={session}><PeerConnect /></ProtectedRoute>} />
-        <Route path="/onboarding"   element={<ProtectedRoute session={session}><Onboarding /></ProtectedRoute>} />
-        <Route path="/support-view" element={<ProtectedRoute session={session}><Support /></ProtectedRoute>} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/home" /> : <LandingPage />} />
+        <Route path="/home"         element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/activity"     element={<ProtectedRoute><Activity /></ProtectedRoute>} />
+        <Route path="/profile"      element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/connect"      element={<ProtectedRoute><PeerConnect /></ProtectedRoute>} />
+        <Route path="/onboarding"   element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+        <Route path="/support-view" element={<ProtectedRoute><Support /></ProtectedRoute>} />
         <Route path="/support/:supportCode" element={<SupportView />} />
       </Routes>
     </BrowserRouter>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import { supabase } from '../lib/supabase'
-import { signOut } from '../lib/auth'
 import { useEmberStore } from '../store/emberStore'
 import Layout from '../components/Layout'
 
@@ -24,7 +24,8 @@ const SPARK_INTERESTS = [
 ]
 
 export default function Profile() {
-  const { user, session, setUser, setFlaggedTriggers } = useEmberStore()
+  const { user: auth0User, logout } = useAuth0()
+  const { user, setUser, setFlaggedTriggers } = useEmberStore()
 
   const [addictions, setAddictions] = useState([])
   const [wantToTry, setWantToTry] = useState([])
@@ -48,13 +49,13 @@ export default function Profile() {
   }
 
   const handleSave = async () => {
-    if (!session?.user?.id) return
+    if (!auth0User) return
     setSaving(true)
     const heavyArr = heavyTopics.split(',').map(s => s.trim()).filter(Boolean)
 
     const { data } = await supabase.from('users')
       .update({ addiction_type: addictions.join(', ') })
-      .eq('auth0_id', session.user.id).select().single()
+      .eq('auth0_id', auth0User.sub).select().single()
     if (data) setUser(data)
 
     if (heavyArr.length && user?.id) {
@@ -80,7 +81,6 @@ export default function Profile() {
           <p className="text-stone-500">Everything stays private. We use this to personalise your sparks.</p>
         </div>
 
-        {/* What you're working on */}
         <Section title="What are you working on?" sub="Select all that apply.">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {ADDICTION_OPTIONS.map(({ label, emoji }) => (
@@ -95,7 +95,6 @@ export default function Profile() {
           </div>
         </Section>
 
-        {/* Spark interests */}
         <Section title="What have you always wanted to try?" sub="These become your Spark activities — zero emotional baggage, all new territory.">
           <div className="flex flex-wrap gap-2 mb-3">
             {SPARK_INTERESTS.map(item => (
@@ -127,21 +126,18 @@ export default function Profile() {
           )}
         </Section>
 
-        {/* Hobbies */}
         <Section title="Current hobbies" sub="We use these to understand your world — not to suggest them during cravings.">
           <textarea value={hobbies} onChange={e => setHobbies(e.target.value)}
             placeholder="e.g. hiking, cooking, reading thrillers, football..."
             className="w-full bg-stone-800 border border-white/8 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500/50" />
         </Section>
 
-        {/* Heavy topics */}
         <Section title="Topics that feel heavy" sub="Ember will never bring these up. Separate with commas.">
           <textarea value={heavyTopics} onChange={e => setHeavyTopics(e.target.value)}
             placeholder="e.g. cooking (reminds me of someone), bars, casinos..."
             className="w-full bg-stone-800 border border-white/8 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500/50" />
         </Section>
 
-        {/* Support circle */}
         {user?.support_code && (
           <Section title="Support circle" sub="Share this with someone you trust. They see your progress — nothing personal.">
             <div className="flex items-center justify-between gap-4 bg-stone-800 border border-white/8 rounded-xl px-4 py-3">
@@ -159,7 +155,7 @@ export default function Profile() {
           {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save profile'}
         </button>
 
-        <button onClick={() => signOut()}
+        <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
           className="text-stone-600 hover:text-stone-400 text-sm text-center transition-colors pb-8">
           Sign out
         </button>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 import { supabase } from '../lib/supabase'
 import { useEmberStore } from '../store/emberStore'
 
@@ -15,16 +16,16 @@ export default function Onboarding() {
   const [safeTopics, setSafeTopics] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { session, setUser } = useEmberStore()
+  const { user } = useAuth0()
+  const { setUser } = useEmberStore()
   const navigate = useNavigate()
 
   const handleComplete = async () => {
     setLoading(true)
     const { data } = await supabase.from('users')
       .update({ addiction_type: addictionType })
-      .eq('auth0_id', session?.user?.id)
+      .eq('auth0_id', user.sub)
       .select().single()
-
     setUser(data)
     navigate('/home')
   }
@@ -43,22 +44,17 @@ export default function Onboarding() {
             <h2 className="text-xl font-semibold">What are you working on?</h2>
             <div className="grid grid-cols-2 gap-3">
               {ADDICTION_TYPES.map(type => (
-                <button key={type}
-                  onClick={() => setAddictionType(type)}
+                <button key={type} onClick={() => setAddictionType(type)}
                   className={`p-3 rounded-xl border text-sm font-medium transition-all
                     ${addictionType === type
                       ? 'border-amber-500 bg-amber-500/10 text-amber-400'
-                      : 'border-stone-700 text-stone-400 hover:border-stone-500'}`}
-                >
+                      : 'border-stone-700 text-stone-400 hover:border-stone-500'}`}>
                   {type}
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!addictionType}
-              className="w-full bg-amber-500 disabled:opacity-30 text-black font-semibold py-3 rounded-xl mt-2 transition-all"
-            >
+            <button onClick={() => setStep(2)} disabled={!addictionType}
+              className="w-full bg-amber-500 disabled:opacity-30 text-black font-semibold py-3 rounded-xl mt-2 transition-all">
               Continue
             </button>
           </div>
@@ -67,17 +63,12 @@ export default function Onboarding() {
         {step === 2 && (
           <div className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold">What have you always been curious about?</h2>
-            <p className="text-stone-400 text-sm">Things you've never tried. Topics you watch videos about at 2am. Dreams from childhood.</p>
-            <textarea
-              value={curiosities}
-              onChange={e => setCuriosities(e.target.value)}
+            <p className="text-stone-400 text-sm">Things you've never tried. Topics you watch at 2am.</p>
+            <textarea value={curiosities} onChange={e => setCuriosities(e.target.value)}
               placeholder="e.g. Japanese words, magic tricks, ancient history, drawing..."
-              className="bg-stone-900 border border-stone-700 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-32 focus:outline-none focus:border-amber-500"
-            />
-            <button
-              onClick={() => setStep(3)}
-              className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl transition-all"
-            >
+              className="bg-stone-900 border border-stone-700 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-32 focus:outline-none focus:border-amber-500" />
+            <button onClick={() => setStep(3)}
+              className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl transition-all">
               Continue
             </button>
           </div>
@@ -87,17 +78,11 @@ export default function Onboarding() {
           <div className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold">Are there topics that feel heavy for you?</h2>
             <p className="text-stone-400 text-sm">We'll make sure Ember never brings these up. Completely optional.</p>
-            <textarea
-              value={safeTopics}
-              onChange={e => setSafeTopics(e.target.value)}
-              placeholder="e.g. cooking (reminds me of someone I lost), sports bars, family gatherings..."
-              className="bg-stone-900 border border-stone-700 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-32 focus:outline-none focus:border-amber-500"
-            />
-            <button
-              onClick={handleComplete}
-              disabled={loading}
-              className="w-full bg-amber-500 disabled:opacity-50 text-black font-semibold py-3 rounded-xl transition-all"
-            >
+            <textarea value={safeTopics} onChange={e => setSafeTopics(e.target.value)}
+              placeholder="e.g. cooking (reminds me of someone I lost), sports bars..."
+              className="bg-stone-900 border border-stone-700 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-32 focus:outline-none focus:border-amber-500" />
+            <button onClick={handleComplete} disabled={loading}
+              className="w-full bg-amber-500 disabled:opacity-50 text-black font-semibold py-3 rounded-xl transition-all">
               {loading ? 'Setting up...' : 'Start my journey 🔥'}
             </button>
           </div>
