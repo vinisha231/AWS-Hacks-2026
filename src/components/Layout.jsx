@@ -16,12 +16,13 @@ export default function Layout({ children }) {
   const { dayCount } = useEmberStore()
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex">
+    <div className="min-h-screen text-stone-800 flex" style={{ background: '#f7f3ec' }}>
 
-      <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-white/[0.06] px-3 py-6 fixed h-full">
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-stone-200 px-3 py-6 fixed h-full bg-white/70 backdrop-blur-sm">
         <div className="flex items-center gap-2.5 px-3 mb-10">
           <FlameIcon size={22} className="text-amber-500" />
-          <span className="font-black text-xl tracking-tight">Ember</span>
+          <span className="font-black text-xl tracking-tight text-stone-900">Ember</span>
         </div>
 
         <nav className="flex flex-col gap-0.5 flex-1">
@@ -29,9 +30,9 @@ export default function Layout({ children }) {
             <NavLink key={to} to={to}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                ${isActive ? 'bg-amber-500/10 text-amber-400' : 'text-stone-500 hover:text-white hover:bg-white/[0.04]'}`}>
+                ${isActive ? 'bg-amber-100 text-amber-700' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-100'}`}>
               {({ isActive }) => (
-                <><Icon size={18} className={isActive ? 'text-amber-400' : 'text-stone-500'} />{label}</>
+                <><Icon size={18} className={isActive ? 'text-amber-600' : 'text-stone-400'} />{label}</>
               )}
             </NavLink>
           ))}
@@ -40,30 +41,31 @@ export default function Layout({ children }) {
         <div className="px-1 flex flex-col gap-3">
           {user?.username && (
             <div className="px-3 py-2">
-              <p className="text-stone-600 text-xs">Signed in as</p>
-              <p className="text-stone-300 text-sm font-medium truncate">{user.username}</p>
+              <p className="text-stone-400 text-xs">Signed in as</p>
+              <p className="text-stone-700 text-sm font-medium truncate">{user.username}</p>
             </div>
           )}
-          <div className="px-3 py-3 rounded-xl bg-stone-900 border border-white/[0.06]">
-            <p className="text-stone-500 text-xs mb-1">Streak</p>
-            <p className="text-amber-400 font-black text-2xl leading-none">
-              {dayCount}<span className="text-stone-600 text-sm font-normal ml-1">days</span>
+          <div className="px-3 py-3 rounded-xl bg-amber-50 border border-amber-100">
+            <p className="text-stone-400 text-xs mb-1">Streak</p>
+            <p className="text-amber-600 font-black text-2xl leading-none">
+              {dayCount}<span className="text-stone-400 text-sm font-normal ml-1">days</span>
             </p>
           </div>
-          <WalletMultiButton style={{ background: '#161616', fontSize: '12px', width: '100%', justifyContent: 'center', borderRadius: '12px' }} />
+          <WalletMultiButton style={{ background: '#f5f0e8', color: '#1c1917', fontSize: '12px', width: '100%', justifyContent: 'center', borderRadius: '12px', border: '1px solid #e7e0d4' }} />
           <button onClick={logout}
-            className="text-stone-700 hover:text-stone-400 text-xs py-1 transition-colors text-center">
+            className="text-stone-400 hover:text-stone-600 text-xs py-1 transition-colors text-center">
             Sign out
           </button>
         </div>
       </aside>
 
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-white/[0.06] px-5 py-4 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-200 px-5 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FlameIcon size={18} className="text-amber-500" />
-          <span className="font-black text-lg">Ember</span>
+          <span className="font-black text-lg text-stone-900">Ember</span>
         </div>
-        <span className="text-amber-400 font-bold text-sm">{dayCount} days</span>
+        <span className="text-amber-600 font-bold text-sm">{dayCount} days</span>
       </div>
 
       <main className="flex-1 md:ml-60 pt-[60px] md:pt-0 pb-20 md:pb-0 min-h-screen">
@@ -72,14 +74,15 @@ export default function Layout({ children }) {
         </div>
       </main>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-md border-t border-white/[0.06] grid grid-cols-4">
+      {/* Mobile bottom nav */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-stone-200 grid grid-cols-4">
         {NAV.map(({ to, Icon, label }) => (
           <NavLink key={to} to={to}
             className={({ isActive }) =>
               `flex flex-col items-center py-3 gap-1 text-[10px] font-medium transition-colors
-              ${isActive ? 'text-amber-400' : 'text-stone-600'}`}>
+              ${isActive ? 'text-amber-600' : 'text-stone-400'}`}>
             {({ isActive }) => (
-              <><Icon size={20} className={isActive ? 'text-amber-400' : 'text-stone-600'} />{label}</>
+              <><Icon size={20} className={isActive ? 'text-amber-600' : 'text-stone-400'} />{label}</>
             )}
           </NavLink>
         ))}

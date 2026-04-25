@@ -9,92 +9,109 @@ import MilestoneBadges from '../components/MilestoneBadges'
 import DailyAffirmation from '../components/DailyAffirmation'
 import RecentActivity from '../components/RecentActivity'
 import DailyCheckin from '../components/DailyCheckin'
-import { AlertIcon } from '../components/Icons'
+import FloatingHobbies from '../components/FloatingHobbies'
+import ProfileSetupModal from '../components/ProfileSetupModal'
+import CalmPage from './CalmPage'
 
 export default function Home() {
-  const [phase, setPhase] = useState('idle')   // idle | voice | craving
-  const { dayCount, activateCraving, setLastMoodAnalysis } = useEmberStore()
+  const [phase, setPhase] = useState('idle') // idle | calm | voice | craving
+  const { dayCount, activateCraving, setLastMoodAnalysis, profileSetupDone, userInterests } = useEmberStore()
   useEmberAuth()
 
   const handleCravingButton = () => {
     activateCraving()
-    setPhase('voice')
+    setPhase('calm')
   }
+
+  const handleCalmContinue = () => setPhase('voice')
 
   const handleVoiceComplete = (moodAnalysis) => {
     setLastMoodAnalysis(moodAnalysis)
     setPhase('craving')
   }
 
-  const handleVoiceSkip = () => {
-    setPhase('craving')
-  }
-
+  const handleVoiceSkip = () => setPhase('craving')
   const handleClose = () => setPhase('idle')
 
   return (
-    <Layout>
-      <div className="flex flex-col gap-6">
+    <>
+      {!profileSetupDone && <ProfileSetupModal />}
 
-        {/* Streak hero */}
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-amber-950/70 via-stone-900 to-stone-900 border border-amber-900/25 p-8 md:p-10">
-          <div className="absolute -right-8 -top-8 text-[180px] leading-none opacity-[0.06] select-none pointer-events-none">🔥</div>
-          <p className="text-stone-400 text-xs uppercase tracking-[0.2em] font-medium mb-3">Current streak</p>
-          <div className="flex items-end gap-3 mb-4">
-            <span className="text-8xl md:text-9xl font-black text-amber-400 leading-none tabular-nums">{dayCount}</span>
-            <span className="text-stone-500 text-2xl mb-3">{dayCount === 1 ? 'day' : 'days'}</span>
-          </div>
-          <p className="text-stone-400 text-sm mb-8">
-            {dayCount === 0 && 'Every ember starts with a single spark. When you\'re ready.'}
-            {dayCount >= 1 && dayCount < 7 && `${7 - dayCount} more days to your first week. You're building something real.`}
-            {dayCount >= 7 && dayCount < 30 && `${30 - dayCount} days to one month. The hardest part is already behind you.`}
-            {dayCount >= 30 && `Day ${dayCount}. You're in territory most people never reach.`}
-          </p>
+      <Layout>
+        <div className="flex flex-col gap-6">
 
-          <button
-            onClick={handleCravingButton}
-            className="inline-flex items-center gap-3 bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-black font-bold text-base px-7 py-4 rounded-2xl transition-all shadow-xl shadow-amber-500/20"
-          >
-            <AlertIcon size={20} className="text-black" />
-            I'm having a craving
-          </button>
-        </div>
+          {/* Hero card — notebook paper look with floating hobbies */}
+          <div className="relative rounded-3xl overflow-hidden border border-stone-200 shadow-sm"
+            style={{ background: '#fffef9', minHeight: '280px' }}>
 
-        <DailyAffirmation />
+            <FloatingHobbies interests={userInterests} />
 
-        <DailyCheckin />
+            <div className="relative z-10 p-8 md:p-10 flex flex-col items-start">
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: 'Day streak',   value: dayCount, color: 'text-amber-400' },
-            { label: 'Days clean',   value: dayCount, color: 'text-emerald-400' },
-            { label: 'Milestone',    value: dayCount >= 30 ? '💎' : dayCount >= 7 ? '⚡' : dayCount >= 1 ? '🌱' : '—', color: 'text-white' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="bg-stone-900 border border-white/5 rounded-2xl p-4 text-center">
-              <p className={`text-3xl font-black ${color}`}>{value}</p>
-              <p className="text-stone-500 text-xs mt-1">{label}</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-stone-400 font-semibold mb-2">
+                Current streak
+              </p>
+
+              <div className="flex items-end gap-3 mb-3">
+                <span className="text-7xl md:text-8xl font-black text-amber-500 leading-none tabular-nums drop-shadow-sm">
+                  {dayCount}
+                </span>
+                <span className="text-stone-400 text-xl mb-2">{dayCount === 1 ? 'day' : 'days'}</span>
+              </div>
+
+              <p className="text-stone-500 text-sm mb-8 max-w-xs leading-relaxed">
+                {dayCount === 0 && "Every ember starts with a single spark. You've got this."}
+                {dayCount >= 1 && dayCount < 7 && `${7 - dayCount} more days to your first week. Keep going.`}
+                {dayCount >= 7 && dayCount < 30 && `${30 - dayCount} days to one month. The hardest part is behind you.`}
+                {dayCount >= 30 && `Day ${dayCount}. You're in territory most people never reach.`}
+              </p>
+
+              {/* THE BIG RED BUTTON */}
+              <button
+                onClick={handleCravingButton}
+                className="animate-pulse-ring relative group flex items-center gap-3 text-white font-black text-lg px-8 py-5 rounded-2xl transition-all active:scale-[0.97] shadow-xl"
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  boxShadow: '0 8px 32px rgba(239,68,68,0.4), 0 2px 8px rgba(239,68,68,0.3)'
+                }}>
+                <span className="text-2xl">🆘</span>
+                I'm craving right now
+              </button>
+              <p className="text-stone-400 text-xs mt-3 ml-1">Press this the moment you feel the urge</p>
             </div>
-          ))}
+          </div>
+
+          {/* Quick stats — light notebook cards */}
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: 'Day streak',  value: dayCount,         color: 'text-amber-500' },
+              { label: 'Days clean',  value: dayCount,         color: 'text-emerald-600' },
+              { label: 'Milestone',   value: dayCount >= 30 ? '💎' : dayCount >= 7 ? '⚡' : dayCount >= 1 ? '🌱' : '—', color: 'text-stone-800' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="bg-white border border-stone-200 rounded-2xl p-4 text-center shadow-sm">
+                <p className={`text-3xl font-black ${color}`}>{value}</p>
+                <p className="text-stone-400 text-xs mt-1">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          <DailyAffirmation />
+          <DailyCheckin />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <StreakCalendar />
+            <MilestoneBadges />
+          </div>
+
+          <RecentActivity />
         </div>
+      </Layout>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <StreakCalendar />
-          <MilestoneBadges />
-        </div>
-
-        <RecentActivity />
-      </div>
-
+      {phase === 'calm' && <CalmPage onContinue={handleCalmContinue} />}
       {phase === 'voice' && (
-        <VoiceCheckin
-          onComplete={handleVoiceComplete}
-          onSkip={handleVoiceSkip}
-        />
+        <VoiceCheckin onComplete={handleVoiceComplete} onSkip={handleVoiceSkip} />
       )}
-      {phase === 'craving' && (
-        <CravingInterceptor onClose={handleClose} />
-      )}
-    </Layout>
+      {phase === 'craving' && <CravingInterceptor onClose={handleClose} />}
+    </>
   )
 }

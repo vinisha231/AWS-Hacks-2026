@@ -18,6 +18,9 @@ export const useEmberStore = create(
       sparkProfile: {},
       flaggedTriggers: [],
       usedActivitiesToday: [],
+      userInterests: [],       // from profile setup
+      userAddictions: [],      // from profile setup
+      profileSetupDone: false,
       // Voice system
       voices: [],           // [{ id, label, voiceId, role, isClone }]
       activeVoice: null,    // the currently selected voice object
@@ -29,6 +32,9 @@ export const useEmberStore = create(
       lastMoodAnalysis: null,
 
       setUser: (user) => set({ user }),
+      setUserInterests: (interests) => set({ userInterests: interests }),
+      setUserAddictions: (addictions) => set({ userAddictions: addictions }),
+      completeProfileSetup: (interests, addictions) => set({ userInterests: interests, userAddictions: addictions, profileSetupDone: true }),
       setVoiceId: (id) => set({ primaryVoiceId: id }),
       setWallet: (addr) => set({ walletAddress: addr }),
       setSparkProfile: (profile) => set({ sparkProfile: profile }),
