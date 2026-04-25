@@ -79,7 +79,7 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="px-6 md:px-12 py-10 max-w-2xl flex flex-col gap-10">
+      <div className="px-6 md:px-12 py-10 max-w-2xl mx-auto w-full flex flex-col gap-10">
         <div>
           <h1 className="text-4xl font-black text-stone-900 mb-1">Profile</h1>
           <p className="text-stone-400">Everything stays private. We use this to personalise your sparks.</p>

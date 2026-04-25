@@ -174,7 +174,7 @@ export default function PeerConnect() {
 
   return (
     <Layout>
-      <div className="px-6 md:px-12 py-10 max-w-2xl flex flex-col gap-6">
+      <div className="px-6 md:px-12 py-10 max-w-2xl mx-auto w-full flex flex-col gap-6">
 
         <div>
           <h1 className="text-4xl font-black text-stone-900 mb-1">Peer Connect</h1>
