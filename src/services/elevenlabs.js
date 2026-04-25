@@ -52,6 +52,7 @@ export async function cloneVoice(personName, audioBlob) {
   form.append('personName', personName)
   form.append('samples', audioBlob, `${personName}.webm`)
   const res = await fetch(`${BASE}/api/elevenlabs/clone-voice`, { method: 'POST', body: form })
-  if (!res.ok) throw new Error(`Clone failed: ${res.status}`)
-  return res.json()
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || `Clone failed: ${res.status}`)
+  return data
 }

@@ -48,24 +48,41 @@ router.post('/speak', async (req, res) => {
 
 router.post('/clone-voice', upload.array('samples'), async (req, res) => {
   const { personName } = req.body
+  const key = process.env.ELEVENLABS_API_KEY
+
+  if (!key) return res.status(500).json({ error: 'ElevenLabs API key not configured.' })
+  if (!req.files?.length) return res.status(400).json({ error: 'No audio file received.' })
+
   const form = new FormData()
-  form.append('name', `${personName} - Ember`)
+  form.append('name', `${personName || 'Clone'} - Ember`)
   form.append('description', `Voice clone for ${personName}`)
+
+  // Use File (extends Blob) so the multipart filename header is set correctly
   req.files.forEach(f => {
-    const blob = new Blob([f.buffer], { type: f.mimetype })
-    form.append('files', blob, f.originalname)
+    const file = new File([f.buffer], f.originalname || `${personName}.webm`, { type: f.mimetype || 'audio/webm' })
+    form.append('files', file)
   })
-  form.append('labels', JSON.stringify({ use: 'ember_support' }))
 
   try {
     const response = await fetch('https://api.elevenlabs.io/v1/voices/add', {
       method: 'POST',
-      headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY },
-      body: form
+      headers: { 'xi-api-key': key },
+      body: form,
     })
+
     const data = await response.json()
+    console.log('ElevenLabs clone response:', response.status, JSON.stringify(data))
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data?.detail?.message || data?.detail || JSON.stringify(data) })
+    }
+    if (!data.voice_id) {
+      return res.status(500).json({ error: 'No voice_id returned from ElevenLabs.' })
+    }
+
     res.json({ voiceId: data.voice_id })
   } catch (err) {
+    console.error('Clone voice error:', err)
     res.status(500).json({ error: err.message })
   }
 })

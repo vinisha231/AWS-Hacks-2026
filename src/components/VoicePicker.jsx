@@ -59,7 +59,11 @@ export default function VoicePicker() {
       setCloneName('')
       setCloneRelation('custom')
     } catch (e) {
-      setError('Voice clone failed. Try a longer recording (10+ seconds).')
+      setError(e.message?.includes('422') || e.message?.includes('400')
+        ? 'Recording too short — record at least 30 seconds of clear speech.'
+        : e.message?.includes('401') || e.message?.includes('403')
+          ? 'Voice cloning not available on this plan.'
+          : `Clone failed: ${e.message}`)
     }
     setCloning(false)
   }
