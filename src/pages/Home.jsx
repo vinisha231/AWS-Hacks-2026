@@ -8,6 +8,7 @@ import StreakCalendar from '../components/StreakCalendar'
 import MilestoneBadges from '../components/MilestoneBadges'
 import DailyAffirmation from '../components/DailyAffirmation'
 import RecentActivity from '../components/RecentActivity'
+import DailyCheckin from '../components/DailyCheckin'
 import { AlertIcon } from '../components/Icons'
 
 export default function Home() {
@@ -60,6 +61,8 @@ export default function Home() {
         </div>
 
         <DailyAffirmation />
+
+        <DailyCheckin />
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3">

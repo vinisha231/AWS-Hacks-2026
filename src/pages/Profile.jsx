@@ -59,11 +59,8 @@ export default function Profile() {
     if (data) setUser(data)
 
     if (heavyArr.length && user?.id) {
-      await Promise.all(heavyArr.map(topic =>
-        supabase.from('flagged_triggers')
-          .insert({ user_id: user.id, topic, reason: 'user_set' })
-          .then(() => {})
-      ))
+      await supabase.from('flagged_triggers')
+        .upsert(heavyArr.map(topic => ({ user_id: user.id, topic, reason: 'user_set' })), { onConflict: 'user_id,topic' })
       setFlaggedTriggers(heavyArr)
     }
     setSaving(false); setSaved(true)
