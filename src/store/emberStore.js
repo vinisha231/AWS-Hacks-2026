@@ -6,6 +6,7 @@ export const useEmberStore = create(
     (set, get) => ({
       user: null,
       dayCount: 0,
+      sessionsCompleted: 0,
       sparkProfile: {},
       flaggedTriggers: [],
       usedActivitiesToday: [],
@@ -27,6 +28,7 @@ export const useEmberStore = create(
         cravingActive: false,
         cravingStartTime: null,
         dayCount: survived ? state.dayCount + 1 : 0,
+        sessionsCompleted: survived ? state.sessionsCompleted + 1 : state.sessionsCompleted,
         sparkProfile: survived && sparkCategory ? {
           ...state.sparkProfile,
           [sparkCategory]: (state.sparkProfile[sparkCategory] || 0) + 1

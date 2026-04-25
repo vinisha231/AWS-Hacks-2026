@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import geminiRoutes from './routes/gemini.js'
 import elevenlabsRoutes from './routes/elevenlabs.js'
+import authRoutes from './routes/auth.js'
 import { initSocket } from './socket.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -24,6 +25,7 @@ initSocket(io)
 app.use(cors({ origin: '*' }))
 app.use(express.json())
 
+app.use('/api/auth', authRoutes)
 app.use('/api/gemini', geminiRoutes)
 app.use('/api/elevenlabs', elevenlabsRoutes)
 

@@ -116,4 +116,34 @@ Return ONLY valid JSON:
   }
 })
 
+router.post('/loved-one-message', async (req, res) => {
+  const { dayCount, sessionsCompleted, sparkCategories } = req.body
+  const prompt = `You are writing a short, deeply personal voice message from a loved one to someone in addiction recovery.
+This message will be spoken aloud by a cloned voice of someone they love (their mom, sponsor, daughter, etc).
+
+Their journey so far:
+- Days clean: ${dayCount}
+- Craving sessions survived: ${sessionsCompleted}
+- Activities that helped them: ${JSON.stringify(sparkCategories || [])}
+
+Write a message that:
+- Sounds like it's from someone who loves them deeply
+- References their real effort and growth (mention the days, the hard moments)
+- Is emotional, warm, specific — not generic
+- Ends with "I'm proud of you" or similar
+- Is 3–5 sentences max — this will be spoken aloud
+
+Return ONLY valid JSON:
+{
+  "message": "<the spoken message>",
+  "tone": "warm|proud|emotional"
+}`
+  try {
+    res.json(await callGemini(prompt))
+  } catch (err) {
+    console.error('loved-one-message error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 export default router

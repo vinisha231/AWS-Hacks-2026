@@ -35,12 +35,13 @@ export default function CravingInterceptor({ onClose }) {
   const [spark, setSpark] = useState(null)
   const [timeLeft, setTimeLeft] = useState(CRAVING_SECONDS)
   const [photoUrl, setPhotoUrl] = useState(null)
+  const [lovedOneMessage, setLovedOneMessage] = useState('')
   const timerRef = useRef(null)
   const sparkRef = useRef(null)
   const fileRef = useRef(null)
 
   const { user, sparkProfile, flaggedTriggers, usedActivitiesToday, primaryVoiceId,
-    resolveCraving, addUsedActivity, dayCount, lastMoodAnalysis } = useEmberStore()
+    resolveCraving, addUsedActivity, dayCount, sessionsCompleted, lastMoodAnalysis } = useEmberStore()
   const wallet = useWallet()
 
   useEffect(() => {
@@ -122,13 +123,38 @@ export default function CravingInterceptor({ onClose }) {
       }
     }
 
+    const nextSession = sessionsCompleted + 1
+    const isMilestone = nextSession >= 5 && nextSession % 5 === 0
+
+    if (isMilestone && primaryVoiceId) {
+      try {
+        const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
+        const categories = Object.keys(sparkProfile || {})
+        const r = await fetch(`${BASE}/api/gemini/loved-one-message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dayCount: dayCount + 1, sessionsCompleted: nextSession, sparkCategories: categories })
+        })
+        if (r.ok) {
+          const { message } = await r.json()
+          if (message) {
+            setLovedOneMessage(message)
+            await playVoiceMessage(message, primaryVoiceId)
+            return
+          }
+        }
+      } catch (e) {
+        console.warn('Loved one message failed:', e.message)
+      }
+    }
+
     try {
       await playVoiceMessage(
         `You did it. Day ${dayCount + 1}. That was real strength — I'm proud of you.`,
         primaryVoiceId
       )
     } catch (e) {}
-  }, [user, wallet, dayCount, primaryVoiceId])
+  }, [user, wallet, dayCount, sessionsCompleted, primaryVoiceId, sparkProfile])
 
   const handleRelapse = () => {
     clearInterval(timerRef.current)
@@ -252,12 +278,19 @@ export default function CravingInterceptor({ onClose }) {
             </div>
           )}
 
-          {/* Message */}
+          {/* Loved one message or default */}
           <div className="bg-gradient-to-br from-amber-950/60 to-stone-900 border border-amber-900/30 rounded-2xl p-5 w-full text-left">
-            <p className="text-stone-300 text-sm leading-relaxed">
-              Every time you do this — every single time — you're rewiring your brain.
-              You're not just surviving a craving. You're becoming someone who does.
-            </p>
+            {lovedOneMessage ? (
+              <>
+                <p className="text-amber-400 text-xs uppercase tracking-widest font-semibold mb-2">A message from someone who loves you</p>
+                <p className="text-stone-200 text-sm leading-relaxed italic">"{lovedOneMessage}"</p>
+              </>
+            ) : (
+              <p className="text-stone-300 text-sm leading-relaxed">
+                Every time you do this — every single time — you're rewiring your brain.
+                You're not just surviving a craving. You're becoming someone who does.
+              </p>
+            )}
           </div>
 
           {wallet.connected && (

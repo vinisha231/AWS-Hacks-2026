@@ -1,6 +1,7 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from './contexts/AuthContext'
 import Home from './pages/Home'
+import Auth from './pages/Auth'
 import Onboarding from './pages/Onboarding'
 import Activity from './pages/Activity'
 import Profile from './pages/Profile'
@@ -10,35 +11,24 @@ import SupportView from './pages/SupportView'
 import { FlameIcon, BrainIcon, WaveformIcon, ChainIcon, ShieldIcon } from './components/Icons'
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuth0()
+  const { isAuthenticated, isLoading } = useAuth()
   if (isLoading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
       <FlameIcon size={40} className="text-amber-500 animate-pulse" />
     </div>
   )
-  return isAuthenticated ? children : <Navigate to="/" />
+  return isAuthenticated ? children : <Navigate to="/auth" />
 }
 
 function LandingPage() {
-  const { loginWithRedirect } = useAuth0()
-
-  const handleSignup = () => loginWithRedirect({
-    authorizationParams: { screen_hint: 'signup' }
-  })
-  const handleLogin = () => loginWithRedirect()
-
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
-
       <nav className="flex items-center justify-between px-8 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
           <FlameIcon size={20} className="text-amber-500" />
           <span className="font-black text-lg tracking-tight">Ember</span>
         </div>
-        <button onClick={handleLogin}
-          className="text-sm text-stone-400 hover:text-white font-medium transition-colors">
-          Sign in
-        </button>
+        <a href="/auth" className="text-sm text-stone-400 hover:text-white font-medium transition-colors">Sign in</a>
       </nav>
 
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20 max-w-3xl mx-auto">
@@ -47,32 +37,29 @@ function LandingPage() {
           Recovery technology
         </div>
         <h1 className="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight mb-6">
-          A craving lasts<br />
-          <span className="text-amber-400">7 minutes.</span>
+          A craving lasts<br /><span className="text-amber-400">7 minutes.</span>
         </h1>
         <p className="text-stone-400 text-lg md:text-xl leading-relaxed mb-10 max-w-xl">
           Ember intercepts the exact window a craving peaks — with a personalized activity,
           spoken in a voice you love, backed by an unbreakable commitment on-chain.
         </p>
 
-        {/* Warning banner */}
-        <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-6 py-4 mb-8 max-w-sm text-left flex gap-3">
+        <div className="bg-amber-500/8 border border-amber-500/20 rounded-2xl px-6 py-4 mb-8 max-w-sm flex gap-3 text-left">
           <ShieldIcon size={18} className="text-amber-400 shrink-0 mt-0.5" />
           <p className="text-amber-300/80 text-sm leading-relaxed">
             <span className="font-semibold text-amber-300">No password recovery.</span>{' '}
-            If you forget your username or password, you'll need to create a new account. Write them down somewhere safe before signing up.
+            If you forget your credentials, you'll need a new account. Write them down before signing up.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 items-center">
-          <button onClick={handleSignup}
+          <a href="/auth?mode=signup"
             className="bg-amber-500 hover:bg-amber-400 active:scale-[0.97] text-black font-bold text-base px-8 py-4 rounded-2xl transition-all shadow-xl shadow-amber-500/20">
             Create account
-          </button>
-          <button onClick={handleLogin}
-            className="text-stone-400 hover:text-white text-sm font-medium transition-colors px-4 py-4">
+          </a>
+          <a href="/auth" className="text-stone-400 hover:text-white text-sm font-medium transition-colors px-4 py-4">
             Already have one? Sign in
-          </button>
+          </a>
         </div>
         <p className="text-stone-600 text-xs mt-4">No email. No phone. 100% anonymous.</p>
       </section>
@@ -91,7 +78,7 @@ function LandingPage() {
             body="Every craving survived is minted on-chain. Your streak is an immutable record on Solana devnet." />
           <Pillar Icon={ShieldIcon} iconColor="text-emerald-400" iconBg="bg-emerald-500/10 border-emerald-500/20"
             tag="Auth0" title="Zero identity required"
-            body="No email. No phone number. Auth0 gives you a cryptographic identity — completely anonymous. Recovery is hard enough without surrendering your privacy too." />
+            body="No email. No phone number. Just a username and password — Auth0 authenticates you with zero personal data required." />
         </div>
       </section>
 
@@ -124,7 +111,7 @@ function Pillar({ Icon, iconColor, iconBg, tag, title, body }) {
 }
 
 export default function App() {
-  const { isAuthenticated, isLoading } = useAuth0()
+  const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -136,6 +123,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={isAuthenticated ? <Navigate to="/home" /> : <LandingPage />} />
+        <Route path="/auth" element={isAuthenticated ? <Navigate to="/home" /> : <Auth />} />
         <Route path="/home"         element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/activity"     element={<ProtectedRoute><Activity /></ProtectedRoute>} />
         <Route path="/profile"      element={<ProtectedRoute><Profile /></ProtectedRoute>} />
