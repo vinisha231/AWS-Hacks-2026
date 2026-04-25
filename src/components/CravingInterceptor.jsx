@@ -50,7 +50,7 @@ export default function CravingInterceptor({ onClose }) {
   const { user, sparkProfile, flaggedTriggers, usedActivitiesToday,
     activeVoice, primaryVoiceId, resolveCraving, addUsedActivity,
     dayCount, sessionsCompleted, lastMoodAnalysis,
-    journeyStage, pastBlockers } = useEmberStore()
+    journeyStage, pastBlockers, addEarning, stakedSOL } = useEmberStore()
 
   const voiceId = activeVoice?.voiceId || primaryVoiceId
   const voiceRole = activeVoice?.role || 'loved one'
@@ -202,6 +202,7 @@ export default function CravingInterceptor({ onClose }) {
     stopSession()
     setPhase('survived')
     resolveCraving(true, sparkData?.category)
+    if (stakedSOL > 0) addEarning()
 
     if (user?.id) {
       await logCravingEvent(user.id, { survived: true, spark_used: sparkData?.title, hormone_targeted: sparkData?.hormoneTarget, duration_secs: CRAVING_SECONDS })

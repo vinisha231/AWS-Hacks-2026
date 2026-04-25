@@ -21,7 +21,7 @@ const HOBBY_ELEMENTS = {
 
 const DEFAULTS = ['🌿', '⭐', '🍃', '✨', '🌸', '🦋', '☀️', '🌊', '🍀', '🌺']
 
-const UNIFORM_SPEED = 0.45
+const UNIFORM_SPEED = 0.18
 
 export default function FloatingHobbies({ interests = [] }) {
   const containerRef = useRef(null)
@@ -70,7 +70,7 @@ export default function FloatingHobbies({ interests = [] }) {
         'position:absolute',
         'left:0', 'top:0',
         `font-size:${p.size}px`,
-        'opacity:0.5',
+        'opacity:0.22',
         'pointer-events:none',
         'user-select:none',
         'will-change:transform',

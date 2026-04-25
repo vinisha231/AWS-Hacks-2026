@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useEmberStore } from '../store/emberStore'
 import Layout from '../components/Layout'
 import VoicePicker from '../components/VoicePicker'
+import RecoveryStake from '../components/RecoveryStake'
 
 const ADDICTION_OPTIONS = [
   { label: 'Nicotine',     emoji: '🚬' },
@@ -26,10 +27,13 @@ const SPARK_INTERESTS = [
 
 export default function Profile() {
   const { user: authUser, logout } = useAuth()
-  const { user, setUser, setFlaggedTriggers, setJourneyProfile, journeyStage: savedStage, pastBlockers: savedBlockers } = useEmberStore()
+  const {
+    user, setUser, setFlaggedTriggers, setJourneyProfile, setUserInterests,
+    journeyStage: savedStage, pastBlockers: savedBlockers, userInterests: savedInterests
+  } = useEmberStore()
 
   const [addictions, setAddictions] = useState([])
-  const [wantToTry, setWantToTry] = useState([])
+  const [wantToTry, setWantToTry] = useState(savedInterests || [])
   const [customTry, setCustomTry] = useState('')
   const [hobbies, setHobbies] = useState('')
   const [heavyTopics, setHeavyTopics] = useState('')
@@ -68,6 +72,7 @@ export default function Profile() {
       setFlaggedTriggers(heavyArr)
     }
     setJourneyProfile(journeyStage, blockers)
+    setUserInterests(wantToTry)
     setSaving(false); setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -177,6 +182,10 @@ export default function Profile() {
 
         <Section title="Companion voice" sub="Who speaks to you when you need it most.">
           <VoicePicker />
+        </Section>
+
+        <Section title="Recovery stake" sub="Put skin in the game — earn your deposit back one session at a time.">
+          <RecoveryStake />
         </Section>
 
         {user?.support_code && (

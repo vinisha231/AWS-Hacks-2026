@@ -23,6 +23,11 @@ export const useEmberStore = create(
       profileSetupDone: false,
       journeyStage: null,      // 'starting' | 'tried_before' | 'been_at_it' | 'relapsed_restart'
       pastBlockers: [],        // e.g. ['Stress', 'Boredom', 'Social pressure']
+      // Recovery stake
+      stakedSOL: 0,            // total SOL deposited to vault
+      rewardPerSession: 0,     // SOL earned back per session survived
+      earnedSOL: 0,            // total SOL earned back so far
+      stakeDepositSig: null,   // on-chain tx signature of deposit
       loginDays: [],           // ['2026-04-25', ...] days user opened the app
       // Voice system
       voices: [],           // [{ id, label, voiceId, role, isClone }]
@@ -39,6 +44,11 @@ export const useEmberStore = create(
       setUserAddictions: (addictions) => set({ userAddictions: addictions }),
       completeProfileSetup: (interests, addictions) => set({ userInterests: interests, userAddictions: addictions, profileSetupDone: true }),
       setJourneyProfile: (journeyStage, pastBlockers) => set({ journeyStage, pastBlockers }),
+      setStake: (stakedSOL, rewardPerSession, stakeDepositSig) =>
+        set({ stakedSOL, rewardPerSession, stakeDepositSig, earnedSOL: 0 }),
+      addEarning: () => set(state => ({
+        earnedSOL: Math.min(state.stakedSOL, +(state.earnedSOL + state.rewardPerSession).toFixed(6))
+      })),
 
       recordLogin: () => set(state => {
         const today = new Date().toISOString().split('T')[0]
