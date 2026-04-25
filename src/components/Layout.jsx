@@ -4,6 +4,7 @@ import { useEmberStore } from '../store/emberStore'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { HomeIcon, ActivityIcon, PersonIcon, HeartIcon } from './Icons'
 import FlareLogo from './FlareLogo'
+import FloatingHobbies from './FloatingHobbies'
 
 const APP_NAME = 'Flare'
 
@@ -16,10 +17,12 @@ const NAV = [
 
 export default function Layout({ children }) {
   const { logout, user } = useAuth()
-  const { dayCount } = useEmberStore()
+  const { dayCount, userInterests } = useEmberStore()
 
   return (
-    <div className="min-h-screen text-stone-800 flex" style={{ background: '#f7f3ec' }}>
+    <div className="min-h-screen text-stone-800 flex relative" style={{ background: '#f7f3ec' }}>
+      {/* Global hobby floaters — appears behind all page content */}
+      <FloatingHobbies interests={userInterests || []} />
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 shrink-0 border-r border-stone-200/80 px-3 py-6 fixed h-full bg-white/60 backdrop-blur-sm z-30">

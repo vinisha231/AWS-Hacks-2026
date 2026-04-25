@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useEmberStore } from '../store/emberStore'
-import Layout, { PageShell } from '../components/Layout'
+import Layout from '../components/Layout'
 import VoicePicker from '../components/VoicePicker'
 
 const ADDICTION_OPTIONS = [
@@ -75,13 +75,12 @@ export default function Profile() {
 
   return (
     <Layout>
-      <PageShell>
-      <div className="flex flex-col gap-10">
+      <div className="px-6 md:px-12 py-10 max-w-2xl flex flex-col gap-10">
         <div>
-          <h1 className="text-3xl font-black mb-1">Profile</h1>
-          <p className="text-stone-500">Everything stays private. We use this to personalise your sparks.</p>
+          <h1 className="text-4xl font-black text-stone-900 mb-1">Profile</h1>
+          <p className="text-stone-400">Everything stays private. We use this to personalise your sparks.</p>
           {authUser?.username && (
-            <p className="text-stone-600 text-sm mt-1">Signed in as <span className="text-stone-400 font-medium">{authUser.username}</span></p>
+            <p className="text-stone-500 text-sm mt-1">Signed in as <span className="text-stone-700 font-medium">{authUser.username}</span></p>
           )}
         </div>
 
@@ -90,7 +89,7 @@ export default function Profile() {
             {ADDICTION_OPTIONS.map(({ label, emoji }) => (
               <button key={label} onClick={() => toggle(addictions, setAddictions, label)}
                 className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all text-left
-                  ${addictions.includes(label) ? 'border-amber-500 bg-amber-500/10 text-amber-300' : 'border-white/8 text-stone-400 hover:border-white/20 hover:text-white'}`}>
+                  ${addictions.includes(label) ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-stone-200 text-stone-600 hover:border-stone-300'}`}>
                 <span>{emoji}</span> {label}
               </button>
             ))}
@@ -102,7 +101,7 @@ export default function Profile() {
             {SPARK_INTERESTS.map(item => (
               <button key={item} onClick={() => toggle(wantToTry, setWantToTry, item)}
                 className={`px-3 py-1.5 rounded-full border text-sm transition-all
-                  ${wantToTry.includes(item) ? 'border-amber-500 bg-amber-500/10 text-amber-300' : 'border-white/8 text-stone-500 hover:border-white/20 hover:text-white'}`}>
+                  ${wantToTry.includes(item) ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-stone-200 text-stone-500 hover:border-stone-300'}`}>
                 {item}
               </button>
             ))}
@@ -111,13 +110,13 @@ export default function Profile() {
             <input value={customTry} onChange={e => setCustomTry(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addCustom()}
               placeholder="Add your own..."
-              className="flex-1 bg-stone-800 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white placeholder-stone-600 focus:outline-none focus:border-amber-500/50" />
-            <button onClick={addCustom} className="bg-stone-800 hover:bg-stone-700 border border-white/8 px-4 py-2.5 rounded-xl text-sm font-medium text-white">Add</button>
+              className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-400" />
+            <button onClick={addCustom} className="bg-stone-100 hover:bg-stone-200 border border-stone-200 px-4 py-2.5 rounded-xl text-sm font-medium text-stone-700">Add</button>
           </div>
           {wantToTry.filter(i => !SPARK_INTERESTS.includes(i)).map(item => (
-            <span key={item} className="inline-flex items-center gap-1.5 mt-2 mr-2 px-3 py-1.5 rounded-full border border-amber-500 bg-amber-500/10 text-amber-300 text-sm">
+            <span key={item} className="inline-flex items-center gap-1.5 mt-2 mr-2 px-3 py-1.5 rounded-full border border-amber-400 bg-amber-50 text-amber-800 text-sm">
               {item}
-              <button onClick={() => toggle(wantToTry, setWantToTry, item)} className="text-amber-500 hover:text-amber-300">×</button>
+              <button onClick={() => toggle(wantToTry, setWantToTry, item)} className="text-amber-500 hover:text-amber-700">×</button>
             </span>
           ))}
         </Section>
@@ -125,13 +124,13 @@ export default function Profile() {
         <Section title="Current hobbies" sub="We use these to understand your world.">
           <textarea value={hobbies} onChange={e => setHobbies(e.target.value)}
             placeholder="e.g. hiking, cooking, reading thrillers, football..."
-            className="w-full bg-stone-800 border border-white/8 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500/50" />
+            className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-stone-800 placeholder-stone-400 resize-none h-24 text-sm focus:outline-none focus:border-amber-400" />
         </Section>
 
-        <Section title="Topics that feel heavy" sub="Ember will never bring these up. Separate with commas.">
+        <Section title="Topics that feel heavy" sub="Flare will never bring these up. Separate with commas.">
           <textarea value={heavyTopics} onChange={e => setHeavyTopics(e.target.value)}
             placeholder="e.g. cooking (reminds me of someone), bars, casinos..."
-            className="w-full bg-stone-800 border border-white/8 rounded-xl p-4 text-white placeholder-stone-600 resize-none h-24 text-sm focus:outline-none focus:border-amber-500/50" />
+            className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-stone-800 placeholder-stone-400 resize-none h-24 text-sm focus:outline-none focus:border-amber-400" />
         </Section>
 
         <Section title="Companion voice" sub="Who speaks to you when you need it most.">
@@ -140,24 +139,23 @@ export default function Profile() {
 
         {user?.support_code && (
           <Section title="Support circle" sub="Share with someone you trust.">
-            <div className="flex items-center justify-between gap-4 bg-stone-800 border border-white/8 rounded-xl px-4 py-3">
-              <span className="text-amber-400 text-sm font-mono truncate">{window.location.origin}/support/{user.support_code}</span>
-              <button onClick={copySupport} className="text-stone-400 hover:text-white text-sm shrink-0 font-medium">Copy</button>
+            <div className="flex items-center justify-between gap-4 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3">
+              <span className="text-amber-600 text-sm font-mono truncate">{window.location.origin}/support/{user.support_code}</span>
+              <button onClick={copySupport} className="text-stone-500 hover:text-stone-800 text-sm shrink-0 font-medium">Copy</button>
             </div>
           </Section>
         )}
 
         <button onClick={handleSave} disabled={saving}
           className={`w-full font-bold py-4 rounded-xl transition-all text-base
-            ${saved ? 'bg-emerald-500 text-white' : 'bg-amber-500 hover:bg-amber-400 text-black'} disabled:opacity-50`}>
+            ${saved ? 'bg-emerald-500 text-white' : 'bg-amber-400 hover:bg-amber-500 text-black'} disabled:opacity-50`}>
           {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save profile'}
         </button>
 
-        <button onClick={logout} className="text-stone-600 hover:text-stone-400 text-sm text-center transition-colors pb-8">
+        <button onClick={logout} className="text-stone-400 hover:text-stone-600 text-sm text-center transition-colors pb-8">
           Sign out
         </button>
       </div>
-      </PageShell>
     </Layout>
   )
 }
@@ -166,7 +164,7 @@ function Section({ title, sub, children }) {
   return (
     <div>
       <h2 className="text-stone-800 font-semibold text-lg mb-0.5">{title}</h2>
-      {sub && <p className="text-stone-500 text-sm mb-4">{sub}</p>}
+      {sub && <p className="text-stone-400 text-sm mb-4">{sub}</p>}
       {children}
     </div>
   )

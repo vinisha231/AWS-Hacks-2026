@@ -42,7 +42,7 @@ export default function Auth() {
       <nav className="flex items-center justify-between px-8 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
           <FlameIcon size={20} className="text-amber-500" />
-          <span className="font-black text-lg tracking-tight">Ember</span>
+          <span className="font-black text-lg tracking-tight">Flare</span>
         </div>
         <button onClick={() => { setMode(m => m === 'login' ? 'signup' : 'login'); setError('') }}
           className="text-sm text-stone-400 hover:text-white transition-colors">

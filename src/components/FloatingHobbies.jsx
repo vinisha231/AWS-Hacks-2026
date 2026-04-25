@@ -65,7 +65,7 @@ export default function FloatingHobbies({ interests = [] }) {
           fontSize: isText
             ? `${28 + Math.floor(r * 3) * 10}px`  // chess: 28/38/48px
             : `${28 + Math.floor(r * 4) * 10}px`, // emoji: 28/38/48/58px
-          opacity: 0.18,
+          opacity: 0.35,
           fontFamily: isText ? 'serif' : undefined,
           color: isText ? '#78716c' : undefined,
         }

@@ -103,7 +103,7 @@ export default function VoicePicker() {
         <div className="flex items-center gap-2 bg-amber-500/8 border border-amber-500/20 rounded-xl px-4 py-2.5">
           <WaveformIcon size={16} className="text-amber-400" />
           <p className="text-amber-300 text-sm">
-            Ember will speak as <span className="font-semibold">{activeVoice.label}</span> — warm, proud, always in your corner.
+            Flare will speak as <span className="font-semibold">{activeVoice.label}</span> — warm, proud, always in your corner.
           </p>
         </div>
       )}
@@ -112,7 +112,7 @@ export default function VoicePicker() {
       <div className="bg-stone-900 border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-4">
         <div>
           <p className="text-white font-semibold text-sm mb-0.5">Clone a real voice</p>
-          <p className="text-stone-500 text-xs">Have your mom, sponsor, or anyone say a few sentences — Ember will speak in their actual voice. Up to 10 voices free.</p>
+          <p className="text-stone-500 text-xs">Have your mom, sponsor, or anyone say a few sentences — Flare will speak in their actual voice. Up to 10 voices free.</p>
         </div>
 
         <div className="flex gap-2">

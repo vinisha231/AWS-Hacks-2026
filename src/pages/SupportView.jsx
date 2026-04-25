@@ -75,7 +75,7 @@ export default function SupportView() {
           </div>
         )}
 
-        <p className="text-center text-stone-700 text-xs mt-8">Powered by Ember · All data is anonymous</p>
+        <p className="text-center text-stone-700 text-xs mt-8">Powered by Flare · All data is anonymous</p>
       </div>
     </div>
   )

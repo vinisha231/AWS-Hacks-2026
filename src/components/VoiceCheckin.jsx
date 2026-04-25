@@ -137,7 +137,7 @@ export default function VoiceCheckin({ onComplete, onSkip }) {
                 <WaveformIcon size={44} className="text-amber-400 animate-pulse" />
               </div>
             </div>
-            <p className="text-stone-400 text-sm">Ember is here with you…</p>
+            <p className="text-stone-400 text-sm">Flare is here with you…</p>
           </>
         )}
 

@@ -286,7 +286,7 @@ export default function CravingInterceptor({ onClose }) {
                 'bg-stone-900 border border-white/[0.06] text-stone-600'}`}>
               <MicIcon size={12} className={companionStatus === 'listening' ? 'text-emerald-400' : 'text-stone-600'} />
               {companionStatus === 'listening'
-                ? `${activeVoice?.label || 'Ember'} is listening — talk to me anytime`
+                ? `${activeVoice?.label || 'Flare'} is listening — talk to me anytime`
                 : companionStatus === 'responding' ? 'Responding…' : ''}
             </div>
 

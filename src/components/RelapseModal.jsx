@@ -100,7 +100,7 @@ export default function RelapseModal({ onClose }) {
           {phase === 'opening' && (
             <div className="flex items-center gap-3 text-stone-400 text-sm">
               <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              Ember is speaking…
+              Flare is speaking…
             </div>
           )}
 
@@ -143,7 +143,7 @@ export default function RelapseModal({ onClose }) {
                 onClick={handleSubmit}
                 disabled={!input.trim() || phase === 'thinking'}
                 className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-30 text-black font-bold py-3.5 rounded-2xl text-sm transition-all">
-                {phase === 'thinking' ? 'Reflecting…' : 'Share with Ember →'}
+                {phase === 'thinking' ? 'Reflecting…' : 'Share with Flare →'}
               </button>
             </>
           )}

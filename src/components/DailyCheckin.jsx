@@ -7,7 +7,7 @@ import { MicIcon, WaveformIcon, CheckIcon } from './Icons'
 const PROMPTS = [
   "Hey — how are you doing today?",
   "Check in with yourself. How's today feeling?",
-  "Tell Ember how you're doing right now.",
+  "Tell Flare how you're doing right now.",
   "What's on your mind today?",
 ]
 
@@ -152,7 +152,7 @@ export default function DailyCheckin() {
           <div className="flex items-center gap-4 pb-5">
             <div className="flex-1">
               <p className="text-white text-sm font-medium">{todayPrompt}</p>
-              <p className="text-stone-500 text-xs mt-0.5">Tap and speak — Ember will respond</p>
+              <p className="text-stone-500 text-xs mt-0.5">Tap and speak — Flare will respond</p>
             </div>
             <button onClick={startRecording}
               className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center hover:bg-amber-500/20 transition-all active:scale-95 shrink-0">
@@ -191,7 +191,7 @@ export default function DailyCheckin() {
         {phase === 'thinking' && (
           <div className="flex items-center gap-3 pb-5">
             <WaveformIcon size={20} className="text-amber-400 animate-pulse" />
-            <p className="text-stone-400 text-sm">Ember is listening…</p>
+            <p className="text-stone-400 text-sm">Flare is listening…</p>
           </div>
         )}
 

@@ -9,7 +9,6 @@ import MilestoneBadges from '../components/MilestoneBadges'
 import DailyAffirmation from '../components/DailyAffirmation'
 import RecentActivity from '../components/RecentActivity'
 import DailyCheckin from '../components/DailyCheckin'
-import FloatingHobbies from '../components/FloatingHobbies'
 import ProfileSetupModal from '../components/ProfileSetupModal'
 import RelapseModal from '../components/RelapseModal'
 import CalmPage from './CalmPage'
@@ -18,7 +17,7 @@ export default function Home() {
   const [phase, setPhase] = useState('idle')
   const [showRelapse, setShowRelapse] = useState(false)
   const { dayCount, activateCraving, setLastMoodAnalysis,
-    profileSetupDone, userInterests, recordLogin } = useEmberStore()
+    profileSetupDone, recordLogin } = useEmberStore()
   useEmberAuth()
 
   useEffect(() => { recordLogin() }, [])
@@ -36,9 +35,6 @@ export default function Home() {
       <Layout>
         {/* ── Full-bleed hero canvas ── */}
         <div className="relative overflow-hidden" style={{ minHeight: '88vh' }}>
-
-          {/* Hobby elements float across the ENTIRE hero canvas */}
-          <FloatingHobbies interests={userInterests} />
 
           {/* Very subtle radial glow centers on the button area */}
           <div className="absolute inset-0 pointer-events-none"
