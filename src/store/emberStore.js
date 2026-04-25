@@ -3,10 +3,14 @@ import { persist } from 'zustand/middleware'
 
 // Built-in ElevenLabs pre-made voices — free on all plans
 export const PRESET_VOICES = [
-  { id: 'preset_mother',   label: 'Mother',   voiceId: 'pFZP5JQG7iQjIQuC4Bku', role: 'mother'   },
-  { id: 'preset_father',   label: 'Father',   voiceId: 'VR6AewLTigWG4xSOukaG', role: 'father'   },
-  { id: 'preset_daughter', label: 'Daughter', voiceId: 'MF3mGyEYCl7XYWbV9V6O', role: 'daughter' },
-  { id: 'preset_son',      label: 'Son',      voiceId: 'TxGEqnHWrfWFTfGW9XjX', role: 'son'      },
+  { id: 'preset_rachel',  label: 'Rachel',  voiceId: '21m00Tcm4TlvDq8ikWAM', role: 'warm & calm',       emoji: '🌸' },
+  { id: 'preset_bella',   label: 'Bella',   voiceId: 'EXAVITQu4vr4xnSDxMaL', role: 'soft & gentle',     emoji: '✨' },
+  { id: 'preset_elli',    label: 'Elli',    voiceId: 'MF3mGyEYCl7XYWbV9V6O', role: 'bright & caring',   emoji: '💛' },
+  { id: 'preset_domi',    label: 'Domi',    voiceId: 'AZnzlk1XvdvUeBnXmlld', role: 'strong & clear',    emoji: '🔥' },
+  { id: 'preset_josh',    label: 'Josh',    voiceId: 'TxGEqnHWrfWFTfGW9XjX', role: 'deep & steady',     emoji: '🏔️' },
+  { id: 'preset_adam',    label: 'Adam',    voiceId: 'pNInz6obpgDQGcFmaJgB', role: 'grounded & firm',   emoji: '🌿' },
+  { id: 'preset_arnold',  label: 'Arnold',  voiceId: 'VR6AewLTigWG4xSOukaG', role: 'powerful & assured',emoji: '⚡' },
+  { id: 'preset_sam',     label: 'Sam',     voiceId: 'yoZ06aMxZJJ28mfd3POQ', role: 'warm & encouraging',emoji: '🌟' },
 ]
 
 export const useEmberStore = create(
