@@ -5,6 +5,8 @@ export const useEmberStore = create(
   persist(
     (set, get) => ({
       user: null,
+      session: null,
+      username: '',
       dayCount: 0,
       sparkProfile: {},
       flaggedTriggers: [],
@@ -16,6 +18,8 @@ export const useEmberStore = create(
       lastMoodAnalysis: null,
 
       setUser: (user) => set({ user }),
+      setSession: (session) => set({ session }),
+      setUsername: (username) => set({ username }),
       setVoiceId: (id) => set({ primaryVoiceId: id }),
       setWallet: (addr) => set({ walletAddress: addr }),
       setSparkProfile: (profile) => set({ sparkProfile: profile }),
@@ -46,6 +50,6 @@ export const useEmberStore = create(
 
       setLastMoodAnalysis: (analysis) => set({ lastMoodAnalysis: analysis }),
     }),
-    { name: 'ember-v1' }
+    { name: 'ember-v2' }
   )
 )

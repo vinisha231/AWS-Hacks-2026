@@ -1,26 +1,24 @@
 import { NavLink } from 'react-router-dom'
-import { useAuth0 } from '@auth0/auth0-react'
 import { useEmberStore } from '../store/emberStore'
+import { signOut } from '../lib/auth'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { HomeIcon, ActivityIcon, PersonIcon, HeartIcon, FlameIcon } from './Icons'
 
 const NAV = [
-  { to: '/home',         Icon: HomeIcon,     label: 'Home'     },
-  { to: '/activity',     Icon: ActivityIcon, label: 'Activity' },
-  { to: '/profile',      Icon: PersonIcon,   label: 'Profile'  },
-  { to: '/support-view', Icon: HeartIcon,    label: 'Support'  },
+  { to: '/home',     Icon: HomeIcon,     label: 'Home'    },
+  { to: '/activity', Icon: ActivityIcon, label: 'Activity'},
+  { to: '/connect',  Icon: HeartIcon,    label: 'Connect' },
+  { to: '/profile',  Icon: PersonIcon,   label: 'Profile' },
 ]
 
 export default function Layout({ children }) {
-  const { logout } = useAuth0()
-  const { dayCount } = useEmberStore()
+  const { dayCount, username } = useEmberStore()
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex">
 
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-white/[0.06] px-3 py-6 fixed h-full">
-
         <div className="flex items-center gap-2.5 px-3 mb-10">
           <FlameIcon size={22} className="text-amber-500" />
           <span className="font-black text-xl tracking-tight">Ember</span>
@@ -47,6 +45,12 @@ export default function Layout({ children }) {
         </nav>
 
         <div className="px-1 flex flex-col gap-3">
+          {username && (
+            <div className="px-3 py-2 rounded-xl">
+              <p className="text-stone-600 text-xs">Signed in as</p>
+              <p className="text-stone-300 text-sm font-medium">{username}</p>
+            </div>
+          )}
           <div className="px-3 py-3 rounded-xl bg-stone-900 border border-white/[0.06]">
             <p className="text-stone-500 text-xs mb-1">Streak</p>
             <p className="text-amber-400 font-black text-2xl leading-none">
@@ -55,7 +59,7 @@ export default function Layout({ children }) {
           </div>
           <WalletMultiButton style={{ background: '#161616', fontSize: '12px', width: '100%', justifyContent: 'center', borderRadius: '12px' }} />
           <button
-            onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+            onClick={() => signOut()}
             className="text-stone-700 hover:text-stone-400 text-xs py-1 transition-colors text-center"
           >
             Sign out

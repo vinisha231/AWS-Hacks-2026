@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth0 } from '@auth0/auth0-react'
 import { supabase } from '../lib/supabase'
 import { useEmberStore } from '../store/emberStore'
 
@@ -16,15 +15,14 @@ export default function Onboarding() {
   const [safeTopics, setSafeTopics] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { user } = useAuth0()
-  const { setUser } = useEmberStore()
+  const { session, setUser } = useEmberStore()
   const navigate = useNavigate()
 
   const handleComplete = async () => {
     setLoading(true)
     const { data } = await supabase.from('users')
       .update({ addiction_type: addictionType })
-      .eq('auth0_id', user.sub)
+      .eq('auth0_id', session?.user?.id)
       .select().single()
 
     setUser(data)

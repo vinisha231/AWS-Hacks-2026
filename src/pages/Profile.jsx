@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useAuth0 } from '@auth0/auth0-react'
 import { supabase } from '../lib/supabase'
+import { signOut } from '../lib/auth'
 import { useEmberStore } from '../store/emberStore'
 import Layout from '../components/Layout'
 
@@ -24,8 +24,7 @@ const SPARK_INTERESTS = [
 ]
 
 export default function Profile() {
-  const { user: auth0User, logout } = useAuth0()
-  const { user, setUser, setFlaggedTriggers } = useEmberStore()
+  const { user, session, setUser, setFlaggedTriggers } = useEmberStore()
 
   const [addictions, setAddictions] = useState([])
   const [wantToTry, setWantToTry] = useState([])
@@ -49,13 +48,13 @@ export default function Profile() {
   }
 
   const handleSave = async () => {
-    if (!auth0User) return
+    if (!session?.user?.id) return
     setSaving(true)
     const heavyArr = heavyTopics.split(',').map(s => s.trim()).filter(Boolean)
 
     const { data } = await supabase.from('users')
       .update({ addiction_type: addictions.join(', ') })
-      .eq('auth0_id', auth0User.sub).select().single()
+      .eq('auth0_id', session.user.id).select().single()
     if (data) setUser(data)
 
     if (heavyArr.length && user?.id) {
@@ -160,7 +159,7 @@ export default function Profile() {
           {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save profile'}
         </button>
 
-        <button onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+        <button onClick={() => signOut()}
           className="text-stone-600 hover:text-stone-400 text-sm text-center transition-colors pb-8">
           Sign out
         </button>

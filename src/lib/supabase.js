@@ -5,16 +5,10 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 )
 
-export async function getUserByAuth0Id(auth0Id) {
-  const { data } = await supabase
-    .from('users').select('*').eq('auth0_id', auth0Id).single()
-  return data
-}
-
-export async function upsertUser(auth0Id) {
+export async function upsertUser(supabaseUserId) {
   const { data } = await supabase
     .from('users')
-    .upsert({ auth0_id: auth0Id }, { onConflict: 'auth0_id' })
+    .upsert({ auth0_id: supabaseUserId }, { onConflict: 'auth0_id' })
     .select().single()
   return data
 }
