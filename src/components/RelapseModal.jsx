@@ -72,7 +72,14 @@ export default function RelapseModal({ onClose }) {
 
       setPhase('response')
       if (voiceId && data.response) {
-        try { await playVoiceMessage(data.response, voiceId) } catch {}
+        try {
+          await playVoiceMessage(data.response, voiceId)
+          // Read out the improvements after the main response
+          if (data.improvements?.length) {
+            const spoken = "Here are some ways to improve going forward: " + data.improvements.join('. ')
+            await playVoiceMessage(spoken, voiceId)
+          }
+        } catch {}
       }
     } catch {
       setError('Something went wrong. Your streak has been reset. Day 1 starts now.')
@@ -154,17 +161,30 @@ export default function RelapseModal({ onClose }) {
                 <p className="text-stone-300 text-sm leading-relaxed">{error}</p>
               ) : reflection ? (
                 <>
+                  {/* Flare's spoken response */}
                   <div className="bg-stone-900 border border-white/[0.06] rounded-2xl p-4">
                     <p className="text-stone-200 text-sm leading-relaxed">{reflection.response}</p>
                   </div>
 
-                  {reflection.strategies?.length > 0 && (
-                    <div>
-                      <p className="text-stone-500 text-xs uppercase tracking-widest mb-2">For next time</p>
-                      <ul className="flex flex-col gap-2">
-                        {reflection.strategies.map((s, i) => (
-                          <li key={i} className="flex items-start gap-2 text-stone-300 text-sm">
-                            <span className="text-amber-400 mt-0.5">→</span> {s}
+                  {/* Trigger identified */}
+                  {reflection.triggerIdentified && reflection.triggerIdentified !== 'unspecified' && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-stone-500 uppercase tracking-widest">Trigger identified:</span>
+                      <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">{reflection.triggerIdentified}</span>
+                    </div>
+                  )}
+
+                  {/* Improvement steps */}
+                  {(reflection.improvements || reflection.strategies)?.length > 0 && (
+                    <div className="bg-stone-900 border border-amber-500/20 rounded-2xl p-4">
+                      <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-3">How to improve & stop this</p>
+                      <ul className="flex flex-col gap-3">
+                        {(reflection.improvements || reflection.strategies).map((s, i) => (
+                          <li key={i} className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold flex items-center justify-center mt-0.5">
+                              {i + 1}
+                            </span>
+                            <p className="text-stone-300 text-sm leading-relaxed">{s}</p>
                           </li>
                         ))}
                       </ul>

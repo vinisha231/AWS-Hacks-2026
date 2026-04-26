@@ -176,22 +176,21 @@ router.post('/relapse-reflect', async (req, res) => {
   const prompt = `You are Flare, a compassionate addiction recovery companion. Someone just relapsed after ${dayCount} days clean.
 They shared this reflection about what happened: "${userReflection}"
 Where they are in their journey: ${journeyStage || 'unknown'}
-Blockers that have tripped them up before: ${JSON.stringify(pastBlockers || [])}
-If the reflection connects to a known blocker, acknowledge the pattern directly and offer a concrete new approach.
+Known blockers that have tripped them up before: ${JSON.stringify(pastBlockers || [])}
 Topics to avoid: ${JSON.stringify(flaggedTriggers || [])}
 
-Respond with:
-1. Warm, non-judgmental acknowledgment of what they shared (1-2 sentences — name the specific trigger if they mentioned one)
-2. A concrete, personalized suggestion for how to handle that specific trigger differently next time (2-3 sentences)
-3. A brief, powerful closing that reminds them Day 1 starts NOW and that counts (1 sentence)
+Your job is to help them understand exactly what went wrong AND give them a concrete action plan so it doesn't happen again.
 
-Keep the whole response under 6 sentences. Warm, human, spoken-aloud tone.
-
-Return ONLY valid JSON:
+Return ONLY valid JSON with these exact fields:
 {
-  "response": "<your spoken response>",
-  "triggerIdentified": "<the main trigger they described, or 'unspecified'>",
-  "strategies": ["<strategy 1>", "<strategy 2>", "<strategy 3>"]
+  "response": "<2-3 warm, spoken sentences: acknowledge what happened without judgment, name the specific trigger they described, then end with one powerful line about Day 1 starting now>",
+  "triggerIdentified": "<the core trigger they described in 2-5 words, e.g. 'stress at work', 'loneliness at night'>",
+  "improvements": [
+    "<specific thing they can do differently — starts with an action verb, tied directly to their trigger, e.g. 'Call a friend the moment you feel that pull instead of sitting alone with it'>",
+    "<a mindset or habit shift that addresses the root cause, not just the symptom>",
+    "<one thing to set up TODAY — a concrete barrier or support structure — so next time is harder to slip>",
+    "<a coping strategy for the exact emotional state they described — stress / loneliness / boredom / etc.>"
+  ]
 }`
   try {
     res.json(await callGemini(prompt))
