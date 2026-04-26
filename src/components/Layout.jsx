@@ -114,13 +114,7 @@ export default function Layout({ children, noHobbies = false, rightPanel = null 
               <p style={{ fontSize: '11px', color: MID }}>Signed in as</p>
               <p style={{ fontSize: '13px', fontWeight: 500, color: DARK }} className="truncate">{user?.username}</p>
             </div>
-            <div style={{ padding: '12px', borderRadius: '14px', background: 'rgba(201,75,44,0.08)', border: '1px solid rgba(201,75,44,0.15)', marginBottom: '8px' }}>
-              <p style={{ fontSize: '11px', color: MID, marginBottom: '2px' }}>Streak</p>
-              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 700, color: RUST, lineHeight: 1 }}>
-                {dayCount}<span style={{ fontSize: '12px', color: MID, fontFamily: 'Inter, sans-serif', fontWeight: 400, marginLeft: '4px' }}>days</span>
-              </p>
-            </div>
-            <WalletMultiButton style={{ background: 'rgba(44,36,22,0.06)', color: DARK, fontSize: '11px', width: '100%', justifyContent: 'center', borderRadius: '12px', border: '1px solid rgba(44,36,22,0.1)', marginBottom: '4px' }} />
+<WalletMultiButton style={{ background: 'rgba(44,36,22,0.06)', color: DARK, fontSize: '11px', width: '100%', justifyContent: 'center', borderRadius: '12px', border: '1px solid rgba(44,36,22,0.1)', marginBottom: '4px' }} />
             <button onClick={logout} style={{ color: MID, fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', width: '100%', padding: '6px', textAlign: 'center' }}>
               Sign out
             </button>
