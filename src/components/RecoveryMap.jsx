@@ -60,20 +60,20 @@ export default function RecoveryMap({ dayCount = 0 }) {
       {ZONES.map((zone, i) => {
         if (i <= currentIdx) return null
         const depth = (i - currentIdx) / (ZONES.length - currentIdx)
-        const blur = 8 + depth * 10
-        const dark = 0.25 + depth * 0.25
+        const blur = 3 + depth * 4
+        const dark = 0.55 + depth * 0.15
         return (
           <div key={zone.id}
             className="absolute rounded-full pointer-events-none z-10"
             style={{
               left:      `${zone.x}%`,
               top:       `${zone.y}%`,
-              width:     '9%',
-              height:    '12%',
+              width:     '7%',
+              height:    '9%',
               transform: 'translate(-50%, -50%)',
-              backdropFilter: `blur(${blur}px) brightness(${dark}) saturate(0.3)`,
-              WebkitBackdropFilter: `blur(${blur}px) brightness(${dark}) saturate(0.3)`,
-              background: `radial-gradient(ellipse, rgba(5,10,5,${dark * 0.7}) 0%, transparent 70%)`,
+              backdropFilter: `blur(${blur}px) brightness(${dark}) saturate(0.5)`,
+              WebkitBackdropFilter: `blur(${blur}px) brightness(${dark}) saturate(0.5)`,
+              background: `radial-gradient(ellipse, rgba(5,10,5,0.15) 0%, transparent 70%)`,
             }}
           />
         )
