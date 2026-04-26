@@ -123,7 +123,7 @@ export default function Home() {
             alignContent: 'center',
           }}>
             <GoalsCard mainGoal={mainGoal} quitGoals={quitGoals} />
-            <AudioCard voiceId={primaryVoiceId} />
+            <AudioCard voiceId={primaryVoiceId} voiceLabel={useEmberStore.getState().activeVoice?.label} />
             <MilestonesCard dayCount={dayCount} />
             <StreakCalCard dayCount={dayCount} />
           </div>
@@ -146,18 +146,36 @@ function GoalsCard({ mainGoal, quitGoals }) {
   return (
     <Card bg={AMBER} padded>
       <PlusBtn onClick={() => setOpen(true)} />
-      <p style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>
+      {/* Label pinned top-left */}
+      <p style={{
+        position: 'absolute', top: '1.4rem', left: '1.4rem',
+        fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase',
+        color: 'rgba(255,255,255,0.65)',
+      }}>
         Main Goal
       </p>
-      {mainGoal ? (
-        <p className="serif" style={{ fontSize: '1.1rem', fontWeight: 600, color: '#fff', lineHeight: 1.4 }}>
-          {mainGoal.text}
-        </p>
-      ) : (
-        <p className="serif" style={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>
-          Add your goal in Profile
-        </p>
-      )}
+      {/* Goal fills the card */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '2.5rem 1.6rem',
+      }}>
+        {mainGoal ? (
+          <p className="serif" style={{
+            fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', fontWeight: 700,
+            color: '#fff', lineHeight: 1.25, textAlign: 'center',
+          }}>
+            {mainGoal.text}
+          </p>
+        ) : (
+          <p className="serif" style={{
+            fontSize: '1.2rem', fontWeight: 600,
+            color: 'rgba(255,255,255,0.65)', lineHeight: 1.4, textAlign: 'center',
+          }}>
+            Add your goal in Profile
+          </p>
+        )}
+      </div>
 
       {open && (
         <Overlay onClose={() => setOpen(false)} title="Your Goals">
@@ -197,10 +215,12 @@ function GoalsCard({ mainGoal, quitGoals }) {
 }
 
 /* ── Audio card ── */
-function AudioCard({ voiceId }) {
+function AudioCard({ voiceId, voiceLabel }) {
   const [playing, setPlaying] = useState(false)
   const audioRef = useRef(null)
   const SERVER = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
+  const { activeVoice } = useEmberStore()
+  const label = voiceLabel || activeVoice?.label || 'your companion'
 
   const play = async () => {
     if (playing) return
@@ -225,26 +245,47 @@ function AudioCard({ voiceId }) {
 
   return (
     <Card bg={RUST} padded>
-      <button onClick={play} style={{
-        width: '60px', height: '60px', borderRadius: '50%',
-        border: '2px solid rgba(255,255,255,0.55)',
-        background: 'none', cursor: playing ? 'default' : 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'transform 0.15s',
+      {/* Label top-left */}
+      <p style={{
+        position: 'absolute', top: '1.4rem', left: '1.4rem',
+        fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase',
+        color: 'rgba(255,255,255,0.65)',
       }}>
-        {playing ? (
-          <span style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
-            {[0, 1, 2].map(i => (
-              <span key={i} style={{
-                width: '3px', height: '14px', background: '#fff', borderRadius: '2px',
-                opacity: 0.8, animation: `bounce 0.8s ease-in-out ${i * 0.15}s infinite alternate`,
-              }} />
-            ))}
-          </span>
-        ) : (
-          <span style={{ color: '#fff', fontSize: '22px', marginLeft: '5px' }}>▶</span>
-        )}
-      </button>
+        Voice recording of
+      </p>
+
+      {/* Content centered */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: '1rem',
+      }}>
+        <button onClick={play} style={{
+          width: '64px', height: '64px', borderRadius: '50%',
+          border: '2px solid rgba(255,255,255,0.55)',
+          background: 'none', cursor: playing ? 'default' : 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {playing ? (
+            <span style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              {[0, 1].map(i => (
+                <span key={i} style={{
+                  width: '3px', height: '16px', background: '#fff', borderRadius: '2px',
+                  opacity: 0.9, animation: `bounce 0.7s ease-in-out ${i * 0.2}s infinite alternate`,
+                }} />
+              ))}
+            </span>
+          ) : (
+            <span style={{ color: '#fff', fontSize: '22px', marginLeft: '5px' }}>▶</span>
+          )}
+        </button>
+        <p className="serif" style={{
+          fontSize: '1.3rem', fontWeight: 600, color: '#fff',
+          textAlign: 'center', lineHeight: 1.2,
+        }}>
+          {label}
+        </p>
+      </div>
     </Card>
   )
 }
@@ -258,18 +299,61 @@ function MilestonesCard({ dayCount }) {
   return (
     <Card bg={BLUE} padded>
       <PlusBtn dark onClick={() => setOpen(true)} />
-      <p className="serif" style={{ fontSize: '1.4rem', fontWeight: 600, color: DARK }}>Milestones</p>
-      {next && (
-        <div style={{ marginTop: '8px' }}>
-          <p style={{ fontSize: '11px', color: MID }}>Next: {next.label} — Day {next.days}</p>
-          <div style={{ marginTop: '6px', height: '4px', background: 'rgba(44,36,22,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: RUST, borderRadius: '4px', width: `${Math.min((dayCount / next.days) * 100, 100)}%`, transition: 'width 0.6s' }} />
+
+      {/* Label top-left */}
+      <p style={{
+        position: 'absolute', top: '1.4rem', left: '1.4rem',
+        fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase',
+        color: MID,
+      }}>
+        Milestones
+      </p>
+
+      {/* Content fills card */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', padding: '1.4rem',
+        gap: '10px',
+      }}>
+        {MILESTONES.slice(0, 4).map(m => {
+          const done = dayCount >= m.days
+          const isNext = m === next
+          return (
+            <div key={m.days} style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              opacity: done ? 1 : isNext ? 0.7 : 0.3,
+            }}>
+              <div style={{
+                width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0,
+                background: done ? m.color : isNext ? MID : 'rgba(44,36,22,0.2)',
+              }} />
+              <p style={{
+                fontSize: '13px', fontWeight: done ? 600 : 400,
+                color: done ? m.color : DARK, flex: 1,
+              }}>
+                {m.label}
+              </p>
+              <p style={{ fontSize: '11px', color: MID }}>Day {m.days}</p>
+            </div>
+          )
+        })}
+
+        {next && (
+          <div style={{ marginTop: '6px' }}>
+            <div style={{ height: '3px', background: 'rgba(44,36,22,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', background: RUST, borderRadius: '4px',
+                width: `${Math.min((dayCount / next.days) * 100, 100)}%`,
+                transition: 'width 0.6s',
+              }} />
+            </div>
+            <p style={{ fontSize: '10px', color: MID, marginTop: '4px' }}>
+              {next.days - dayCount} days to {next.label}
+            </p>
           </div>
-        </div>
-      )}
-      {earned.length === 0 && !next && (
-        <p style={{ fontSize: '12px', color: MID, marginTop: '8px' }}>All milestones earned!</p>
-      )}
+        )}
+      </div>
 
       {open && (
         <Overlay onClose={() => setOpen(false)} title="Milestones">
