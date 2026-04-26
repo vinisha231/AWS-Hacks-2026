@@ -46,6 +46,7 @@ export default function CravingInterceptor({ onClose }) {
   const fileRef = useRef(null)
   const companionRecRef = useRef(null)
   const phaseRef = useRef('loading')
+  const userClosedRef = useRef(false)  // true only when user explicitly closes
 
   const { user, sparkProfile, flaggedTriggers, usedActivitiesToday,
     activeVoice, primaryVoiceId, resolveCraving, addUsedActivity,
@@ -82,6 +83,7 @@ export default function CravingInterceptor({ onClose }) {
 
   // Close WITHOUT saving — streak unchanged
   const handleClose = () => {
+    userClosedRef.current = true
     stopSession()
     onClose()
   }
@@ -110,20 +112,17 @@ export default function CravingInterceptor({ onClose }) {
       setPhase('redirecting')
       addUsedActivity(sparkData.title)
 
-      try {
-        await playVoiceMessage(sparkData.openingLine, voiceId)
-        await playVoiceMessage(sparkData.instruction, voiceId)
-      } catch {}
-
-      startTimer()
-      startCompanionListening(sparkData)
+      if (!userClosedRef.current) await playVoiceMessage(sparkData.openingLine, voiceId)
+      if (!userClosedRef.current) await playVoiceMessage(sparkData.instruction, voiceId)
+      if (!userClosedRef.current) startTimer()
+      if (!userClosedRef.current) startCompanionListening(sparkData)
     } catch {
       const fallback = FALLBACK_SPARKS[0]
       sparkRef.current = fallback
       setSpark(fallback)
       setPhase('redirecting')
-      startTimer()
-      startCompanionListening(fallback)
+      if (!userClosedRef.current) startTimer()
+      if (!userClosedRef.current) startCompanionListening(fallback)
     }
   }
 
@@ -153,6 +152,7 @@ export default function CravingInterceptor({ onClose }) {
 
     let parts = []
     rec.onresult = async (e) => {
+      if (userClosedRef.current) return
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) parts.push(e.results[i][0].transcript)
       }
@@ -247,15 +247,13 @@ export default function CravingInterceptor({ onClose }) {
       <div className="fixed inset-0 flex flex-col items-center justify-center z-50 p-6 overflow-y-auto"
         style={{ background: 'linear-gradient(to bottom, #1a3d28 0%, #0f2419 100%)' }}>
 
-        {/* Always-visible close button — no session saved */}
-        {phase !== 'survived' && (
-          <button
-            onClick={handleClose}
-            className="fixed top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-stone-800/80 hover:bg-stone-700 text-stone-400 hover:text-white text-xl transition-all backdrop-blur-sm border border-white/[0.06]"
-            title="Close (session won't be saved)">
-            ×
-          </button>
-        )}
+        {/* Always-visible close button */}
+        <button
+          onClick={handleClose}
+          className="fixed top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-stone-800/80 hover:bg-stone-700 text-stone-400 hover:text-white text-xl transition-all backdrop-blur-sm border border-white/[0.06]"
+          title="Close">
+          ×
+        </button>
 
         {phase === 'loading' && (
           <div className="flex flex-col items-center gap-4 text-center">
