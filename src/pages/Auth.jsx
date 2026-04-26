@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import FlareLogo from '../components/FlareLogo'
 
 const BG   = '#FAF3E0'
 const RUST = '#C94B2C'
@@ -44,8 +45,8 @@ export default function Auth() {
 
       {/* Logo */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2.5rem' }}>
-        <span style={{ fontSize: '64px', lineHeight: 1, marginBottom: '0.5rem' }}>🔥</span>
-        <h1 className="serif" style={{ fontSize: '3rem', fontWeight: 600, letterSpacing: '0.3em', color: '#2C2416' }}>FLARE</h1>
+        <FlareLogo size={80} />
+        <h1 className="serif" style={{ fontSize: '3rem', fontWeight: 600, letterSpacing: '0.3em', color: '#2C2416', marginTop: '0.5rem' }}>FLARE</h1>
         <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', color: '#8C7A5A', marginTop: '0.4rem', textTransform: 'uppercase' }}>
           The Right Help at the Right Time
         </p>

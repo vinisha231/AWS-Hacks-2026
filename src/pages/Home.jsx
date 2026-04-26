@@ -93,19 +93,6 @@ export default function Home() {
               I Relapsed
             </button>
 
-            {/* Streak */}
-            <div>
-              <p className="serif" style={{
-                fontSize: 'clamp(4.5rem, 9vw, 7.5rem)', fontWeight: 700,
-                fontStyle: 'italic', color: DARK, lineHeight: 1, letterSpacing: '-0.02em',
-              }}>
-                {dayCount}
-              </p>
-              <p style={{ fontSize: '0.7rem', letterSpacing: '0.25em', color: MID, textTransform: 'uppercase', marginTop: '0.2rem' }}>
-                Streak
-              </p>
-            </div>
-
             {/* Daily check-in */}
             <div style={{ flex: 1 }}>
               <DailyCheckin />
