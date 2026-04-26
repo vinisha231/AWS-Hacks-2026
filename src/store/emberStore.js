@@ -25,6 +25,8 @@ export const useEmberStore = create(
       userInterests: [],       // from profile setup
       userAddictions: [],      // from profile setup
       goals: [],               // [{ id, text, done, createdAt }]
+      quitGoals: [],           // [{ id, text, createdAt }] — up to 5 goals to quit
+      mainGoalId: null,        // id of the primary quit goal
       profileSetupDone: false,
       journeyStage: null,      // 'starting' | 'tried_before' | 'been_at_it' | 'relapsed_restart'
       pastBlockers: [],        // e.g. ['Stress', 'Boredom', 'Social pressure']
@@ -50,6 +52,17 @@ export const useEmberStore = create(
       toggleGoal: (id)   => set(s => ({ goals: s.goals.map(g => g.id === id ? { ...g, done: !g.done } : g) })),
       editGoal:   (id, text) => set(s => ({ goals: s.goals.map(g => g.id === id ? { ...g, text } : g) })),
       deleteGoal: (id)   => set(s => ({ goals: s.goals.filter(g => g.id !== id) })),
+      addQuitGoal: (text) => set(s => {
+        if (s.quitGoals.length >= 5) return {}
+        const newGoal = { id: Date.now(), text, createdAt: Date.now() }
+        const newGoals = [...s.quitGoals, newGoal]
+        return { quitGoals: newGoals, mainGoalId: s.mainGoalId ?? newGoal.id }
+      }),
+      deleteQuitGoal: (id) => set(s => ({
+        quitGoals: s.quitGoals.filter(g => g.id !== id),
+        mainGoalId: s.mainGoalId === id ? (s.quitGoals.find(g => g.id !== id)?.id ?? null) : s.mainGoalId,
+      })),
+      setMainGoal: (id) => set({ mainGoalId: id }),
       setUserAddictions: (addictions) => set({ userAddictions: addictions }),
       completeProfileSetup: (interests, addictions) => set({ userInterests: interests, userAddictions: addictions, profileSetupDone: true }),
       setJourneyProfile: (journeyStage, pastBlockers) => set({ journeyStage, pastBlockers }),

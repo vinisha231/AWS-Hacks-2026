@@ -22,6 +22,7 @@ export default function Profile() {
   const {
     user, setUser, setFlaggedTriggers, setJourneyProfile, setUserInterests,
     journeyStage: savedStage, pastBlockers: savedBlockers, userInterests: savedInterests,
+    quitGoals, mainGoalId, addQuitGoal, deleteQuitGoal, setMainGoal,
   } = useEmberStore()
 
   const [addictions, setAddictions] = useState([])
@@ -32,6 +33,7 @@ export default function Profile() {
   const [journeyStage, setJourneyStage] = useState(savedStage || null)
   const [blockers, setBlockers] = useState(savedBlockers || [])
   const [customBlocker, setCustomBlocker] = useState('')
+  const [quitInput, setQuitInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -84,6 +86,62 @@ export default function Profile() {
             <p className="text-stone-500 text-sm mt-1">Signed in as <span className="text-stone-700 font-medium">{authUser.username}</span></p>
           )}
         </div>
+
+        <Section title="What are your goals to quit?" sub={`Add up to 5. Tap to set your main goal. (${quitGoals.length}/5)`}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+            {quitGoals.map(g => (
+              <div key={g.id} style={{
+                display: 'flex', alignItems: 'center', gap: '10px',
+                padding: '10px 12px', borderRadius: '12px',
+                background: g.id === mainGoalId ? 'rgba(201,149,58,0.1)' : 'rgba(44,36,22,0.03)',
+                border: `1.5px solid ${g.id === mainGoalId ? 'rgba(201,149,58,0.5)' : 'rgba(44,36,22,0.1)'}`,
+              }}>
+                <button
+                  onClick={() => setMainGoal(g.id)}
+                  title="Set as main goal"
+                  style={{
+                    width: '18px', height: '18px', borderRadius: '50%', border: 'none', flexShrink: 0,
+                    background: g.id === mainGoalId ? '#C9953A' : 'rgba(44,36,22,0.15)',
+                    cursor: 'pointer',
+                  }}
+                />
+                <span style={{
+                  flex: 1, fontSize: '14px', color: '#2C2416',
+                  fontWeight: g.id === mainGoalId ? 600 : 400,
+                }}>
+                  {g.text}
+                </span>
+                {g.id === mainGoalId && (
+                  <span style={{ fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C9953A', fontWeight: 600 }}>Main</span>
+                )}
+                <button onClick={() => deleteQuitGoal(g.id)} style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: '#8C7A5A', fontSize: '18px', lineHeight: 1,
+                }}>×</button>
+              </div>
+            ))}
+          </div>
+          {quitGoals.length < 5 && (
+            <div className="flex gap-2">
+              <input
+                value={quitInput}
+                onChange={e => setQuitInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    const t = quitInput.trim()
+                    if (t) { addQuitGoal(t); setQuitInput('') }
+                  }
+                }}
+                placeholder="e.g. Quit smoking, Stop drinking..."
+                className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-400"
+              />
+              <button
+                onClick={() => { const t = quitInput.trim(); if (t) { addQuitGoal(t); setQuitInput('') } }}
+                className="bg-stone-100 hover:bg-stone-200 border border-stone-200 px-4 py-2.5 rounded-xl text-sm font-medium text-stone-700"
+              >Add</button>
+            </div>
+          )}
+        </Section>
 
         <Section title="What are you working on?" sub="Select all that apply.">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
