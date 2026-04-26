@@ -72,8 +72,8 @@ router.post('/clone-voice', upload.array('samples'), async (req, res) => {
     form.append('name', `${personName || 'Clone'} - Ember`)
     form.append('description', `Voice clone for ${personName}`)
     req.files.forEach(f => {
-      const file = new File([f.buffer], f.originalname || `${personName}.webm`, { type: f.mimetype || 'audio/webm' })
-      form.append('files', file)
+      const blob = new Blob([f.buffer], { type: f.mimetype || 'audio/webm' })
+      form.append('files', blob, f.originalname || `${personName}.webm`)
     })
     return form
   }
