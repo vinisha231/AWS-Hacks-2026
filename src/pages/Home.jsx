@@ -52,17 +52,29 @@ export default function Home() {
             flex: '0 0 45%',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
+            gap: '2.5rem',
             padding: '3rem 2.5rem 3rem 3rem',
             borderRight: `1px solid rgba(44,36,22,0.08)`,
           }}>
-            {/* Top: logo mark */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '22px' }}>🔥</span>
-              <span className="serif" style={{ fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.18em', color: DARK }}>FLARE</span>
+            {/* Streak */}
+            <div>
+              <p className="serif" style={{
+                fontSize: 'clamp(5rem, 10vw, 8rem)',
+                fontWeight: 700,
+                fontStyle: 'italic',
+                color: DARK,
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+              }}>
+                {dayCount}
+              </p>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '0.25em', color: MID, textTransform: 'uppercase', marginTop: '0.25rem' }}>
+                Streak
+              </p>
             </div>
 
-            {/* Middle: CTA buttons */}
+            {/* CTA buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-start' }}>
               <button onClick={handleCravingButton} style={{
                 background: RUST,
@@ -99,23 +111,6 @@ export default function Home() {
               }}>
                 I Relapsed
               </button>
-            </div>
-
-            {/* Bottom: streak */}
-            <div>
-              <p className="serif" style={{
-                fontSize: 'clamp(5rem, 10vw, 8rem)',
-                fontWeight: 700,
-                fontStyle: 'italic',
-                color: DARK,
-                lineHeight: 1,
-                letterSpacing: '-0.02em',
-              }}>
-                {dayCount}
-              </p>
-              <p style={{ fontSize: '0.7rem', letterSpacing: '0.25em', color: MID, textTransform: 'uppercase', marginTop: '0.25rem' }}>
-                Streak
-              </p>
             </div>
           </div>
 
@@ -189,8 +184,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scrollable section below */}
-        <div style={{ maxWidth: '700px', margin: '0 auto', padding: '3rem 2rem 6rem' }}>
+        {/* Daily check-in */}
+        <div style={{ maxWidth: '700px', margin: '0 auto', padding: '1.5rem 2rem 4rem' }}>
           <DailyCheckin />
         </div>
       </Layout>

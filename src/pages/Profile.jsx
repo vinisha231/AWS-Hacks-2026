@@ -7,16 +7,8 @@ import VoicePicker from '../components/VoicePicker'
 import RecoveryStake from '../components/RecoveryStake'
 
 const ADDICTION_OPTIONS = [
-  { label: 'Nicotine',     emoji: '🚬' },
-  { label: 'Alcohol',      emoji: '🍺' },
-  { label: 'Cannabis',     emoji: '🌿' },
-  { label: 'Gambling',     emoji: '🎰' },
-  { label: 'Social media', emoji: '📱' },
-  { label: 'Gaming',       emoji: '🎮' },
-  { label: 'Opioids',      emoji: '💊' },
-  { label: 'Food',         emoji: '🍔' },
-  { label: 'Shopping',     emoji: '🛍️' },
-  { label: 'Other',        emoji: '•'  },
+  'Nicotine', 'Alcohol', 'Cannabis', 'Gambling', 'Social media',
+  'Gaming', 'Opioids', 'Food', 'Shopping', 'Other',
 ]
 
 const SPARK_INTERESTS = [
@@ -95,11 +87,11 @@ export default function Profile() {
 
         <Section title="What are you working on?" sub="Select all that apply.">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {ADDICTION_OPTIONS.map(({ label, emoji }) => (
+            {ADDICTION_OPTIONS.map(label => (
               <button key={label} onClick={() => toggle(addictions, setAddictions, label)}
-                className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all text-left
+                className={`flex items-center p-3 rounded-xl border text-sm font-medium transition-all text-left
                   ${addictions.includes(label) ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-stone-200 text-stone-600 hover:border-stone-300'}`}>
-                <span>{emoji}</span> {label}
+                {label}
               </button>
             ))}
           </div>
@@ -200,7 +192,7 @@ export default function Profile() {
         <button onClick={handleSave} disabled={saving}
           className={`w-full font-bold py-4 rounded-xl transition-all text-base
             ${saved ? 'bg-emerald-500 text-white' : 'bg-amber-400 hover:bg-amber-500 text-black'} disabled:opacity-50`}>
-          {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save profile'}
+          {saved ? 'Saved' : saving ? 'Saving...' : 'Save profile'}
         </button>
 
         <button onClick={logout} className="text-stone-400 hover:text-stone-600 text-sm text-center transition-colors pb-8">
