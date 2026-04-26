@@ -29,16 +29,17 @@ export default function GoalsPanel() {
   const done   = goals.filter(g => g.done)
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#e0f0e0' }}>
+    <div className="flex flex-col h-full" style={{ background: '#FAF3E0' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-5 border-b border-green-200">
+      <div className="flex items-center justify-between px-5 py-5 border-b" style={{ borderColor: 'rgba(44,36,22,0.1)' }}>
         <div>
-          <h2 className="text-stone-900 font-black text-lg leading-tight">Goals</h2>
-          <p className="text-stone-500 text-xs mt-0.5">{active.length} active</p>
+          <h2 className="serif font-semibold text-xl leading-tight" style={{ color: '#2C2416' }}>Goals</h2>
+          <p className="text-xs mt-0.5" style={{ color: '#8C7A5A' }}>{active.length} active</p>
         </div>
         <button
           onClick={() => { setAdding(true); setEditingId(null) }}
-          className="w-8 h-8 rounded-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center transition-colors text-lg font-light leading-none"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-light leading-none text-white transition-colors"
+          style={{ background: '#C94B2C' }}
         >
           +
         </button>
@@ -119,7 +120,7 @@ export default function GoalsPanel() {
       </div>
 
       {/* Footer hint */}
-      <div className="px-5 py-3 border-t border-green-200">
+      <div className="px-5 py-3 border-t" style={{ borderColor: 'rgba(44,36,22,0.1)' }}>
         <p className="text-stone-400 text-xs text-center">
           {active.length > 0
             ? `${done.length} of ${goals.length} complete`
