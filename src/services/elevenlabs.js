@@ -1,10 +1,15 @@
 const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
 
-// Global audio ref so any caller can interrupt playback
 let _currentAudio = null
 let _currentUrl = null
+let _currentAbort = null  // AbortController for in-flight fetch
 
 export function stopCurrentAudio() {
+  // Abort any in-flight fetch so audio never starts after stop is called
+  if (_currentAbort) {
+    _currentAbort.abort()
+    _currentAbort = null
+  }
   if (_currentAudio) {
     _currentAudio.pause()
     _currentAudio.currentTime = 0
@@ -19,32 +24,46 @@ export function stopCurrentAudio() {
 export async function playVoiceMessage(text, voiceId) {
   stopCurrentAudio()
 
-  const response = await fetch(`${BASE}/api/elevenlabs/speak`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, voiceId })
-  })
-  if (!response.ok) throw new Error(`Voice API ${response.status}`)
+  const controller = new AbortController()
+  _currentAbort = controller
 
-  const blob = await response.blob()
-  const url = URL.createObjectURL(blob)
-  const audio = new Audio(url)
-  _currentAudio = audio
-  _currentUrl = url
+  try {
+    const response = await fetch(`${BASE}/api/elevenlabs/speak`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voiceId }),
+      signal: controller.signal,
+    })
+    if (!response.ok) throw new Error(`Voice API ${response.status}`)
 
-  return new Promise((resolve) => {
-    audio.onended = () => {
-      URL.revokeObjectURL(url)
-      if (_currentAudio === audio) { _currentAudio = null; _currentUrl = null }
-      resolve()
-    }
-    audio.onerror = () => {
-      URL.revokeObjectURL(url)
-      if (_currentAudio === audio) { _currentAudio = null; _currentUrl = null }
-      resolve() // resolve not reject — don't break the flow on audio errors
-    }
-    audio.play().catch(() => resolve())
-  })
+    const blob = await response.blob()
+
+    // If aborted while fetching, don't play
+    if (controller.signal.aborted) return
+
+    const url = URL.createObjectURL(blob)
+    const audio = new Audio(url)
+    _currentAudio = audio
+    _currentUrl = url
+    _currentAbort = null
+
+    return new Promise((resolve) => {
+      audio.onended = () => {
+        URL.revokeObjectURL(url)
+        if (_currentAudio === audio) { _currentAudio = null; _currentUrl = null }
+        resolve()
+      }
+      audio.onerror = () => {
+        URL.revokeObjectURL(url)
+        if (_currentAudio === audio) { _currentAudio = null; _currentUrl = null }
+        resolve()
+      }
+      audio.play().catch(() => resolve())
+    })
+  } catch (err) {
+    if (err.name === 'AbortError') return  // clean cancellation
+    // don't rethrow — let callers continue even on audio failures
+  }
 }
 
 export async function cloneVoice(personName, audioBlob) {

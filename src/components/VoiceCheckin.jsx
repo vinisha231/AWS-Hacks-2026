@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { playVoiceMessage } from '../services/elevenlabs'
+import { playVoiceMessage, stopCurrentAudio } from '../services/elevenlabs'
 import { useEmberStore } from '../store/emberStore'
 import { MicIcon, BrainIcon, WaveformIcon } from './Icons'
 
@@ -31,6 +31,7 @@ export default function VoiceCheckin({ onComplete, onSkip }) {
     return () => {
       clearTimeout(silenceRef.current)
       recognitionRef.current?.stop()
+      stopCurrentAudio()
     }
   }, [])
 
