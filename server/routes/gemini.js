@@ -1,7 +1,7 @@
 import express from 'express'
 
 const router = express.Router()
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemma-4:generateContent'
 
 async function callGemini(prompt, retries = 3) {
   for (let attempt = 0; attempt < retries; attempt++) {
