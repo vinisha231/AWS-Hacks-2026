@@ -1,8 +1,8 @@
 # 🔥 Flare — Recovery Companion App
 
-> **UWBHacks 2026** · Built by Vinisha
+> **UWBHacks 2026**
 
-Flare is an anonymous, AI-powered addiction recovery companion. It meets users in their most vulnerable moments — when a craving hits, when they've relapsed, or when they just need someone to talk to — and responds with empathy, personalized voice support, and science-backed strategies. No email. No phone number. No judgment.
+Flare is an anonymous, AI-powered addiction recovery companion. It meets users in their most vulnerable moments, when a craving hits, when they've relapsed, or when they just need someone to talk to — and responds with empathy, personalized voice support, and science-backed strategies. No email. No phone number. No judgment.
 
 ---
 
