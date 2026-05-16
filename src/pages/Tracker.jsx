@@ -144,8 +144,8 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
 }
 
 // ── History timeline ─────────────────────────────────────────────────────────
-function HistoryTimeline({ history }) {
-  if (!history?.length) return <p className="text-xs text-slate-400 italic">No history yet.</p>
+function HistoryTimeline({ history, t }) {
+  if (!history?.length) return <p className="text-xs text-slate-400 italic">{t ? t('tracker_no_history') : 'No history yet.'}</p>
 
   return (
     <div className="flex flex-col gap-0">
@@ -215,24 +215,24 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
               {/* Renewal alerts */}
               {urgent && (
                 <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-3 py-2 mb-3 flex items-center gap-2 font-medium">
-                  🚨 Renewal due {daysLeft <= 0 ? 'NOW' : `in ${daysLeft} days`} — {fmtDate(renewal.toISOString())}
+                  🚨 {daysLeft <= 0 ? t('tracker_urgent_now') : t('tracker_urgent_days', { days: daysLeft })} — {fmtDate(renewal.toISOString())}
                 </div>
               )}
               {warning && (
                 <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-3 py-2 mb-3 flex items-center gap-2 font-medium">
-                  ⏰ Renewal due in {daysLeft} days — {fmtDate(renewal.toISOString())}
+                  ⏰ {t('tracker_warning_days', { days: daysLeft })} — {fmtDate(renewal.toISOString())}
                 </div>
               )}
               {renewal && daysLeft !== null && daysLeft > 60 && (
                 <p className="text-xs text-slate-400 mb-3">
-                  Next renewal: {fmtDate(renewal.toISOString())} ({daysLeft} days)
+                  {t('tracker_next_renewal', { date: fmtDate(renewal.toISOString()), days: daysLeft })}
                 </p>
               )}
 
               {/* SNS reminder badge */}
               {entry.snsReminderSet && (
                 <div className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 mb-3">
-                  <span>🔔</span> SNS reminder set for {fmtDate(entry.snsReminderDate)}
+                  <span>🔔</span> {t('tracker_sns_set', { date: fmtDate(entry.snsReminderDate) })}
                 </div>
               )}
 
@@ -250,7 +250,7 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
                 </select>
 
                 <button onClick={() => navigate(`/apply/${program.id}`)} className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
-                  Application →
+                  {t('tracker_application')}
                 </button>
 
                 {/* Show reminder button when approved and has renewal date */}
@@ -259,7 +259,7 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
                     onClick={() => setShowReminder(true)}
                     className="text-xs font-semibold text-amber-600 hover:text-amber-800 transition-colors flex items-center gap-1"
                   >
-                    🔔 Set reminder
+                    🔔 {t('tracker_set_reminder')}
                   </button>
                 )}
 
@@ -268,14 +268,14 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
                   onClick={() => setShowHistory(s => !s)}
                   className="text-xs text-slate-400 hover:text-slate-600 transition-colors ml-auto flex items-center gap-1"
                 >
-                  {showHistory ? '▲' : '▼'} History ({entry.history?.length || 0})
+                  {showHistory ? '▲' : '▼'} {t('tracker_history_label', { count: entry.history?.length || 0 })}
                 </button>
               </div>
 
               {/* History */}
               {showHistory && (
                 <div className="mt-4 pl-2 border-l-2 border-slate-100 animate-fade-in">
-                  <HistoryTimeline history={entry.history} />
+                  <HistoryTimeline history={entry.history} t={t} />
                 </div>
               )}
             </div>
@@ -296,7 +296,7 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
 }
 
 // ── Full history tab ──────────────────────────────────────────────────────────
-function FullHistory({ tracker }) {
+function FullHistory({ tracker, t }) {
   const allEvents = []
   Object.entries(tracker).forEach(([programId, entry]) => {
     const program = PROGRAMS.find(p => p.id === programId)
@@ -308,7 +308,7 @@ function FullHistory({ tracker }) {
   allEvents.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 
   if (!allEvents.length) return (
-    <div className="text-center py-12 text-slate-400 text-sm">No activity yet.</div>
+    <div className="text-center py-12 text-slate-400 text-sm">{t ? t('tracker_no_activity') : 'No activity yet.'}</div>
   )
 
   // Group by date
@@ -332,7 +332,7 @@ function FullHistory({ tracker }) {
                   <span className="text-2xl flex-shrink-0">{e.program.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-slate-900 text-sm">{e.program.id.toUpperCase()}</p>
-                    <p className="text-slate-500 text-xs">{e.note || 'Status updated'}</p>
+                    <p className="text-slate-500 text-xs">{e.note || (t ? t('tracker_status_updated') : 'Status updated')}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${meta.bg} ${meta.text}`}>
@@ -391,7 +391,7 @@ export default function Tracker() {
             <p className="text-slate-500">{t('tracker_sub')}</p>
           </div>
           <Link to="/intake" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-colors">
-            + Find more benefits
+            {t('tracker_find_more')}
           </Link>
         </div>
 
@@ -399,11 +399,11 @@ export default function Tracker() {
           <>
             {/* Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-              <StatCard label="Tracked" value={trackedPrograms.length} color="text-blue-600" />
-              <StatCard label="Applied" value={appliedCount + approvedCount} color="text-violet-600" />
-              <StatCard label="Approved value" value={totalApproved > 0 ? `$${(totalApproved/1000).toFixed(1)}k/yr` : '—'} color="text-emerald-600" />
+              <StatCard label={t('tracker_stat_tracked')} value={trackedPrograms.length} color="text-blue-600" />
+              <StatCard label={t('tracker_stat_applied')} value={appliedCount + approvedCount} color="text-violet-600" />
+              <StatCard label={t('tracker_stat_value')} value={totalApproved > 0 ? `$${(totalApproved/1000).toFixed(1)}k/yr` : '—'} color="text-emerald-600" />
               <StatCard
-                label="Renewal alerts"
+                label={t('tracker_stat_alerts')}
                 value={renewalAlerts}
                 color={renewalAlerts > 0 ? 'text-amber-600' : 'text-slate-400'}
                 highlight={renewalAlerts > 0}
@@ -413,8 +413,8 @@ export default function Tracker() {
             {/* Tabs */}
             <div className="flex bg-slate-100 rounded-2xl p-1 mb-6">
               {[
-                { key: 'active',  label: `Active (${trackedPrograms.length})` },
-                { key: 'history', label: 'History' },
+                { key: 'active',  label: t('tracker_tab_active', { count: trackedPrograms.length }) },
+                { key: 'history', label: t('tracker_tab_history') },
               ].map(({ key, label }) => (
                 <button
                   key={key}
@@ -462,11 +462,11 @@ export default function Tracker() {
                 </button>
               ) : (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-center gap-4 flex-wrap">
-                  <p className="text-red-700 text-sm font-medium">Clear all tracked programs?</p>
+                  <p className="text-red-700 text-sm font-medium">{t('tracker_clear_confirm')}</p>
                   <button onClick={() => { clearTracker(); setShowConfirmClear(false) }} className="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors">
-                    Yes, clear
+                    {t('tracker_clear_yes')}
                   </button>
-                  <button onClick={() => setShowConfirmClear(false)} className="text-slate-500 text-xs font-medium">Cancel</button>
+                  <button onClick={() => setShowConfirmClear(false)} className="text-slate-500 text-xs font-medium">{t('tracker_cancel')}</button>
                 </div>
               )}
             </div>
@@ -474,7 +474,7 @@ export default function Tracker() {
         )}
 
         {/* History tab */}
-        {tab === 'history' && <FullHistory tracker={tracker} />}
+        {tab === 'history' && <FullHistory tracker={tracker} t={t} />}
       </div>
     </Layout>
   )

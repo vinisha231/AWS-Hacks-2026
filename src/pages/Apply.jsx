@@ -21,9 +21,9 @@ export default function Apply() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-          <p className="text-slate-600 mb-4">Program not found.</p>
+          <p className="text-slate-600 mb-4">{t('apply_not_found')}</p>
           <button onClick={() => navigate('/results')} className="text-blue-600 font-medium hover:underline">
-            ← Back to Results
+            {t('apply_back')}
           </button>
         </div>
       </Layout>
@@ -45,7 +45,7 @@ export default function Apply() {
   const checkedCount = program.documents.filter(d => docChecked[d]).length
 
   // Pre-fill fields from answers
-  const prefilled = buildPrefilled(answers, program.id)
+  const prefilled = buildPrefilled(answers, program.id, t)
 
   return (
     <Layout>
@@ -77,7 +77,7 @@ export default function Apply() {
           <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
-                ✓ Auto-filled
+                {t('apply_autofill_badge')}
               </div>
               <span className="text-slate-500 text-sm">{t('apply_prefilled')}</span>
             </div>
@@ -95,7 +95,7 @@ export default function Apply() {
               ))}
             </div>
             <p className="text-xs text-slate-400 mt-4">
-              These fields will be copied to your clipboard when you open the application.
+              {t('apply_clipboard_hint')}
             </p>
           </div>
         )}
@@ -133,7 +133,7 @@ export default function Apply() {
           </div>
           {allDocsChecked && (
             <div className="mt-4 text-center text-emerald-700 font-semibold text-sm animate-fade-in">
-              ✅ All documents ready! You're good to apply.
+              {t('apply_all_docs_ready')}
             </div>
           )}
         </div>
@@ -143,8 +143,8 @@ export default function Apply() {
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex gap-3">
             <span className="text-amber-500 text-lg">⚠️</span>
             <div>
-              <p className="font-semibold text-amber-800 text-sm">Waitlists are common</p>
-              <p className="text-amber-700 text-sm">Apply today to get your spot — waiting lists for housing vouchers can be 1–3 years.</p>
+              <p className="font-semibold text-amber-800 text-sm">{t('apply_waitlist_title')}</p>
+              <p className="text-amber-700 text-sm">{t('apply_waitlist_desc')}</p>
             </div>
           </div>
         )}
@@ -166,28 +166,27 @@ export default function Apply() {
                 : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
               }`}
           >
-            {marked ? '✓ Marked as In Progress' : t('apply_track')}
+            {marked ? t('apply_marked') : t('apply_track')}
           </button>
         </div>
 
         {/* Renewal info */}
         <div className="mt-6 text-center text-xs text-slate-400">
-          Renewal period: every {program.renewalMonths} months ·
-          Saved to your tracker so we'll remind you
+          {t('apply_renewal_info', { months: program.renewalMonths })}
         </div>
       </div>
     </Layout>
   )
 }
 
-function buildPrefilled(answers, programId) {
+function buildPrefilled(answers, programId, t) {
   const fields = []
-  if (answers.state) fields.push({ label: 'State', value: answers.state })
-  if (answers.householdSize) fields.push({ label: 'Household Size', value: `${answers.householdSize} ${answers.householdSize === 1 ? 'person' : 'people'}` })
-  if (answers.incomeRange) fields.push({ label: 'Monthly Income', value: answers.incomeRange })
-  if (answers.name) fields.push({ label: 'Name', value: answers.name })
-  if (answers.situation?.includes('pregnant')) fields.push({ label: 'Pregnancy Status', value: 'Pregnant or recently gave birth' })
-  if (answers.situation?.includes('veteran')) fields.push({ label: 'Veteran Status', value: 'Veteran or active military' })
-  if (answers.situation?.includes('disability')) fields.push({ label: 'Disability', value: 'Yes' })
+  if (answers.state) fields.push({ label: t('apply_state'), value: answers.state })
+  if (answers.householdSize) fields.push({ label: t('apply_household_size'), value: answers.householdSize === 1 ? t('apply_person') : t('apply_people', { n: answers.householdSize }) })
+  if (answers.incomeRange) fields.push({ label: t('apply_monthly_income'), value: answers.incomeRange })
+  if (answers.name) fields.push({ label: t('apply_name_label'), value: answers.name })
+  if (answers.situation?.includes('pregnant')) fields.push({ label: t('apply_pregnancy'), value: t('apply_pregnancy_val') })
+  if (answers.situation?.includes('veteran')) fields.push({ label: t('apply_veteran'), value: t('apply_veteran_val') })
+  if (answers.situation?.includes('disability')) fields.push({ label: t('apply_disability'), value: t('apply_disability_val') })
   return fields
 }

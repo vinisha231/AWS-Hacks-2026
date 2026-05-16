@@ -120,9 +120,9 @@ export default function Results() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-          <p className="text-slate-600 mb-6 text-lg">No results yet. Answer the questions first.</p>
+          <p className="text-slate-600 mb-6 text-lg">{t('results_no_data')}</p>
           <Link to="/intake" className="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
-            Check My Benefits →
+            {t('results_check_benefits')}
           </Link>
         </div>
       </Layout>
@@ -139,7 +139,7 @@ export default function Results() {
           </div>
           <p className="text-slate-700 font-semibold text-xl">{t('results_loading')}</p>
           <div className="flex flex-col gap-2 text-sm text-slate-500 max-w-xs">
-            {['Checking SNAP eligibility...', 'Checking Medicaid...', 'Checking housing programs...', 'Calculating estimated values...'].map((msg, i) => (
+            {[t('results_loading_snap'), t('results_loading_medicaid'), t('results_loading_housing'), t('results_loading_values')].map((msg, i) => (
               <div key={msg} className="flex items-center gap-2 animate-fade-in" style={{ animationDelay: `${i * 0.2}s` }}>
                 <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
                 {msg}
@@ -170,18 +170,18 @@ export default function Results() {
       {/* Results header */}
       <div className="bg-gradient-to-br from-blue-700 to-indigo-700 text-white py-12 px-4">
         <div className="max-w-3xl mx-auto text-center">
-          {name && <p className="text-blue-200 text-sm font-medium mb-2">Results for {name}</p>}
+          {name && <p className="text-blue-200 text-sm font-medium mb-2">{t('results_for_name', { name })}</p>}
           <h1 className="text-4xl font-black mb-3">
             {results.length > 0
               ? t('results_headline', { count: results.length })
-              : 'No matching programs found'}
+              : t('results_no_match')}
           </h1>
           {results.length > 0 && (
             <div className="inline-flex items-center gap-3 bg-white/15 border border-white/25 rounded-2xl px-6 py-4 mt-2">
               <span className="text-4xl font-black text-emerald-300">{fmt(total)}</span>
               <span className="text-blue-200 text-left">
-                <div className="font-bold">estimated per year</div>
-                <div className="text-sm opacity-80">in benefits you may qualify for</div>
+                <div className="font-bold">{t('results_per_year')}</div>
+                <div className="text-sm opacity-80">{t('results_benefits_qualify')}</div>
               </span>
             </div>
           )}
@@ -193,7 +193,7 @@ export default function Results() {
         <div className="bg-white border-b border-slate-200 py-4 px-4 sticky top-16 z-20 shadow-sm">
           <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-slate-600 text-sm">
-              <span className="font-bold text-slate-900">{results.length} programs</span> found · ranked by estimated value
+              {t('results_count_label', { count: results.length })}
             </p>
             <div className="flex gap-3">
               <Link
@@ -210,7 +210,7 @@ export default function Results() {
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                   }`}
               >
-                {saved ? 'Saved! Redirecting...' : t('results_save')}
+                {saved ? t('results_redirecting') : t('results_save')}
               </button>
             </div>
           </div>
@@ -234,13 +234,13 @@ export default function Results() {
 
             {/* Bottom save CTA */}
             <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 text-center">
-              <h3 className="font-black text-blue-900 text-lg mb-2">Don't lose your results</h3>
-              <p className="text-blue-700 text-sm mb-4">Save to your tracker to monitor application status and get renewal reminders.</p>
+              <h3 className="font-black text-blue-900 text-lg mb-2">{t('results_dont_lose')}</h3>
+              <p className="text-blue-700 text-sm mb-4">{t('results_save_desc')}</p>
               <button
                 onClick={handleSave}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors"
               >
-                {saved ? '✓ Saved!' : t('results_save')}
+                {saved ? t('results_saved') : t('results_save')}
               </button>
             </div>
           </div>

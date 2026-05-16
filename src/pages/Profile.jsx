@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/store'
 import { PROGRAMS, INCOME_BRACKETS } from '../data/programs'
 import Layout from '../components/Layout'
+import { useTranslation } from '../hooks/useTranslation'
 
 const US_STATES = [
   'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware',
@@ -45,6 +46,7 @@ const EMPLOYMENT_OPTIONS = [
 
 export default function Profile() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { profile, setProfile, clearProfile, answers, setResults, addToTracker, setSavedPrograms } = useStore()
 
   // Merge profile over answers so profile edits win; fall back to intake answers
@@ -139,9 +141,9 @@ export default function Profile() {
         {/* Header */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">My Profile</h1>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">{t('profile_title')}</h1>
             <p className="text-slate-500 text-sm">
-              Your information is saved locally and used to personalize your benefit results. Edit anytime.
+              {t('profile_sub')}
             </p>
           </div>
           <div className="flex-shrink-0">
@@ -150,22 +152,22 @@ export default function Profile() {
                 onClick={() => setConfirmReset(true)}
                 className="text-sm text-slate-400 hover:text-red-500 font-medium transition-colors"
               >
-                Reset profile
+                {t('profile_reset')}
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600">Clear all data?</span>
+                <span className="text-sm text-slate-600">{t('profile_clear_confirm')}</span>
                 <button
                   onClick={resetProfile}
                   className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"
                 >
-                  Yes, clear
+                  {t('profile_clear_yes')}
                 </button>
                 <button
                   onClick={() => setConfirmReset(false)}
                   className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  Cancel
+                  {t('profile_cancel')}
                 </button>
               </div>
             )}
@@ -181,7 +183,7 @@ export default function Profile() {
               )}
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
                 {form.state && <span>{form.state}</span>}
-                {form.householdSize && <span>{form.householdSize} {form.householdSize === 1 ? 'person' : 'people'}</span>}
+                {form.householdSize && <span>{form.householdSize === 1 ? t('profile_person') : t('profile_people', { n: form.householdSize })}</span>}
                 {form.incomeRange && <span>{form.incomeRange}/mo</span>}
               </div>
             </div>
@@ -189,7 +191,7 @@ export default function Profile() {
               onClick={checkEligibility}
               className="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
             >
-              Re-check eligibility
+              {t('profile_recheck')}
             </button>
           </div>
         )}
@@ -197,9 +199,9 @@ export default function Profile() {
         <div className="flex flex-col gap-6">
 
           {/* Personal */}
-          <Section title="Personal Information">
+          <Section title={t('profile_personal')}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="First name">
+              <Field label={t('profile_name')}>
                 <input
                   type="text"
                   value={form.name}
@@ -208,7 +210,7 @@ export default function Profile() {
                   className={inputCls}
                 />
               </Field>
-              <Field label="Email address">
+              <Field label={t('profile_email')}>
                 <input
                   type="email"
                   value={form.email}
@@ -218,30 +220,30 @@ export default function Profile() {
                 />
               </Field>
             </div>
-            <Field label="Phone number">
+            <Field label={t('profile_phone')}>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={e => update('phone', e.target.value)}
-                placeholder="Optional — for SMS renewal reminders"
+                placeholder={t('profile_phone_hint')}
                 className={inputCls}
               />
             </Field>
           </Section>
 
           {/* Household */}
-          <Section title="Household">
-            <Field label="State" required>
+          <Section title={t('profile_household')}>
+            <Field label={t('profile_state')} required>
               <select
                 value={form.state}
                 onChange={e => update('state', e.target.value)}
                 className={inputCls}
               >
-                <option value="">Select your state...</option>
+                <option value="">{t('profile_state_placeholder')}</option>
                 {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </Field>
-            <Field label="Household size (including you)" required>
+            <Field label={t('profile_household_size')} required>
               <div className="grid grid-cols-8 gap-2">
                 {[1,2,3,4,5,6,7,8].map(n => (
                   <button
@@ -259,7 +261,7 @@ export default function Profile() {
                 ))}
               </div>
             </Field>
-            <Field label="Household situations (select all that apply)">
+            <Field label={t('profile_situations')}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {SITUATION_OPTIONS.map(({ value, label }) => {
                   const selected = (form.situation || []).includes(value)
@@ -288,8 +290,8 @@ export default function Profile() {
           </Section>
 
           {/* Income */}
-          <Section title="Income & Employment">
-            <Field label="Monthly household income (before taxes)" required>
+          <Section title={t('profile_income_section')}>
+            <Field label={t('profile_income_label')} required>
               <div className="grid grid-cols-1 gap-2">
                 {INCOME_OPTIONS.map(opt => (
                   <button
@@ -307,7 +309,7 @@ export default function Profile() {
                 ))}
               </div>
             </Field>
-            <Field label="Employment status">
+            <Field label={t('profile_employment_label')}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {EMPLOYMENT_OPTIONS.map(({ value, label }) => (
                   <button
@@ -328,8 +330,8 @@ export default function Profile() {
           </Section>
 
           {/* Current benefits */}
-          <Section title="Benefits You Already Receive">
-            <p className="text-sm text-slate-500 -mt-2">We'll focus on what you might be missing.</p>
+          <Section title={t('profile_benefits_section')}>
+            <p className="text-sm text-slate-500 -mt-2">{t('profile_benefits_sub')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {CURRENT_BENEFITS_OPTIONS.map(({ value, label }) => {
                 const selected = (form.currentBenefits || []).includes(value)
@@ -370,7 +372,7 @@ export default function Profile() {
                     : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 }`}
             >
-              {saved ? 'Saved!' : 'Save Profile'}
+              {t(saved ? 'profile_saved' : 'profile_save')}
             </button>
             <button
               type="button"
@@ -382,11 +384,11 @@ export default function Profile() {
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 }`}
             >
-              Check eligibility with this info
+              {t('profile_check')}
             </button>
           </div>
           {(!form.state || !form.householdSize || !form.incomeRange) && (
-            <p className="text-xs text-slate-400 -mt-3">Fill in state, household size, and income to check eligibility.</p>
+            <p className="text-xs text-slate-400 -mt-3">{t('profile_fill_hint')}</p>
           )}
 
         </div>

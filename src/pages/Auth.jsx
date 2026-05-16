@@ -71,12 +71,12 @@ export default function AuthPage() {
             {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-2xl font-black text-slate-900 mb-1">
-                {mode === 'login' ? 'Welcome back' : 'Create your account'}
+                {mode === 'login' ? t('auth_welcome') : t('auth_create')}
               </h1>
               <p className="text-slate-500 text-sm">
                 {mode === 'login'
-                  ? 'Sign in to access your benefits profile and tracker.'
-                  : 'Save your results, track applications, and get renewal reminders.'}
+                  ? t('auth_signin_desc')
+                  : t('auth_signup_desc')}
               </p>
             </div>
 
@@ -89,7 +89,7 @@ export default function AuthPage() {
                   className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all
                     ${mode === m ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
-                  {m === 'login' ? 'Sign in' : 'Sign up'}
+                  {m === 'login' ? t('auth_tab_signin') : t('auth_tab_signup')}
                 </button>
               ))}
             </div>
@@ -97,7 +97,7 @@ export default function AuthPage() {
             <form onSubmit={submit} className="flex flex-col gap-4">
               {mode === 'signup' && (
                 <Field
-                  label="Full name"
+                  label={t('auth_name_label')}
                   type="text"
                   placeholder="Maria Garcia"
                   value={form.name}
@@ -107,7 +107,7 @@ export default function AuthPage() {
                 />
               )}
               <Field
-                label="Email address"
+                label={t('auth_email_label')}
                 type="email"
                 placeholder="you@example.com"
                 value={form.email}
@@ -116,9 +116,9 @@ export default function AuthPage() {
                 autoComplete="email"
               />
               <Field
-                label="Password"
+                label={t('auth_password_label')}
                 type="password"
-                placeholder={mode === 'signup' ? 'At least 8 characters' : '••••••••'}
+                placeholder={mode === 'signup' ? t('auth_password_hint') : '••••••••'}
                 value={form.password}
                 onChange={v => set('password', v)}
                 icon="🔒"
@@ -126,7 +126,7 @@ export default function AuthPage() {
               />
               {mode === 'signup' && (
                 <Field
-                  label="Confirm password"
+                  label={t('auth_confirm_label')}
                   type="password"
                   placeholder="••••••••"
                   value={form.confirm}
@@ -149,7 +149,7 @@ export default function AuthPage() {
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3.5 rounded-2xl transition-all mt-2 flex items-center justify-center gap-2"
               >
                 {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
-                {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
+                {loading ? t('auth_submit_loading') : mode === 'login' ? t('auth_submit_signin') : t('auth_submit_signup')}
               </button>
             </form>
 
@@ -157,7 +157,7 @@ export default function AuthPage() {
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-slate-400">or</span>
+                <span className="bg-white px-3 text-xs text-slate-400">{t('auth_or')}</span>
               </div>
             </div>
 
@@ -165,13 +165,12 @@ export default function AuthPage() {
               to="/intake"
               className="block w-full text-center text-sm font-medium text-slate-600 hover:text-blue-600 py-2 transition-colors"
             >
-              Continue without an account →
+              {t('auth_no_account')}
             </Link>
 
             {mode === 'signup' && (
               <p className="text-center text-xs text-slate-400 mt-4 leading-relaxed">
-                By creating an account, your profile and benefit results are saved locally.
-                No data is shared without your permission.
+                {t('auth_privacy')}
               </p>
             )}
           </div>
