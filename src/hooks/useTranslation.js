@@ -2,21 +2,28 @@ import { useCallback } from 'react'
 import { useStore } from '../store/store'
 import { t as staticTranslate } from '../i18n/translations'
 import { translateText } from '../services/translate'
+import { useDynamicTranslations } from '../contexts/TranslationContext'
 
 export function useTranslation() {
   const lang = useStore(s => s.language)
+  const { dynamicDict, loading } = useDynamicTranslations()
 
-  // Static translation for known UI keys (fast, no API call)
-  const t = useCallback(
-    (key, vars) => staticTranslate(lang, key, vars),
-    [lang]
-  )
+  // t() — instant: uses static dict (EN/ES) or cached dynamic translation
+  const t = useCallback((key, vars = {}) => {
+    let str = dynamicDict[key] || staticTranslate(lang, key, vars)
+    if (Object.keys(vars).length) {
+      Object.entries(vars).forEach(([k, v]) => {
+        str = str.replace(`{${k}}`, v)
+      })
+    }
+    return str
+  }, [lang, dynamicDict])
 
-  // Dynamic translation via Amazon Translate Lambda (for user-generated content)
+  // translate() — async: calls Amazon Translate Lambda for user-generated content
   const translate = useCallback(
     (text, sourceLang = 'en') => translateText(text, lang, sourceLang),
     [lang]
   )
 
-  return { lang, t, translate }
+  return { lang, t, translate, loading }
 }

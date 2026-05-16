@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { TranslationProvider } from './contexts/TranslationContext'
+import { useDynamicTranslations } from './contexts/TranslationContext'
 
-// Lazy-load all pages — each page becomes a separate chunk (low-bandwidth optimization)
 const Landing  = lazy(() => import('./pages/Landing'))
 const AuthPage = lazy(() => import('./pages/Auth'))
 const Intake   = lazy(() => import('./pages/Intake'))
@@ -16,6 +17,17 @@ function Spinner() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <span className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+    </div>
+  )
+}
+
+function TranslatingBanner() {
+  const { loading, lang } = useDynamicTranslations()
+  if (!loading) return null
+  return (
+    <div className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
+      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+      Translating via Amazon Translate…
     </div>
   )
 }
@@ -52,7 +64,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <TranslationProvider>
+          <TranslatingBanner />
+          <AppRoutes />
+        </TranslationProvider>
       </AuthProvider>
     </BrowserRouter>
   )
