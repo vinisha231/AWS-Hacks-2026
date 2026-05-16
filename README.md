@@ -1,149 +1,119 @@
-# 🔥 Flare — Recovery Companion App
+# Compass — Benefits Navigator
 
-> **UWBHacks 2026**
+> **AWS Hacks 2026**
 
-Flare is an anonymous, AI-powered addiction recovery companion. It meets users in their most vulnerable moments, when a craving hits, when they've relapsed, or when they just need someone to talk to — and responds with empathy, personalized voice support, and science-backed strategies. No email. No phone number. No judgment.
+Compass is an AWS-powered platform that helps underserved individuals discover and apply for government assistance programs — including SNAP, Medicaid, LIHEAP, Section 8, WIC, CHIP, EITC, Head Start, and more — without needing to understand the bureaucracy behind them.
+
+Instead of filling out complex forms, users answer a short conversational intake. Compass checks 10+ programs at once, ranks results by estimated annual dollar value, and guides users all the way through to applied, tracked, and renewed.
 
 ---
 
 ## Features
 
-### I'm Craving
-The most important button in the app. When a user feels the pull, they press this and Flare immediately:
-1. Shows a calming screen to slow them down
-2. Opens a **voice check-in** — Flare speaks and listens to the user
-3. Analyzes their emotional state using **Gemma 4 AI** (detects depleted hormone pathway: dopamine, serotonin, oxytocin, or endorphins)
-4. Responds with a voice message matched to their emotional state
-5. Serves a **personalized activity** (exercise, journaling, breathing, social connection) to redirect the craving
+### Benefits Discovery
+- Cross-program eligibility check (SNAP, Medicaid, CHIP, WIC, LIHEAP, Section 8, EITC, Head Start, Free School Meals, SSI)
+- Results ranked by estimated annual value
+- Real 2024 Federal Poverty Level thresholds
+- "Why you qualify" explanation per program
 
-### I Relapsed
-A compassionate, non-judgmental relapse flow:
-- Flare speaks an opening prompt and listens to what happened
-- User types or dictates their reflection
-- AI identifies the **exact trigger** (e.g. "stress at work", "loneliness at night")
-- Returns 4 **personalized improvement steps** tied directly to that trigger — not generic advice
-- Flare reads the response and improvement steps aloud via the user's chosen voice
-- Streak resets and Day 1 begins with encouragement
+### Conversational Intake
+- 6-step guided questionnaire (state, household size, income, situation, current benefits)
+- No forms, no jargon — plain language throughout
+- Free-text → structured eligibility data (Bedrock-ready)
 
-### Voice Companion
-Users can record a voice of someone they trust (a parent, partner, friend) and Flare will use that cloned voice for all support messages — so support feels like it's coming from someone they love. Built on **ElevenLabs voice cloning**.
+### Application Assistance
+- Pre-filled form fields from intake answers
+- Document checklist per program (know what to gather before you start)
+- Direct links to official applications
+- One-click status tracking
 
-### Recovery Map (Activity)
-A fantasy RPG-style map showing the user's recovery journey as an adventure. Each milestone (Day 3, Day 7, Day 14, Day 30, Day 100) is a zone to unlock. Locked zones appear in fog. Unlocked zones glow with a trail connecting them.
+### Application Tracker
+- Track status: Not started → In progress → Applied → Approved
+- Renewal date countdowns with 30-day alerts
+- Full application history
 
-### Daily Check-In
-A daily voice check-in that asks how the user is doing. Flare responds with an affirmation spoken in the companion's voice.
+### Auth & Account (Amazon Cognito)
+- Sign up / sign in with persistent 7-day sessions
+- Delete account
+- Cognito-ready — swap `src/services/auth.js` for Amplify when User Pool is configured
 
-### Milestones
-Tracks recovery milestones:
-- First Spark (Day 1)
-- 3-Day Flame (Day 3)
-- One Week (Day 7)
-- Two Weeks (Day 14)
-- One Month (Day 30)
-- 100 Days (Day 100)
+### Profile
+- Name, state/location, household size, number of dependents
+- Income details, employment status
+- Preferred language (persists across sessions)
 
-### Peer Connect
-Anonymous real-time peer support chat. Users connect with others in recovery without revealing any personal information — username only. Powered by **Socket.io**.
+### Settings
+- Email notification preferences (renewal reminders via Amazon SNS)
+- SMS notification preferences (Amazon SNS)
+- Language preference
+- Privacy / data sharing settings
+- Change password, delete account
 
-### Streak Calendar
-Interactive calendar showing login/clean days. Users can tap days to simulate streaks and see what their progress could look like.
-
-### NFT Milestone Badges
-When users hit major milestones, they can mint a **Solana NFT badge** on devnet as a permanent, on-chain record of their achievement.
-
-### Goals
-Users set up to 5 personal quit goals in their profile and designate one as their main goal — displayed front and center on the home screen as a constant reminder of why they're doing this.
+### Multilingual
+- Full English + Spanish support
+- Instant language switching — no page reload
+- Vietnamese, Haitian Creole, Arabic, Somali scaffolded (Amazon Translate-ready)
 
 ---
 
 ## Tech Stack
 
-| Layer | Tech |
+| Layer | Service |
 |---|---|
-| Frontend | React + Vite, Tailwind CSS, Zustand (persist) |
-| Backend | Node.js + Express, deployed on DigitalOcean |
-| Database | Supabase (PostgreSQL) |
-| AI | Google Gemma 4 (mood analysis, spark generation, relapse reflection) |
-| Voice | ElevenLabs TTS + Voice Cloning (Creator plan) |
-| Real-time | Socket.io (Peer Connect) |
-| Blockchain | Solana devnet, `@solana/web3.js`, Metaplex |
-| Deployment | Vercel (frontend), DigitalOcean App Platform (backend) |
+| Frontend | React + Vite, Tailwind CSS, Zustand |
+| Auth | Amazon Cognito |
+| AI Intake | Amazon Bedrock (Claude) |
+| Translation | Amazon Translate |
+| Notifications | Amazon SNS (email + SMS renewals) |
+| Document Storage | Amazon S3 |
+| Database | Amazon Aurora Serverless (PostgreSQL) |
+| API | AWS API Gateway + Lambda |
+| Deployment | AWS Amplify / Vercel |
+
+---
+
+## Running Locally
+
+```bash
+npm install
+npm run dev
+```
+
+Copy `.env.example` to `.env.local` and fill in your AWS credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+### Environment Variables
+
+```
+VITE_API_KEY=your_api_gateway_key
+VITE_AWS_REGION=us-east-1
+VITE_COGNITO_USER_POOL_ID=us-east-1_XXXXXXXXX
+VITE_COGNITO_CLIENT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXX
+```
 
 ---
 
 ## Architecture
 
 ```
-User Browser (Vercel)
+User Browser
     │
-    ├── React Frontend
-    │     ├── Zustand store (persisted locally, no PII)
-    │     ├── ElevenLabs service (TTS + voice clone)
-    │     └── Solana wallet adapter
-    │
-    └── Express Backend (DigitalOcean)
-          ├── /api/auth          → username/password auth (Supabase)
-          ├── /api/gemini        → mood analysis, sparks, relapse reflection
-          ├── /api/elevenlabs    → TTS proxy + voice cloning
-          └── Socket.io          → Peer Connect real-time chat
+    └── React Frontend (Vite + Tailwind)
+          ├── Zustand store (persisted locally)
+          ├── Amazon Cognito — auth sessions
+          │
+          └── AWS API Gateway (x-api-key auth)
+                ├── /translate   → Amazon Translate (75+ languages)
+                ├── /eligibility → Lambda + Aurora (eligibility logic)
+                ├── /notify      → Amazon SNS (renewal reminders)
+                └── /documents   → Amazon S3 (document upload)
 ```
-
----
-
-## Privacy First
-
-- **No email. No phone number.** Just a username and password.
-- All personal reflection data stays local (Zustand localStorage).
-- Peer Connect is fully anonymous — username only, no profile linking.
-- Voice clones are stored in ElevenLabs under the user's account only.
-
----
-
-## Running Locally
-
-### Prerequisites
-- Node.js 18+
-- A `.env` file for the server (see below)
-
-### Frontend
-```bash
-npm install
-npm run dev
-```
-
-### Backend
-```bash
-cd server
-npm install
-npm run dev
-```
-
-### Environment Variables
-
-**Frontend (`.env`)**
-```
-VITE_SERVER_URL=http://localhost:3001
-```
-
-**Backend (`server/.env`)**
-```
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-ELEVENLABS_API_KEY=your_elevenlabs_key
-GEMINI_API_KEY=your_gemini_key
-PORT=3001
-```
-
----
-
-## Deployment
-
-- **Frontend**: Vercel — set `VITE_SERVER_URL` to your backend URL in Vercel Environment Variables
-- **Backend**: DigitalOcean App Platform — set all server env vars in the App Platform dashboard
 
 ---
 
 ## Team
 
-Built with love (and very little sleep) at UWBHacks 2026.
+Built at AWS Hacks 2026.
