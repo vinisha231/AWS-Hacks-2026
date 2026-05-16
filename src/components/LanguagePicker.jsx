@@ -39,7 +39,7 @@ export default function LanguagePicker() {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => { setOpen(false); setQuery('') }} />
-          <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-lg shadow-xl z-20">
 
             {/* Search box */}
             <div className="p-2 border-b border-slate-100">
@@ -54,7 +54,7 @@ export default function LanguagePicker() {
             </div>
 
             {/* Scrollable list */}
-            <div className="overflow-y-auto max-h-64">
+            <div className="overflow-y-auto max-h-60" style={{ height: 'auto' }}>
               {filtered.length === 0 && (
                 <p className="text-center text-slate-400 text-sm py-4">No results</p>
               )}

@@ -1,10 +1,8 @@
 import json
-import base64
-import sys
 import os
+import base64
 from datetime import datetime, timedelta
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import boto3
 from db.connection import execute_one, execute

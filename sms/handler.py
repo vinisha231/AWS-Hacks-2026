@@ -6,10 +6,8 @@ Flow:
   User texts number → Pinpoint → SNS → this Lambda → eligibility check → SMS reply
 """
 import json
-import sys
 import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import boto3
 from sms.session import get_or_create, current_question, save_answer, STEPS

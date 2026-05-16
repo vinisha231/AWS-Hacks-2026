@@ -1,8 +1,5 @@
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from db.connection import execute_one, execute
 from eligibility.programs import check_all

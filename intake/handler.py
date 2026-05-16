@@ -1,8 +1,5 @@
 import json
-import sys
-import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from db.connection import execute_one
 from utils.translate import to_english, from_english
