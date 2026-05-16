@@ -6,7 +6,7 @@
 Direct competitors:
 
 Benefits.gov — official federal portal, but notoriously hard to navigate //
-mRelief — SMS/chat-based SNAP screener, very similar to your idea //
+mRelief — SMS/chat-based SNAP screener//
 Aunt Bertha / Findhelp.org — large social services directory, used by hospitals and nonprofits //
 GetYourBenefits.org — eligibility screener across multiple programs //
 BenefitsCal — California's unified benefits portal //
