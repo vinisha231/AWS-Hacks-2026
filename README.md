@@ -5,13 +5,13 @@
 # Competitors 
 Direct competitors:
 
-Benefits.gov — official federal portal, but notoriously hard to navigate //
-mRelief — SMS/chat-based SNAP screener//
-Aunt Bertha / Findhelp.org — large social services directory, used by hospitals and nonprofits //
-GetYourBenefits.org — eligibility screener across multiple programs //
-BenefitsCal — California's unified benefits portal //
-Propel (Fresh EBT) — SNAP balance tracking + benefits discovery, 5M+ users //
+Benefits.gov — official federal portal, but notoriously hard to navigate <br>
+mRelief — SMS/chat-based SNAP screener <br> 
+Aunt Bertha / Findhelp.org — large social services directory, used by hospitals and nonprofits <br>
+GetYourBenefits.org — eligibility screener across multiple programs <br>
+BenefitsCal — California's unified benefits portal <br>
+Propel (Fresh EBT) — SNAP balance tracking + benefits discovery, 5M+ users <br>
 Adjacent:
 
-Unite Us / NowPow — used by healthcare systems to connect patients to benefits //
-Aidkit — benefits disbursement for nonprofits/government //
+Unite Us / NowPow — used by healthcare systems to connect patients to benefits <br>
+Aidkit — benefits disbursement for nonprofits/government <br>
