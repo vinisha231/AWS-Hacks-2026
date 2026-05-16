@@ -17,7 +17,7 @@ const US_STATES = [
 
 function CompassIcon() {
   return (
-    <svg viewBox="0 0 32 32" fill="none" className="w-6 h-6 text-blue-600">
+    <svg viewBox="0 0 32 32" fill="none" className="w-6 h-6 text-neutral-950">
       <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2.5" />
       <circle cx="16" cy="16" r="3" fill="currentColor" />
       <path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -30,7 +30,7 @@ function ProgressBar({ step, total }) {
   return (
     <div className="w-full bg-slate-200 rounded-full h-1.5">
       <div
-        className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
+        className="bg-neutral-950 h-1.5 rounded-full transition-all duration-500"
         style={{ width: `${((step) / total) * 100}%` }}
       />
     </div>
@@ -111,11 +111,11 @@ export default function Intake() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
+    <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <div className="max-w-xl mx-auto flex items-center justify-between gap-4">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-slate-700 hover:text-blue-600 transition-colors">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-neutral-700 hover:text-neutral-950 transition-colors">
             <CompassIcon />
             <span className="font-bold text-slate-900">Compass</span>
           </button>
@@ -144,10 +144,10 @@ export default function Intake() {
             <button
               onClick={next}
               disabled={!canProceed()}
-              className={`px-8 py-3 rounded-2xl font-bold text-base transition-all shadow-sm
+              className={`px-8 py-3 rounded-md font-bold text-base transition-all shadow-sm
                 ${canProceed()
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 hover:-translate-y-0.5'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  ? 'bg-neutral-950 hover:bg-neutral-800 text-white hover:-translate-y-0.5'
+                  : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
                 }`}
             >
               {step === TOTAL ? t('intake_submit') : t('intake_next')}
@@ -168,7 +168,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
       <select
         value={answers.state || ''}
         onChange={e => set('state', e.target.value)}
-        className="w-full border-2 border-slate-200 focus:border-blue-500 rounded-2xl px-5 py-4 text-slate-900 text-base bg-white outline-none transition-colors font-medium"
+        className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-5 py-4 text-neutral-950 text-base bg-white outline-none transition-colors font-medium"
       >
         <option value="">{t('step1_placeholder')}</option>
         {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -186,10 +186,10 @@ function StepContent({ step, answers, set, toggleArr, t }) {
           <button
             key={n}
             onClick={() => set('householdSize', n)}
-            className={`aspect-square rounded-2xl font-black text-2xl border-2 transition-all
+            className={`aspect-square rounded-md font-black text-2xl border-2 transition-all
               ${answers.householdSize === n
-                ? 'bg-blue-600 border-blue-600 text-white scale-105 shadow-lg shadow-blue-200'
-                : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50'
+                ? 'bg-neutral-950 border-neutral-950 text-white scale-105'
+                : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
               }`}
           >
             {n === 8 ? '8+' : n}
@@ -211,10 +211,10 @@ function StepContent({ step, answers, set, toggleArr, t }) {
             <button
               key={key}
               onClick={() => set('incomeRange', label)}
-              className={`w-full text-left px-5 py-3.5 rounded-2xl border-2 font-medium text-base transition-all
+              className={`w-full text-left px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all
                 ${answers.incomeRange === label
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                  ? 'bg-neutral-950 border-neutral-950 text-white'
+                  : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                 }`}
             >
               {label}
@@ -246,16 +246,16 @@ function StepContent({ step, answers, set, toggleArr, t }) {
             <button
               key={val}
               onClick={() => toggleArr('situation', val)}
-              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl border-2 font-medium text-base transition-all text-left
+              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
                 ${selected
-                  ? 'bg-blue-50 border-blue-500 text-blue-800'
-                  : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                  ? 'bg-neutral-950 border-neutral-950 text-white scale-105'
+                  : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                 }`}
             >
               <span className="text-xl">{icon}</span>
               <span className="flex-1">{label}</span>
               {selected && (
-                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               )}
@@ -284,16 +284,16 @@ function StepContent({ step, answers, set, toggleArr, t }) {
             <button
               key={val}
               onClick={() => toggleArr('currentBenefits', val)}
-              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl border-2 font-medium text-base transition-all text-left
+              className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
                 ${selected
-                  ? 'bg-blue-50 border-blue-500 text-blue-800'
-                  : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                  ? 'bg-neutral-950 border-neutral-950 text-white scale-105'
+                  : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                 }`}
             >
               <span className="text-xl">{icon}</span>
               <span className="flex-1">{label}</span>
               {selected && (
-                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               )}
@@ -314,7 +314,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
         placeholder={t('step6_placeholder')}
         value={answers.name || ''}
         onChange={e => set('name', e.target.value)}
-        className="w-full border-2 border-slate-200 focus:border-blue-500 rounded-2xl px-5 py-4 text-slate-900 text-base bg-white outline-none transition-colors font-medium"
+        className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-5 py-4 text-neutral-950 text-base bg-white outline-none transition-colors font-medium"
       />
       <p className="text-slate-400 text-sm mt-3">
         You're almost there! Click "{t('intake_submit')}" to see your results.
@@ -326,7 +326,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
 function StepLabel({ num }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <span className="w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">{num}</span>
+      <span className="w-7 h-7 rounded-full bg-neutral-950 text-white text-xs font-bold flex items-center justify-center">{num}</span>
       <span className="text-xs text-slate-400 font-semibold uppercase tracking-widest">Question {num}</span>
     </div>
   )

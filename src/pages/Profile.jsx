@@ -189,7 +189,7 @@ export default function Profile() {
             </div>
             <button
               onClick={checkEligibility}
-              className="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+              className="bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
             >
               {t('profile_recheck')}
             </button>
@@ -252,8 +252,8 @@ export default function Profile() {
                     onClick={() => update('householdSize', n)}
                     className={`py-2 rounded-lg border-2 font-bold text-sm transition-all
                       ${form.householdSize === n
-                        ? 'bg-blue-700 border-blue-700 text-white'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                        ? 'bg-neutral-950 border-neutral-950 text-white'
+                        : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                       }`}
                   >
                     {n === 8 ? '8+' : n}
@@ -272,13 +272,13 @@ export default function Profile() {
                       onClick={() => toggleList('situation', value)}
                       className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-between gap-2
                         ${selected
-                          ? 'bg-blue-50 border-blue-500 text-blue-800'
-                          : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                          ? 'bg-neutral-950 border-neutral-950 text-white'
+                          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                         }`}
                     >
                       <span>{label}</span>
                       {selected && (
-                        <svg className="w-4 h-4 text-blue-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-4 h-4 text-white shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       )}
@@ -300,8 +300,8 @@ export default function Profile() {
                     onClick={() => update('incomeRange', opt)}
                     className={`w-full text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all
                       ${form.incomeRange === opt
-                        ? 'bg-blue-700 border-blue-700 text-white'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                        ? 'bg-neutral-950 border-neutral-950 text-white'
+                        : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                       }`}
                   >
                     {opt}
@@ -318,8 +318,8 @@ export default function Profile() {
                     onClick={() => update('employmentStatus', value)}
                     className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all
                       ${form.employmentStatus === value
-                        ? 'bg-blue-700 border-blue-700 text-white'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                        ? 'bg-neutral-950 border-neutral-950 text-white'
+                        : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                       }`}
                   >
                     {label}
@@ -342,13 +342,13 @@ export default function Profile() {
                     onClick={() => toggleList('currentBenefits', value)}
                     className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-between gap-2
                       ${selected
-                        ? 'bg-blue-50 border-blue-500 text-blue-800'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300'
+                        ? 'bg-neutral-950 border-neutral-950 text-white'
+                        : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                       }`}
                   >
                     <span>{label}</span>
                     {selected && (
-                      <svg className="w-4 h-4 text-blue-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-white shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -380,8 +380,8 @@ export default function Profile() {
               disabled={!form.state || !form.householdSize || !form.incomeRange}
               className={`w-full sm:w-auto px-8 py-3 rounded-lg font-semibold text-sm transition-all
                 ${(form.state && form.householdSize && form.incomeRange)
-                  ? 'bg-blue-700 hover:bg-blue-800 text-white'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  ? 'bg-neutral-950 hover:bg-neutral-800 text-white'
+                  : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
                 }`}
             >
               {t('profile_check')}
@@ -397,7 +397,7 @@ export default function Profile() {
   )
 }
 
-const inputCls = 'w-full border-2 border-slate-200 focus:border-blue-500 rounded-lg px-4 py-2.5 text-slate-900 text-sm bg-white outline-none transition-colors'
+const inputCls = 'w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-lg px-4 py-2.5 text-neutral-950 text-sm bg-white outline-none transition-colors'
 
 function Section({ title, children }) {
   return (

@@ -22,7 +22,7 @@ export default function Apply() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
           <p className="text-slate-600 mb-4">{t('apply_not_found')}</p>
-          <button onClick={() => navigate('/results')} className="text-blue-600 font-medium hover:underline">
+          <button onClick={() => navigate('/results')} className="text-neutral-600 font-medium hover:underline">
             {t('apply_back')}
           </button>
         </div>
@@ -160,10 +160,10 @@ export default function Apply() {
           </button>
           <button
             onClick={handleMarkProgress}
-            className={`w-full py-3.5 rounded-2xl font-semibold text-sm border-2 transition-all
+            className={`w-full py-3.5 rounded-md font-semibold text-sm border-2 transition-all
               ${marked
                 ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500'
               }`}
           >
             {marked ? t('apply_marked') : t('apply_track')}

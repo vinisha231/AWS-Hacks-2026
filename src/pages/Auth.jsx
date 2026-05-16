@@ -6,7 +6,7 @@ import LanguagePicker from '../components/LanguagePicker'
 
 function CompassIcon() {
   return (
-    <svg viewBox="0 0 32 32" fill="none" className="w-8 h-8 text-blue-600">
+    <svg viewBox="0 0 32 32" fill="none" className="w-8 h-8 text-neutral-950">
       <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2.5" />
       <circle cx="16" cy="16" r="3" fill="currentColor" />
       <path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -54,7 +54,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col">
+    <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Nav */}
       <nav className="px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
@@ -67,7 +67,7 @@ export default function AuthPage() {
       {/* Card */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md animate-scale-in">
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-8">
             {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-2xl font-black text-slate-900 mb-1">
@@ -81,13 +81,13 @@ export default function AuthPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex bg-slate-100 rounded-2xl p-1 mb-8">
+            <div className="flex bg-neutral-100 rounded-lg p-1 mb-8">
               {['login', 'signup'].map(m => (
                 <button
                   key={m}
                   onClick={() => { setMode(m); setError('') }}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all
-                    ${mode === m ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all
+                    ${mode === m ? 'bg-white text-neutral-950 shadow-sm' : 'text-neutral-500 hover:text-neutral-700'}`}
                 >
                   {m === 'login' ? t('auth_tab_signin') : t('auth_tab_signup')}
                 </button>
@@ -146,7 +146,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3.5 rounded-2xl transition-all mt-2 flex items-center justify-center gap-2"
+                className="w-full bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-300 text-white font-bold py-3.5 rounded-md transition-all mt-2 flex items-center justify-center gap-2"
               >
                 {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                 {loading ? t('auth_submit_loading') : mode === 'login' ? t('auth_submit_signin') : t('auth_submit_signup')}
@@ -163,7 +163,7 @@ export default function AuthPage() {
 
             <Link
               to="/intake"
-              className="block w-full text-center text-sm font-medium text-slate-600 hover:text-blue-600 py-2 transition-colors"
+              className="block w-full text-center text-sm font-medium text-neutral-600 hover:text-neutral-950 py-2 transition-colors"
             >
               {t('auth_no_account')}
             </Link>
@@ -195,7 +195,7 @@ function Field({ label, type, placeholder, value, onChange, icon, autoComplete }
           onChange={e => onChange(e.target.value)}
           autoComplete={autoComplete}
           required
-          className="w-full border-2 border-slate-200 focus:border-blue-500 rounded-2xl pl-11 pr-11 py-3.5 text-slate-900 text-sm bg-white outline-none transition-colors"
+          className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md pl-11 pr-11 py-3.5 text-neutral-950 text-sm bg-white outline-none transition-colors"
         />
         {isPassword && (
           <button

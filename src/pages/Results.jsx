@@ -121,7 +121,7 @@ export default function Results() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
           <p className="text-slate-600 mb-6 text-lg">{t('results_no_data')}</p>
-          <Link to="/intake" className="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
+          <Link to="/intake" className="bg-neutral-950 text-white font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors">
             {t('results_check_benefits')}
           </Link>
         </div>
@@ -134,14 +134,14 @@ export default function Results() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+            <div className="w-20 h-20 rounded-full border-4 border-neutral-200 border-t-neutral-900 animate-spin" />
             <span className="absolute inset-0 flex items-center justify-center text-2xl">🧭</span>
           </div>
           <p className="text-slate-700 font-semibold text-xl">{t('results_loading')}</p>
           <div className="flex flex-col gap-2 text-sm text-slate-500 max-w-xs">
             {[t('results_loading_snap'), t('results_loading_medicaid'), t('results_loading_housing'), t('results_loading_values')].map((msg, i) => (
               <div key={msg} className="flex items-center gap-2 animate-fade-in" style={{ animationDelay: `${i * 0.2}s` }}>
-                <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-neutral-950 animate-pulse" />
                 {msg}
               </div>
             ))}
@@ -168,9 +168,9 @@ export default function Results() {
   return (
     <Layout>
       {/* Results header */}
-      <div className="bg-gradient-to-br from-blue-700 to-indigo-700 text-white py-12 px-4">
+      <div className="bg-neutral-950 text-white py-12 px-4">
         <div className="max-w-3xl mx-auto text-center">
-          {name && <p className="text-blue-200 text-sm font-medium mb-2">{t('results_for_name', { name })}</p>}
+          {name && <p className="text-neutral-400 text-sm font-medium mb-2">{t('results_for_name', { name })}</p>}
           <h1 className="text-4xl font-black mb-3">
             {results.length > 0
               ? t('results_headline', { count: results.length })
@@ -179,7 +179,7 @@ export default function Results() {
           {results.length > 0 && (
             <div className="inline-flex items-center gap-3 bg-white/15 border border-white/25 rounded-2xl px-6 py-4 mt-2">
               <span className="text-4xl font-black text-emerald-300">{fmt(total)}</span>
-              <span className="text-blue-200 text-left">
+              <span className="text-neutral-400 text-left">
                 <div className="font-bold">{t('results_per_year')}</div>
                 <div className="text-sm opacity-80">{t('results_benefits_qualify')}</div>
               </span>
@@ -190,7 +190,7 @@ export default function Results() {
 
       {/* Summary bar */}
       {results.length > 0 && (
-        <div className="bg-white border-b border-slate-200 py-4 px-4 sticky top-16 z-20 shadow-sm">
+        <div className="bg-white border-b border-neutral-200 py-4 px-4 sticky top-16 z-20 shadow-sm">
           <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-slate-600 text-sm">
               {t('results_count_label', { count: results.length })}
@@ -207,7 +207,7 @@ export default function Results() {
                 className={`text-sm font-bold px-4 py-2 rounded-xl transition-all
                   ${saved
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-neutral-950 hover:bg-neutral-800 text-white'
                   }`}
               >
                 {saved ? t('results_redirecting') : t('results_save')}
@@ -222,7 +222,7 @@ export default function Results() {
         {results.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-500 text-lg mb-6">{t('results_none')}</p>
-            <Link to="/intake" className="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
+            <Link to="/intake" className="bg-neutral-950 text-white font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors">
               {t('results_restart')}
             </Link>
           </div>
@@ -233,12 +233,12 @@ export default function Results() {
             ))}
 
             {/* Bottom save CTA */}
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 text-center">
-              <h3 className="font-black text-blue-900 text-lg mb-2">{t('results_dont_lose')}</h3>
-              <p className="text-blue-700 text-sm mb-4">{t('results_save_desc')}</p>
+            <div className="bg-neutral-50 border-2 border-neutral-200 rounded-lg p-6 text-center">
+              <h3 className="font-black text-neutral-950 text-lg mb-2">{t('results_dont_lose')}</h3>
+              <p className="text-neutral-600 text-sm mb-4">{t('results_save_desc')}</p>
               <button
                 onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+                className="bg-neutral-950 hover:bg-neutral-800 text-white font-bold px-6 py-3 rounded-xl transition-colors"
               >
                 {saved ? t('results_saved') : t('results_save')}
               </button>

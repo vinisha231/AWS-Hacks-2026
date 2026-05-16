@@ -9,8 +9,8 @@ import Layout from '../components/Layout'
 const STATUS_OPTIONS = ['not_started', 'in_progress', 'applied', 'approved', 'renewal_due']
 const STATUS_META = {
   not_started: { bg: 'bg-slate-100',   text: 'text-slate-600',   border: 'border-slate-200', label: 'Not started',    icon: '○' },
-  in_progress:  { bg: 'bg-blue-100',    text: 'text-blue-700',    border: 'border-blue-200',  label: 'In progress',    icon: '◑' },
-  applied:      { bg: 'bg-violet-100',  text: 'text-violet-700',  border: 'border-violet-200',label: 'Applied',        icon: '◉' },
+  in_progress:  { bg: 'bg-neutral-100',  text: 'text-neutral-700', border: 'border-neutral-300', label: 'In progress',  icon: '◑' },
+  applied:      { bg: 'bg-neutral-800',  text: 'text-white',       border: 'border-neutral-800', label: 'Applied',      icon: '◉' },
   approved:     { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200',label: 'Approved ✓',   icon: '●' },
   renewal_due:  { bg: 'bg-amber-100',   text: 'text-amber-700',   border: 'border-amber-200', label: 'Renewal due',   icon: '⚠' },
 }
@@ -87,7 +87,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   placeholder="+1 (555) 000-0000"
-                  className="w-full border-2 border-slate-200 focus:border-blue-500 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                  className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-4 py-3 text-sm outline-none transition-colors"
                 />
               </div>
               <div>
@@ -99,7 +99,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full border-2 border-slate-200 focus:border-blue-500 rounded-xl px-4 py-3 text-sm outline-none transition-colors"
+                  className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-4 py-3 text-sm outline-none transition-colors"
                 />
               </div>
             </div>
@@ -110,7 +110,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
               <button
                 onClick={submit}
                 disabled={loading || (!phone && !email)}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-300 text-white font-bold py-3 rounded-md transition-colors flex items-center justify-center gap-2"
               >
                 {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                 {loading ? 'Scheduling...' : 'Schedule Reminder'}
@@ -127,13 +127,13 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
             <p className="text-slate-500 text-sm mb-2">
               You'll be notified 30 days before your renewal date:
             </p>
-            <p className="font-bold text-blue-700 mb-4">{fmtDate(renewalDate.toISOString())}</p>
+            <p className="font-bold text-neutral-950 mb-4">{fmtDate(renewalDate.toISOString())}</p>
             {demo && (
               <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 mb-4">
                 Demo mode — connect VITE_SNS_ENDPOINT to send real SNS notifications.
               </p>
             )}
-            <button onClick={onClose} className="bg-blue-600 text-white font-bold px-6 py-3 rounded-2xl hover:bg-blue-700 transition-colors">
+            <button onClick={onClose} className="bg-neutral-950 text-white font-bold px-6 py-3 rounded-md hover:bg-neutral-800 transition-colors">
               Done
             </button>
           </div>
@@ -231,7 +231,7 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
 
               {/* SNS reminder badge */}
               {entry.snsReminderSet && (
-                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 mb-3">
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 bg-neutral-100 border border-neutral-300 rounded-full px-3 py-1 mb-3">
                   <span>🔔</span> {t('tracker_sns_set', { date: fmtDate(entry.snsReminderDate) })}
                 </div>
               )}
@@ -242,14 +242,14 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
                 <select
                   value={entry.status}
                   onChange={e => onStatusChange(program.id, e.target.value)}
-                  className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 text-slate-600 bg-white outline-none focus:border-blue-400 cursor-pointer"
+                  className="text-xs border border-neutral-200 rounded-lg px-2 py-1.5 text-neutral-600 bg-white outline-none focus:border-neutral-950 cursor-pointer"
                 >
                   {STATUS_OPTIONS.map(s => (
                     <option key={s} value={s}>{STATUS_META[s].label}</option>
                   ))}
                 </select>
 
-                <button onClick={() => navigate(`/apply/${program.id}`)} className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                <button onClick={() => navigate(`/apply/${program.id}`)} className="text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition-colors">
                   {t('tracker_application')}
                 </button>
 
@@ -390,7 +390,7 @@ export default function Tracker() {
             <h1 className="text-3xl font-black text-slate-900 mb-1">{t('tracker_headline')}</h1>
             <p className="text-slate-500">{t('tracker_sub')}</p>
           </div>
-          <Link to="/intake" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-colors">
+          <Link to="/intake" className="bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-colors">
             {t('tracker_find_more')}
           </Link>
         </div>
@@ -399,9 +399,9 @@ export default function Tracker() {
           <>
             {/* Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-              <StatCard label={t('tracker_stat_tracked')} value={trackedPrograms.length} color="text-blue-600" />
-              <StatCard label={t('tracker_stat_applied')} value={appliedCount + approvedCount} color="text-violet-600" />
-              <StatCard label={t('tracker_stat_value')} value={totalApproved > 0 ? `$${(totalApproved/1000).toFixed(1)}k/yr` : '—'} color="text-emerald-600" />
+              <StatCard label={t('tracker_stat_tracked')} value={trackedPrograms.length} color="text-neutral-950" />
+              <StatCard label={t('tracker_stat_applied')} value={appliedCount + approvedCount} color="text-neutral-950" />
+              <StatCard label={t('tracker_stat_value')} value={totalApproved > 0 ? `$${(totalApproved/1000).toFixed(1)}k/yr` : '—'} color="text-emerald-700" />
               <StatCard
                 label={t('tracker_stat_alerts')}
                 value={renewalAlerts}
@@ -411,7 +411,7 @@ export default function Tracker() {
             </div>
 
             {/* Tabs */}
-            <div className="flex bg-slate-100 rounded-2xl p-1 mb-6">
+            <div className="flex bg-neutral-100 rounded-lg p-1 mb-6">
               {[
                 { key: 'active',  label: t('tracker_tab_active', { count: trackedPrograms.length }) },
                 { key: 'history', label: t('tracker_tab_history') },
@@ -419,8 +419,8 @@ export default function Tracker() {
                 <button
                   key={key}
                   onClick={() => setTab(key)}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all
-                    ${tab === key ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all
+                    ${tab === key ? 'bg-white text-neutral-950 shadow-sm' : 'text-neutral-500 hover:text-neutral-700'}`}
                 >
                   {label}
                 </button>
@@ -435,7 +435,7 @@ export default function Tracker() {
             <div className="text-5xl mb-4">🧭</div>
             <h3 className="font-bold text-slate-900 text-lg mb-2">{t('tracker_empty')}</h3>
             <p className="text-slate-500 mb-6">{t('tracker_empty_sub')}</p>
-            <Link to="/intake" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors inline-block">
+            <Link to="/intake" className="bg-neutral-950 hover:bg-neutral-800 text-white font-bold px-6 py-3 rounded-xl transition-colors inline-block">
               {t('tracker_find')}
             </Link>
           </div>
