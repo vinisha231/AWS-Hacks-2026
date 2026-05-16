@@ -1,11 +1,26 @@
-.env
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Build
+dist/
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
-.DS_Store
-.aws-sam/
-samconfig.toml
+*.egg-info/
 venv/
 .venv/
-*.egg-info/
-dist/
+.aws-sam/
+samconfig.toml
+
+# Env — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Misc
+.DS_Store
+*.log
+.vercel
