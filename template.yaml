@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Benefits Navigator — AWS SAM Template
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        AURORA_HOST: !Ref AuroraHost
+        AURORA_DB: !Ref AuroraDb
+        AURORA_USER: !Ref AuroraUser
+        AURORA_PASSWORD: !Ref AuroraPassword
+        S3_BUCKET: !Ref DocumentsBucket
+        SNS_TOPIC_ARN: !Ref ReminderTopic
+        AWS_REGION: !Ref AWS::Region
+
+Parameters:
+  AuroraHost:
+    Type: String
+  AuroraDb:
+    Type: String
+    Default: benefits_navigator
+  AuroraUser:
+    Type: String
+  AuroraPassword:
+    Type: String
+    NoEcho: true
+
+Resources:
+
+  # S3 bucket for documents
+  DocumentsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  # SNS topic for renewal reminders
+  ReminderTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: benefits-renewal-reminders
+
+  # API Gateway
+  BenefitsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
+  # Lambda: Intake
+  IntakeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: intake/
+      Handler: handler.lambda_handler
+      Policies:
+        - AmazonBedrockFullAccess
+        - TranslateReadOnly
+        - AmazonRDSDataFullAccess
+      Events:
+        IntakePost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BenefitsApi
+            Path: /intake
+            Method: post
+
+  # Lambda: Eligibility
+  EligibilityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: eligibility/
+      Handler: handler.lambda_handler
+      Policies:
+        - AmazonRDSDataFullAccess
+      Events:
+        EligibilityPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BenefitsApi
+            Path: /eligibility
+            Method: post
+
+  # Lambda: Application
+  ApplicationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: application/
+      Handler: handler.lambda_handler
+      Policies:
+        - AmazonRDSDataFullAccess
+        - AmazonS3FullAccess
+        - AmazonSNSFullAccess
+      Events:
+        ApplicationAction:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BenefitsApi
+            Path: /application/{action}
+            Method: post
+        ApplicationStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BenefitsApi
+            Path: /application/status
+            Method: get
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint
+    Value: !Sub "https://${BenefitsApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  DocumentsBucket:
+    Description: S3 bucket for documents
+    Value: !Ref DocumentsBucket
+  ReminderTopicArn:
+    Description: SNS topic ARN for renewal reminders
+    Value: !Ref ReminderTopic
