@@ -28,6 +28,10 @@ Parameters:
   AuroraPassword:
     Type: String
     NoEcho: true
+  PinpointAppId:
+    Type: String
+    Description: Amazon Pinpoint Application ID (for SMS)
+    Default: ""
 
 Resources:
 
@@ -118,6 +122,53 @@ Resources:
             RestApiId: !Ref BenefitsApi
             Path: /application/status
             Method: get
+
+  # Lambda: Translate (called by frontend — keeps AWS creds off the browser)
+  TranslateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: translate/
+      Handler: handler.lambda_handler
+      Policies:
+        - TranslateReadOnly
+      Events:
+        TranslatePost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BenefitsApi
+            Path: /translate
+            Method: post
+        TranslateLanguages:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BenefitsApi
+            Path: /translate/languages
+            Method: get
+
+  # Lambda: SMS Fallback (triggered by SNS from Amazon Pinpoint)
+  SmsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sms/
+      Handler: handler.lambda_handler
+      Timeout: 60
+      Environment:
+        Variables:
+          PINPOINT_APP_ID: !Ref PinpointAppId
+      Policies:
+        - AmazonRDSDataFullAccess
+        - AmazonPinpointFullAccess
+      Events:
+        SmsInbound:
+          Type: SNS
+          Properties:
+            Topic: !Ref SmsInboundTopic
+
+  # SNS topic that Amazon Pinpoint publishes inbound SMS to
+  SmsInboundTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: compass-sms-inbound
 
 Outputs:
   ApiUrl:
