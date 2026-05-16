@@ -1,12 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Benefits Navigator — AWS SAM Template
+Description: Compass — Benefits Navigator Backend
 
 Globals:
   Function:
     Runtime: python3.12
     Timeout: 30
     MemorySize: 256
+    CodeUri: .
     Environment:
       Variables:
         AURORA_HOST: !Ref AuroraHost
@@ -15,22 +16,23 @@ Globals:
         AURORA_PASSWORD: !Ref AuroraPassword
         S3_BUCKET: !Ref DocumentsBucket
         SNS_TOPIC_ARN: !Ref ReminderTopic
-        AWS_REGION: !Ref AWS::Region
 
 Parameters:
   AuroraHost:
     Type: String
+    Default: ""
   AuroraDb:
     Type: String
     Default: benefits_navigator
   AuroraUser:
     Type: String
+    Default: ""
   AuroraPassword:
     Type: String
     NoEcho: true
+    Default: ""
   PinpointAppId:
     Type: String
-    Description: Amazon Pinpoint Application ID (for SMS)
     Default: ""
 
 Resources:
@@ -53,24 +55,50 @@ Resources:
   ReminderTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: benefits-renewal-reminders
+      TopicName: compass-renewal-reminders
 
   # API Gateway
-  BenefitsApi:
+  CompassApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: prod
       Cors:
         AllowMethods: "'GET,POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
+        AllowHeaders: "'Content-Type,Authorization,x-api-key'"
         AllowOrigin: "'*'"
+
+  # Lambda: Translate
+  TranslateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: translate.handler.lambda_handler
+      Policies:
+        - TranslateReadOnly
+      Events:
+        TranslatePost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CompassApi
+            Path: /translate
+            Method: post
+        TranslateLanguages:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CompassApi
+            Path: /translate/languages
+            Method: get
+        TranslateOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CompassApi
+            Path: /translate
+            Method: options
 
   # Lambda: Intake
   IntakeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: intake/
-      Handler: handler.lambda_handler
+      Handler: intake.handler.lambda_handler
       Policies:
         - AmazonBedrockFullAccess
         - TranslateReadOnly
@@ -79,7 +107,7 @@ Resources:
         IntakePost:
           Type: Api
           Properties:
-            RestApiId: !Ref BenefitsApi
+            RestApiId: !Ref CompassApi
             Path: /intake
             Method: post
 
@@ -87,15 +115,14 @@ Resources:
   EligibilityFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: eligibility/
-      Handler: handler.lambda_handler
+      Handler: eligibility.handler.lambda_handler
       Policies:
         - AmazonRDSDataFullAccess
       Events:
         EligibilityPost:
           Type: Api
           Properties:
-            RestApiId: !Ref BenefitsApi
+            RestApiId: !Ref CompassApi
             Path: /eligibility
             Method: post
 
@@ -103,8 +130,7 @@ Resources:
   ApplicationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: application/
-      Handler: handler.lambda_handler
+      Handler: application.handler.lambda_handler
       Policies:
         - AmazonRDSDataFullAccess
         - AmazonS3FullAccess
@@ -113,58 +139,40 @@ Resources:
         ApplicationAction:
           Type: Api
           Properties:
-            RestApiId: !Ref BenefitsApi
+            RestApiId: !Ref CompassApi
             Path: /application/{action}
             Method: post
         ApplicationStatus:
           Type: Api
           Properties:
-            RestApiId: !Ref BenefitsApi
+            RestApiId: !Ref CompassApi
             Path: /application/status
             Method: get
 
-  # Lambda: Translate (called by frontend — keeps AWS creds off the browser)
-  TranslateFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: translate/
-      Handler: handler.lambda_handler
-      Policies:
-        - TranslateReadOnly
-      Events:
-        TranslatePost:
-          Type: Api
-          Properties:
-            RestApiId: !Ref BenefitsApi
-            Path: /translate
-            Method: post
-        TranslateLanguages:
-          Type: Api
-          Properties:
-            RestApiId: !Ref BenefitsApi
-            Path: /translate/languages
-            Method: get
-
-  # Lambda: SMS Fallback (triggered by SNS from Amazon Pinpoint)
+  # Lambda: SMS Fallback
   SmsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: sms/
-      Handler: handler.lambda_handler
+      Handler: sms.handler.lambda_handler
       Timeout: 60
       Environment:
         Variables:
           PINPOINT_APP_ID: !Ref PinpointAppId
       Policies:
         - AmazonRDSDataFullAccess
-        - AmazonPinpointFullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - mobiletargeting:SendMessages
+                - mobiletargeting:GetEndpoint
+                - mobiletargeting:UpdateEndpoint
+              Resource: "*"
       Events:
         SmsInbound:
           Type: SNS
           Properties:
             Topic: !Ref SmsInboundTopic
 
-  # SNS topic that Amazon Pinpoint publishes inbound SMS to
   SmsInboundTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -172,11 +180,11 @@ Resources:
 
 Outputs:
   ApiUrl:
-    Description: API Gateway endpoint
-    Value: !Sub "https://${BenefitsApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${CompassApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
   DocumentsBucket:
     Description: S3 bucket for documents
     Value: !Ref DocumentsBucket
   ReminderTopicArn:
-    Description: SNS topic ARN for renewal reminders
+    Description: SNS topic for renewal reminders
     Value: !Ref ReminderTopic
