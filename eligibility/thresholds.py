@@ -1,5 +1,5 @@
 # 2025 Federal Poverty Level gross income limits (monthly, by household size)
-# Sources: USDA, HHS, HUD
+# Sources: USDA FNS, HHS, HUD, FEMA LIHEAP
 
 SNAP_GROSS_LIMITS = {
     1: 2311, 2: 3116, 3: 3922, 4: 4728,
@@ -16,24 +16,25 @@ LIHEAP_LIMITS = {
     5: 4618, 6: 5290, 7: 5962, 8: 6634
 }
 
+# CHIP: up to 200% FPL
 CHIP_LIMITS = {
     1: 3848, 2: 5198, 3: 6547, 4: 7896,
     5: 9246, 6: 10595, 7: 11944, 8: 13294
 }
 
-# WIC: up to 185% FPL (monthly)
+# WIC: up to 185% FPL
 WIC_LIMITS = {
     1: 2248, 2: 3041, 3: 3833, 4: 4625,
     5: 5418, 6: 6210, 7: 7003, 8: 7795
 }
 
-# TANF: varies heavily by state; using federal floor as conservative estimate
+# TANF: federal floor estimate (states set their own, often lower)
 TANF_LIMITS = {
     1: 783, 2: 1058, 3: 1331, 4: 1605,
     5: 1878, 6: 2152, 7: 2425, 8: 2699
 }
 
-# Section 8 / HCV: up to 50% Area Median Income — using national average estimate
+# Section 8 / HCV: up to 50% Area Median Income — national average estimate
 SECTION_8_LIMITS = {
     1: 2500, 2: 2858, 3: 3215, 4: 3573,
     5: 3858, 6: 4143, 7: 4428, 8: 4714
@@ -50,7 +51,17 @@ PROGRAM_VALUES = {
     "Section 8": 900,
 }
 
+# Each household size above 8 adds this amount to the monthly limit
+SNAP_ADDITIONAL = 806
+MEDICAID_ADDITIONAL = 604
+LIHEAP_ADDITIONAL = 672
+WIC_ADDITIONAL = 792
+TANF_ADDITIONAL = 274
+SECTION_8_ADDITIONAL = 286
 
-def get_limit(table: dict, household_size: int) -> int:
-    size = max(1, min(household_size or 1, 8))
-    return table[size]
+
+def get_limit(table: dict, household_size: int, additional: int = 0) -> int:
+    size = max(1, household_size or 1)
+    if size <= 8:
+        return table[size]
+    return table[8] + (size - 8) * additional
