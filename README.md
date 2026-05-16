@@ -15,3 +15,51 @@ Adjacent:
 
 Unite Us / NowPow — used by healthcare systems to connect patients to benefits <br>
 Aidkit — benefits disbursement for nonprofits/government <br>
+
+#Features 
+Good point — here's the full feature list including account/profile/settings:
+
+**Auth & Account**
+- Sign up / log in (Amazon Cognito)
+- Return sessions (stay logged in)
+- Delete account
+
+**Profile**
+- Name, household size, state/location
+- Income details
+- Number of dependents
+- Employment status
+- Preferred language (persists across sessions)
+
+**Settings**
+- Notification preferences (SMS, email, or both)
+- Language preference
+- Privacy / data sharing settings
+- Update personal info
+
+**Intake**
+- Conversational intake (type naturally, no forms)
+- Free-text → structured data via Bedrock
+- Real-time translation via Amazon Translate
+
+**Eligibility**
+- Cross-program check (SNAP, Medicaid, LIHEAP, Section 8, WIC, TANF, local grants)
+- Results ranked by dollar value
+- Unified view of everything you qualify for
+
+**Application**
+- Auto-fill from intake answers
+- Document upload (pay stubs, ID, lease) → S3
+- Docs auto-linked to application
+
+**Tracking**
+- Application status tracker
+- 30-day renewal reminders via SNS
+- Application history
+
+**Accessibility**
+- SMS fallback (full flow over text)
+- Low-bandwidth frontend
+- 75+ languages
+
+Want me to write this up as a formatted README section?
