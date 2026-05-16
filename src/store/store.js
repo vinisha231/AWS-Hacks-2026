@@ -74,6 +74,7 @@ export const useStore = create(persist(
     profile: {},
     setProfile: (profile) => set({ profile }),
     updateProfile: (updates) => set(state => ({ profile: { ...state.profile, ...updates } })),
+    clearProfile: () => set({ profile: {}, answers: {} }),
 
     // Settings
     settings: {

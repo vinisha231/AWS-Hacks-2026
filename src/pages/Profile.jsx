@@ -45,7 +45,7 @@ const EMPLOYMENT_OPTIONS = [
 
 export default function Profile() {
   const navigate = useNavigate()
-  const { profile, setProfile, answers, setResults, addToTracker, setSavedPrograms } = useStore()
+  const { profile, setProfile, clearProfile, answers, setResults, addToTracker, setSavedPrograms } = useStore()
 
   // Merge profile over answers so profile edits win; fall back to intake answers
   const merged = { ...answers, ...profile }
@@ -64,6 +64,7 @@ export default function Profile() {
 
   const [saved, setSaved] = useState(false)
   const [dirty, setDirty] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
 
   const update = (key, value) => {
     setForm(f => ({ ...f, [key]: value }))
@@ -118,6 +119,17 @@ export default function Profile() {
     navigate('/results')
   }
 
+  const resetProfile = () => {
+    clearProfile()
+    setForm({
+      name: '', email: '', phone: '', state: '', householdSize: '',
+      incomeRange: '', situation: [], currentBenefits: [], employmentStatus: '',
+    })
+    setSaved(false)
+    setDirty(false)
+    setConfirmReset(false)
+  }
+
   const hasData = !!(form.state || form.householdSize || form.incomeRange)
 
   return (
@@ -125,11 +137,39 @@ export default function Profile() {
       <div className="max-w-2xl mx-auto px-4 py-10">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">My Profile</h1>
-          <p className="text-slate-500 text-sm">
-            Your information is saved locally and used to personalize your benefit results. Edit anytime.
-          </p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">My Profile</h1>
+            <p className="text-slate-500 text-sm">
+              Your information is saved locally and used to personalize your benefit results. Edit anytime.
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            {!confirmReset ? (
+              <button
+                onClick={() => setConfirmReset(true)}
+                className="text-sm text-slate-400 hover:text-red-500 font-medium transition-colors"
+              >
+                Reset profile
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-600">Clear all data?</span>
+                <button
+                  onClick={resetProfile}
+                  className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"
+                >
+                  Yes, clear
+                </button>
+                <button
+                  onClick={() => setConfirmReset(false)}
+                  className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Summary card — only shown when data exists */}
