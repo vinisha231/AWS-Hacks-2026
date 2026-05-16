@@ -65,6 +65,16 @@ CREATE TABLE renewal_reminders (
   created_at      TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE sms_sessions (
+  session_id  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone       VARCHAR(20) NOT NULL,
+  step        INTEGER DEFAULT 0,
+  answers     JSONB DEFAULT '{}',
+  completed   BOOLEAN DEFAULT FALSE,
+  created_at  TIMESTAMP DEFAULT NOW(),
+  updated_at  TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes
 CREATE INDEX idx_intake_user ON intake_sessions(user_id);
 CREATE INDEX idx_eligibility_user ON eligibility_results(user_id);
@@ -72,3 +82,4 @@ CREATE INDEX idx_eligibility_session ON eligibility_results(session_id);
 CREATE INDEX idx_applications_user ON applications(user_id);
 CREATE INDEX idx_documents_application ON documents(application_id);
 CREATE INDEX idx_reminders_remind_at ON renewal_reminders(remind_at) WHERE sent = FALSE;
+CREATE INDEX idx_sms_phone ON sms_sessions(phone) WHERE completed = FALSE;
