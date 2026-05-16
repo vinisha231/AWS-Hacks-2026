@@ -4,6 +4,7 @@ Frontend calls /translate via API Gateway instead of calling Translate directly,
 so AWS credentials are never exposed to the browser.
 """
 import json
+import re
 
 from utils.translate import translate
 from utils.response import ok, error
@@ -37,6 +38,66 @@ CORS_HEADERS = {
     "Access-Control-Allow-Headers": "Content-Type,Authorization,x-api-key"
 }
 
+# Amazon Translate max bytes per call
+MAX_BYTES = 9000
+
+
+def batch_translate_list(texts, source, target):
+    """
+    Translate a list of strings using as few Amazon Translate API calls as possible.
+
+    Strings are joined with indexed markers like [[0]], [[1]], ... which are
+    pure ASCII digits in brackets — they survive translation in every language.
+    We chunk the list if the total byte size would exceed the API limit.
+    """
+    if not texts:
+        return []
+
+    results = [''] * len(texts)
+    chunk_indices = []
+    chunk_parts = []
+    current_bytes = 0
+
+    for i, text in enumerate(texts):
+        encoded = text.encode('utf-8') if isinstance(text, str) else str(text).encode('utf-8')
+        marker = f'[[{i}]]\n'
+        entry_bytes = len(marker.encode()) + len(encoded) + 1  # +1 for newline
+
+        if chunk_parts and current_bytes + entry_bytes > MAX_BYTES:
+            # Flush current chunk
+            _translate_chunk(chunk_indices, chunk_parts, source, target, results)
+            chunk_indices = []
+            chunk_parts = []
+            current_bytes = 0
+
+        chunk_indices.append(i)
+        chunk_parts.append(f'[[{i}]]\n{text}')
+        current_bytes += entry_bytes
+
+    if chunk_parts:
+        _translate_chunk(chunk_indices, chunk_parts, source, target, results)
+
+    return results
+
+
+def _translate_chunk(indices, parts, source, target, results):
+    joined = '\n'.join(parts)
+    translated_joined = translate(joined, source, target)
+
+    # Split on [[N]] markers — brackets and digits always survive translation
+    segments = re.split(r'\[\[\d+\]\]\s*\n?', translated_joined)
+    # segments[0] is text before the first marker (empty or whitespace), skip it
+    values = [s.strip() for s in segments[1:]]
+
+    if len(values) == len(indices):
+        for idx, val in zip(indices, values):
+            results[idx] = val
+    else:
+        # Fallback: translate individually if markers were mangled
+        for idx, part in zip(indices, parts):
+            original_text = part.split('\n', 1)[1] if '\n' in part else part
+            results[idx] = translate(original_text, source, target)
+
 
 def lambda_handler(event, context):
     method = event.get("httpMethod", "POST")
@@ -64,11 +125,10 @@ def lambda_handler(event, context):
         if target not in SUPPORTED_LANGUAGES:
             return {**error(f"Unsupported target language: {target}"), "headers": CORS_HEADERS}
 
-        # Accept single string or array — always return array for consistency
         if isinstance(texts, list):
-            translated = [translate(t, source, target) for t in texts]
+            translated = batch_translate_list(texts, source, target)
         else:
-            translated = [translate(texts, source, target)]
+            translated = [translate(str(texts), source, target)]
 
         return {
             **ok({"translated": translated, "source": source, "target": target}),

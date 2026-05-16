@@ -4,7 +4,7 @@ import { translations } from '../i18n/translations'
 
 const TranslationContext = createContext({})
 
-const CACHE_PREFIX = 'compass_t_'
+const CACHE_PREFIX = 'compass_t2_'
 const STATIC_LANGS = new Set(['en', 'es'])
 const API_BASE = import.meta.env.VITE_API_ENDPOINT || ''
 
@@ -56,7 +56,10 @@ export function TranslationProvider({ children }) {
         setDynamicDict(dict)
         setLoading(false)
       })
-      .catch(() => { if (alive) setLoading(false) })
+      .catch(err => {
+        console.error('[Compass] Translation failed:', err)
+        if (alive) setLoading(false)
+      })
 
     return () => { alive = false }
   }, [lang])
