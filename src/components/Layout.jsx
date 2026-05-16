@@ -90,6 +90,7 @@ export default function Layout({ children }) {
           {/* Center nav */}
           <div className="hidden sm:flex items-center gap-6">
             <NavLink to="/tracker" label={t('nav_tracker')} badge={trackerCount} active={location.pathname === '/tracker'} />
+            <NavLink to="/profile" label="My Profile" active={location.pathname === '/profile'} />
           </div>
 
           {/* Right side */}

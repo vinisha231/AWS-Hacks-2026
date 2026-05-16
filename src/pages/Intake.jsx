@@ -40,7 +40,7 @@ function ProgressBar({ step, total }) {
 export default function Intake() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { answers, setAnswer, setResults } = useStore()
+  const { answers, setAnswer, setResults, updateProfile } = useStore()
   const [step, setStep] = useState(1)
   const [localAnswers, setLocalAnswers] = useState({ ...answers })
   const TOTAL = 6
@@ -76,6 +76,15 @@ export default function Intake() {
       currentBenefits: a.currentBenefits || [],
     }
     Object.entries(payload).forEach(([k, v]) => setAnswer(k, v))
+    // Persist intake answers to profile so Profile page is pre-filled
+    updateProfile({
+      name: payload.name,
+      state: payload.state,
+      householdSize: payload.householdSize,
+      incomeRange: payload.incomeRange,
+      situation: payload.situation,
+      currentBenefits: payload.currentBenefits,
+    })
 
     // Run eligibility check
     const eligible = PROGRAMS.filter(p => p.check(payload)).map(p => {
