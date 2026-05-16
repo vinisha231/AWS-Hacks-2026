@@ -1,36 +1,51 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import FlareLogo from '../components/FlareLogo'
+import { useTranslation } from '../hooks/useTranslation'
+import LanguagePicker from '../components/LanguagePicker'
 
-const BG   = '#FAF3E0'
-const RUST = '#C94B2C'
+function CompassIcon() {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" className="w-8 h-8 text-blue-600">
+      <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2.5" />
+      <circle cx="16" cy="16" r="3" fill="currentColor" />
+      <path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M20 12l-6 4-2 6 6-4 2-6z" fill="currentColor" opacity="0.8" />
+    </svg>
+  )
+}
 
-export default function Auth() {
-  const [mode, setMode]       = useState('login')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirm, setConfirm]   = useState('')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
-  const { login, signup } = useAuth()
+export default function AuthPage() {
+  const { login, register } = useAuth()
+  const { t } = useTranslation()
   const navigate = useNavigate()
+  const [params] = useSearchParams()
+  const redirect = params.get('redirect') || '/home'
 
-  const handleSubmit = async (e) => {
+  const [mode, setMode] = useState(params.get('mode') === 'signup' ? 'signup' : 'login')
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setError('') }
+
+  const submit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!username.trim() || !password) return setError('Fill in all fields.')
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim()))
-      return setError('Username: 3–20 characters, letters/numbers/underscores only.')
     if (mode === 'signup') {
-      if (password !== confirm) return setError('Passwords do not match.')
-      if (password.length < 8)  return setError('Password must be at least 8 characters.')
+      if (!form.name.trim()) return setError('Please enter your name.')
+      if (!form.email.trim()) return setError('Please enter your email.')
+      if (form.password.length < 8) return setError('Password must be at least 8 characters.')
+      if (form.password !== form.confirm) return setError('Passwords do not match.')
     }
     setLoading(true)
     try {
-      if (mode === 'signup') await signup(username.trim(), password)
-      else await login(username.trim(), password)
-      navigate('/home')
+      if (mode === 'login') {
+        await login({ email: form.email, password: form.password })
+      } else {
+        await register({ name: form.name, email: form.email, password: form.password })
+      }
+      navigate(redirect)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -38,86 +53,161 @@ export default function Auth() {
     }
   }
 
-  const toggle = () => { setMode(m => m === 'login' ? 'signup' : 'login'); setError('') }
-
   return (
-    <div style={{ minHeight: '100vh', background: BG, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-
-      {/* Logo */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2.5rem' }}>
-        <FlareLogo size={80} />
-        <h1 className="serif" style={{ fontSize: '3rem', fontWeight: 600, letterSpacing: '0.3em', color: '#2C2416', marginTop: '0.5rem' }}>FLARE</h1>
-        <p style={{ fontSize: '0.65rem', letterSpacing: '0.3em', color: '#8C7A5A', marginTop: '0.4rem', textTransform: 'uppercase' }}>
-          The Right Help at the Right Time
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col">
+      {/* Nav */}
+      <nav className="px-6 py-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2.5">
+          <CompassIcon />
+          <span className="font-bold text-xl text-slate-900">Compass</span>
+        </Link>
+        <LanguagePicker />
+      </nav>
 
       {/* Card */}
-      <div style={{ width: '100%', maxWidth: '420px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-        <h2 className="serif" style={{ fontSize: '1.75rem', fontWeight: 700, color: '#2C2416' }}>
-          {mode === 'signup' ? 'Begin anonymously.' : 'Welcome back.'}
-        </h2>
-        <p style={{ color: '#8C7A5A', fontSize: '0.95rem', marginBottom: '0.5rem' }}>
-          {mode === 'signup' ? 'No email. No phone. Just a username.' : 'Sign in to continue your streak.'}
-        </p>
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md animate-scale-in">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-black text-slate-900 mb-1">
+                {mode === 'login' ? 'Welcome back' : 'Create your account'}
+              </h1>
+              <p className="text-slate-500 text-sm">
+                {mode === 'login'
+                  ? 'Sign in to access your benefits profile and tracker.'
+                  : 'Save your results, track applications, and get renewal reminders.'}
+              </p>
+            </div>
 
-        <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <input
-            type="text" value={username} onChange={e => setUsername(e.target.value)}
-            placeholder="Enter your user name"
-            autoCapitalize="none" autoCorrect="off"
-            style={inputStyle}
-          />
-          <input
-            type="password" value={password} onChange={e => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            style={inputStyle}
-          />
-          {mode === 'signup' && (
-            <input
-              type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
-              placeholder="Enter your password again for confirmation"
-              style={inputStyle}
-            />
-          )}
+            {/* Tabs */}
+            <div className="flex bg-slate-100 rounded-2xl p-1 mb-8">
+              {['login', 'signup'].map(m => (
+                <button
+                  key={m}
+                  onClick={() => { setMode(m); setError('') }}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all
+                    ${mode === m ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  {m === 'login' ? 'Sign in' : 'Sign up'}
+                </button>
+              ))}
+            </div>
 
-          {error && (
-            <p style={{ color: RUST, fontSize: '0.85rem', textAlign: 'center' }}>{error}</p>
-          )}
+            <form onSubmit={submit} className="flex flex-col gap-4">
+              {mode === 'signup' && (
+                <Field
+                  label="Full name"
+                  type="text"
+                  placeholder="Maria Garcia"
+                  value={form.name}
+                  onChange={v => set('name', v)}
+                  icon="👤"
+                  autoComplete="name"
+                />
+              )}
+              <Field
+                label="Email address"
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={v => set('email', v)}
+                icon="✉️"
+                autoComplete="email"
+              />
+              <Field
+                label="Password"
+                type="password"
+                placeholder={mode === 'signup' ? 'At least 8 characters' : '••••••••'}
+                value={form.password}
+                onChange={v => set('password', v)}
+                icon="🔒"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              />
+              {mode === 'signup' && (
+                <Field
+                  label="Confirm password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={form.confirm}
+                  onChange={v => set('confirm', v)}
+                  icon="🔒"
+                  autoComplete="new-password"
+                />
+              )}
 
-          <button type="submit" disabled={loading} style={{
-            marginTop: '0.5rem',
-            background: RUST,
-            color: '#fff',
-            border: 'none',
-            borderRadius: '50px',
-            padding: '1rem',
-            fontSize: '0.95rem',
-            fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1,
-            letterSpacing: '0.05em',
-          }}>
-            {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-start gap-2">
+                  <span>⚠️</span>
+                  <span>{error}</span>
+                </div>
+              )}
 
-        <button onClick={toggle} style={{ background: 'none', border: 'none', color: '#8C7A5A', fontSize: '0.9rem', cursor: 'pointer', marginTop: '0.25rem' }}>
-          {mode === 'login' ? "Don't have an account? Create one" : 'Already have an account? Sign in'}
-        </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-3.5 rounded-2xl transition-all mt-2 flex items-center justify-center gap-2"
+              >
+                {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+                {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
+              <div className="relative flex justify-center">
+                <span className="bg-white px-3 text-xs text-slate-400">or</span>
+              </div>
+            </div>
+
+            <Link
+              to="/intake"
+              className="block w-full text-center text-sm font-medium text-slate-600 hover:text-blue-600 py-2 transition-colors"
+            >
+              Continue without an account →
+            </Link>
+
+            {mode === 'signup' && (
+              <p className="text-center text-xs text-slate-400 mt-4 leading-relaxed">
+                By creating an account, your profile and benefit results are saved locally.
+                No data is shared without your permission.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-const inputStyle = {
-  width: '100%',
-  background: 'rgba(255,255,255,0.7)',
-  border: 'none',
-  borderRadius: '50px',
-  padding: '0.9rem 1.5rem',
-  fontSize: '0.95rem',
-  color: '#2C2416',
-  outline: 'none',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+function Field({ label, type, placeholder, value, onChange, icon, autoComplete }) {
+  const [show, setShow] = useState(false)
+  const isPassword = type === 'password'
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">{label}</label>
+      <div className="relative">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base pointer-events-none">{icon}</span>
+        <input
+          type={isPassword && show ? 'text' : type}
+          placeholder={placeholder}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          required
+          className="w-full border-2 border-slate-200 focus:border-blue-500 rounded-2xl pl-11 pr-11 py-3.5 text-slate-900 text-sm bg-white outline-none transition-colors"
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShow(s => !s)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-medium"
+          >
+            {show ? 'Hide' : 'Show'}
+          </button>
+        )}
+      </div>
+    </div>
+  )
 }

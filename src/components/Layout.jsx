@@ -1,171 +1,156 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useEmberStore } from '../store/emberStore'
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
-import { HomeIcon, ActivityIcon, PersonIcon, HeartIcon } from './Icons'
-import FlareLogo from './FlareLogo'
-import FloatingHobbies from './FloatingHobbies'
+import { useTranslation } from '../hooks/useTranslation'
+import { useStore } from '../store/store'
+import LanguagePicker from './LanguagePicker'
 
-const RUST  = '#C94B2C'
-const CREAM = '#FAF3E0'
-const DARK  = '#2C2416'
-const MID   = '#8C7A5A'
+function CompassIcon() {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" className="w-7 h-7">
+      <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2.5" />
+      <circle cx="16" cy="16" r="3" fill="currentColor" />
+      <path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M20 12l-6 4-2 6 6-4 2-6z" fill="currentColor" opacity="0.8" />
+    </svg>
+  )
+}
 
-const NAV = [
-  { to: '/home',     Icon: HomeIcon,     label: 'Home'     },
-  { to: '/activity', Icon: ActivityIcon, label: 'Activity' },
-  { to: '/connect',  Icon: HeartIcon,    label: 'Connect'  },
-  { to: '/profile',  Icon: PersonIcon,   label: 'Profile'  },
-]
-
-export default function Layout({ children, noHobbies = false, rightPanel = null }) {
-  const { logout, user } = useAuth()
-  const { dayCount, userInterests } = useEmberStore()
-  const [collapsed, setCollapsed] = useState(false)
-
-  const sideW = collapsed ? '60px' : '208px'
+function UserMenu({ user, onLogout }) {
+  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+  const initials = user.name
+    ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+    : user.email[0].toUpperCase()
 
   return (
-    <div style={{ minHeight: '100vh', background: CREAM, display: 'flex', position: 'relative' }}>
-      {!noHobbies && <FloatingHobbies interests={userInterests || []} />}
+    <div className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm"
+      >
+        <span className="w-7 h-7 rounded-lg bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+          {initials}
+        </span>
+        <span className="text-sm font-medium text-slate-700 hidden sm:block max-w-24 truncate">
+          {user.name || user.email}
+        </span>
+        <svg className={`w-4 h-4 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
 
-      {/* ── Desktop sidebar ── */}
-      <aside className="hidden md:flex flex-col fixed h-full z-30 transition-all duration-300"
-        style={{
-          width: sideW,
-          background: 'rgba(250,243,224,0.9)',
-          backdropFilter: 'blur(12px)',
-          borderRight: '1px solid rgba(44,36,22,0.1)',
-          overflow: 'hidden',
-        }}>
-
-        {/* Logo row + collapse button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: collapsed ? '1.5rem 0.75rem' : '1.5rem 1rem 1.5rem 1.25rem' }}>
-          {!collapsed && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FlareLogo size={26} />
-              <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', fontWeight: 600, letterSpacing: '0.18em', color: DARK }}>
-                FLARE
-              </span>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 overflow-hidden animate-scale-in">
+            <div className="px-4 py-3 border-b border-slate-100">
+              <p className="font-semibold text-slate-900 text-sm truncate">{user.name || 'My Account'}</p>
+              <p className="text-xs text-slate-500 truncate">{user.email}</p>
             </div>
-          )}
-          {collapsed && <FlareLogo size={26} style={{ margin: '0 auto' }} />}
-
-          {/* Collapse toggle */}
-          <button
-            onClick={() => setCollapsed(c => !c)}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            style={{
-              background: 'none',
-              border: '1px solid rgba(44,36,22,0.15)',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              padding: '3px 6px',
-              color: MID,
-              fontSize: '11px',
-              lineHeight: 1,
-              flexShrink: 0,
-              marginLeft: collapsed ? 'auto' : '0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1px',
-            }}>
-            {collapsed ? (
-              <span style={{ letterSpacing: '-1px' }}>│▶</span>
-            ) : (
-              <span style={{ letterSpacing: '-1px' }}>◀│</span>
-            )}
-          </button>
-        </div>
-
-        {/* Nav */}
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, padding: '0 8px' }}>
-          {NAV.map(({ to, Icon, label }) => (
-            <NavLink key={to} to={to}
-              style={({ isActive }) => ({
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: collapsed ? '10px 12px' : '10px 12px',
-                borderRadius: '12px',
-                fontSize: '13px',
-                fontWeight: 500,
-                textDecoration: 'none',
-                justifyContent: collapsed ? 'center' : 'flex-start',
-                background: isActive ? RUST : 'transparent',
-                color: isActive ? '#fff' : MID,
-                transition: 'all 0.15s',
-              })}>
-              {({ isActive }) => (
-                <>
-                  <Icon size={17} style={{ color: isActive ? '#fff' : MID, flexShrink: 0 }} />
-                  {!collapsed && label}
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Bottom */}
-        {!collapsed && (
-          <div style={{ padding: '0 12px 24px' }}>
-            <div style={{ padding: '8px 12px', marginBottom: '8px' }}>
-              <p style={{ fontSize: '11px', color: MID }}>Signed in as</p>
-              <p style={{ fontSize: '13px', fontWeight: 500, color: DARK }} className="truncate">{user?.username}</p>
+            {[
+              { label: '👤  My Profile', path: '/profile' },
+              { label: '⚙️  Settings',   path: '/settings' },
+              { label: '📋  My Applications', path: '/tracker' },
+            ].map(({ label, path }) => (
+              <button
+                key={path}
+                onClick={() => { navigate(path); setOpen(false) }}
+                className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                {label}
+              </button>
+            ))}
+            <div className="border-t border-slate-100">
+              <button
+                onClick={() => { onLogout(); setOpen(false) }}
+                className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                🚪  Sign out
+              </button>
             </div>
-<WalletMultiButton style={{ background: 'rgba(44,36,22,0.06)', color: DARK, fontSize: '11px', width: '100%', justifyContent: 'center', borderRadius: '12px', border: '1px solid rgba(44,36,22,0.1)', marginBottom: '4px' }} />
-            <button onClick={logout} style={{ color: MID, fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', width: '100%', padding: '6px', textAlign: 'center' }}>
-              Sign out
-            </button>
           </div>
-        )}
-      </aside>
-
-      {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 py-4"
-        style={{ background: 'rgba(250,243,224,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(44,36,22,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <FlareLogo size={20} />
-          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.15em', color: DARK }}>FLARE</span>
-        </div>
-        <span style={{ fontFamily: 'Cormorant Garamond, serif', color: RUST, fontWeight: 700, fontSize: '1rem' }}>{dayCount} days</span>
-      </div>
-
-      {/* Main content */}
-      <main className={`flex-1 pt-[60px] md:pt-0 pb-20 md:pb-0 min-h-screen transition-all duration-300`}
-        style={{ marginLeft: collapsed ? '60px' : '208px', marginRight: rightPanel ? '288px' : '0' }}>
-        {children}
-      </main>
-
-      {/* Right panel */}
-      {rightPanel && (
-        <aside className="hidden md:flex flex-col fixed right-0 top-0 bottom-0 z-20 overflow-hidden"
-          style={{ width: '288px', borderLeft: '1px solid rgba(44,36,22,0.1)' }}>
-          {rightPanel}
-        </aside>
+        </>
       )}
-
-      {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 grid grid-cols-4"
-        style={{ background: 'rgba(250,243,224,0.95)', backdropFilter: 'blur(12px)', borderTop: '1px solid rgba(44,36,22,0.1)' }}>
-        {NAV.map(({ to, Icon, label }) => (
-          <NavLink key={to} to={to}
-            style={({ isActive }) => ({
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              padding: '10px 0', gap: '3px', fontSize: '10px', fontWeight: 500,
-              textDecoration: 'none', color: isActive ? RUST : MID,
-            })}>
-            {({ isActive }) => (
-              <><Icon size={20} style={{ color: isActive ? RUST : MID }} />{label}</>
-            )}
-          </NavLink>
-        ))}
-      </nav>
     </div>
   )
 }
 
-export function PageShell({ children }) {
-  return <div style={{ maxWidth: '680px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>{children}</div>
+export default function Layout({ children }) {
+  const { t } = useTranslation()
+  const { user, isAuthenticated, logout } = useAuth()
+  const tracker = useStore(s => s.tracker)
+  const trackerCount = Object.keys(tracker).length
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <nav className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5 text-blue-700 hover:text-blue-800 transition-colors flex-shrink-0">
+            <CompassIcon />
+            <span className="font-bold text-xl text-slate-900 tracking-tight">Compass</span>
+          </Link>
+
+          {/* Center nav */}
+          <div className="hidden sm:flex items-center gap-1">
+            <NavLink to="/tracker" label={t('nav_tracker')} badge={trackerCount} active={location.pathname === '/tracker'} />
+          </div>
+
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            <LanguagePicker />
+            {isAuthenticated && user ? (
+              <UserMenu user={user} onLogout={handleLogout} />
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/auth"
+                  className="hidden sm:block text-slate-600 hover:text-slate-900 text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/intake"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm"
+                >
+                  {t('nav_start')}
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      <main className="flex-1">{children}</main>
+
+      <footer className="border-t border-slate-200 bg-white py-6 px-4 text-center text-xs text-slate-400">
+        {t('landing_footer')}
+      </footer>
+    </div>
+  )
+}
+
+function NavLink({ to, label, badge, active }) {
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors
+        ${active ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
+    >
+      {label}
+      {badge > 0 && (
+        <span className="bg-blue-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          {badge}
+        </span>
+      )}
+    </Link>
+  )
 }

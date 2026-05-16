@@ -2,68 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Notebook paper texture */
-body {
-  background-color: #f7f3ec;
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(251,191,36,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(16,185,129,0.03) 0%, transparent 40%);
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; }
 }
 
-/* Floating hobby animations */
-@keyframes floatDrift {
-  0%   { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.18; }
-  25%  { transform: translateY(-22px) translateX(8px) rotate(4deg); opacity: 0.28; }
-  50%  { transform: translateY(-14px) translateX(-6px) rotate(-3deg); opacity: 0.22; }
-  75%  { transform: translateY(-30px) translateX(12px) rotate(6deg); opacity: 0.3; }
-  100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.18; }
-}
-
-@keyframes floatDriftAlt {
-  0%   { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.15; }
-  33%  { transform: translateY(-18px) translateX(-10px) rotate(-5deg); opacity: 0.26; }
-  66%  { transform: translateY(-28px) translateX(6px) rotate(3deg); opacity: 0.2; }
-  100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.15; }
-}
-
-@keyframes breatheIn {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50%       { transform: scale(1.18); opacity: 1; }
-}
-
-@keyframes mountainFade {
-  0%   { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes leafFloat {
-  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
-  10%  { opacity: 0.5; }
-  90%  { opacity: 0.3; }
-  100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-}
-
-@keyframes pulseRing {
-  0%   { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-  70%  { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-  100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
-
-@keyframes slideUp {
-  0%   { opacity: 0; transform: translateY(24px); }
-  100% { opacity: 1; transform: translateY(0); }
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
 }
 
 @keyframes fadeIn {
-  0%   { opacity: 0; }
-  100% { opacity: 1; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.float-hobby { animation: floatDrift linear infinite; }
-.float-hobby-alt { animation: floatDriftAlt linear infinite; }
-.animate-breathe { animation: breatheIn 4s ease-in-out infinite; }
-.animate-pulse-ring { animation: pulseRing 2s ease-in-out infinite; }
-.animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
-.animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-.animate-mountain { animation: mountainFade 1.2s ease-out forwards; }
-.animate-leaf { animation: leafFloat linear infinite; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}

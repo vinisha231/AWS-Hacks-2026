@@ -1,61 +1,47 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { getSession, signIn, signUp, signOut, deleteAccount, refreshSession } from '../services/auth'
 
-const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)       // { sub, username }
+  const [user, setUser]       = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem('ember_user')
-    if (stored) {
-      try { setUser(JSON.parse(stored)) } catch {}
-    }
+    const session = refreshSession()
+    setUser(session)
     setIsLoading(false)
   }, [])
 
-  const signup = async (username, password) => {
-    const res = await fetch(`${BASE}/api/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error || 'Signup failed')
-    const u = { sub: data.sub, username: data.username }
-    localStorage.setItem('ember_user', JSON.stringify(u))
-    localStorage.setItem('ember_token', data.access_token)
-    setUser(u)
-    return u
-  }
+  const login = useCallback(async (credentials) => {
+    const session = await signIn(credentials)
+    setUser(session)
+    return session
+  }, [])
 
-  const login = async (username, password) => {
-    const res = await fetch(`${BASE}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error || 'Login failed')
-    const u = { sub: data.sub, username: data.username }
-    localStorage.setItem('ember_user', JSON.stringify(u))
-    localStorage.setItem('ember_token', data.access_token)
-    setUser(u)
-    return u
-  }
+  const register = useCallback(async (data) => {
+    const result = await signUp(data)
+    const session = await signIn({ email: data.email, password: data.password })
+    setUser(session)
+    return session
+  }, [])
 
-  const logout = () => {
-    localStorage.removeItem('ember_user')
-    localStorage.removeItem('ember_token')
+  const logout = useCallback(async () => {
+    await signOut()
     setUser(null)
-  }
+  }, [])
+
+  const removeAccount = useCallback(async () => {
+    if (!user) return
+    await deleteAccount(user.email)
+    setUser(null)
+  }, [user])
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, register, logout, removeAccount }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export const useAuth = () => useContext(AuthContext)
+export function useAuth() { return useContext(AuthContext) }
