@@ -17,15 +17,50 @@ export const useStore = create(persist(
     setResults: (results) => set({ results }),
     clearResults: () => set({ results: null }),
 
-    // Application status tracker
+    // Application tracker
+    // tracker[id] = { status, updatedAt, history: [{status, timestamp, note}], snsReminderSet, snsReminderDate }
     tracker: {},
-    setTrackerStatus: (programId, status) => set(state => ({
-      tracker: { ...state.tracker, [programId]: { status, updatedAt: new Date().toISOString() } }
+    setTrackerStatus: (programId, status, note = '') => set(state => {
+      const existing = state.tracker[programId] || {}
+      const history = existing.history || []
+      return {
+        tracker: {
+          ...state.tracker,
+          [programId]: {
+            ...existing,
+            status,
+            updatedAt: new Date().toISOString(),
+            history: [
+              ...history,
+              { status, timestamp: new Date().toISOString(), note },
+            ],
+          },
+        },
+      }
+    }),
+    setSnsReminder: (programId, reminderDate) => set(state => ({
+      tracker: {
+        ...state.tracker,
+        [programId]: {
+          ...state.tracker[programId],
+          snsReminderSet: true,
+          snsReminderDate: reminderDate,
+        },
+      },
     })),
     addToTracker: (programs) => set(state => {
       const next = { ...state.tracker }
       programs.forEach(p => {
-        if (!next[p.id]) next[p.id] = { status: 'not_started', updatedAt: new Date().toISOString() }
+        if (!next[p.id]) {
+          const now = new Date().toISOString()
+          next[p.id] = {
+            status: 'not_started',
+            updatedAt: now,
+            history: [{ status: 'not_started', timestamp: now, note: 'Added from eligibility results' }],
+            snsReminderSet: false,
+            snsReminderDate: null,
+          }
+        }
       })
       return { tracker: next }
     }),
@@ -35,7 +70,7 @@ export const useStore = create(persist(
     savedPrograms: [],
     setSavedPrograms: (programs) => set({ savedPrograms: programs }),
 
-    // User profile (persists across sessions)
+    // User profile
     profile: {},
     setProfile: (profile) => set({ profile }),
     updateProfile: (updates) => set(state => ({ profile: { ...state.profile, ...updates } })),
