@@ -4,9 +4,12 @@ import { translations } from '../i18n/translations'
 
 const TranslationContext = createContext({})
 
-const CACHE_PREFIX = 'compass_t2_'
 const STATIC_LANGS = new Set(['en', 'es'])
 const API_BASE = import.meta.env.VITE_API_ENDPOINT || ''
+
+// Cache key includes the string count so adding new keys auto-invalidates old caches
+const KEY_COUNT = Object.keys(translations.en).length
+const CACHE_PREFIX = `compass_t_${KEY_COUNT}_`
 
 function getCached(lang) {
   try { return JSON.parse(localStorage.getItem(CACHE_PREFIX + lang)) } catch { return null }
