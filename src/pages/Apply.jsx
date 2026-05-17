@@ -87,65 +87,65 @@ export default function Apply() {
 
           {/* Pre-filled form */}
           {prefilled.length > 0 && (
-            <div className="reveal bg-white border border-slate-200 rounded-2xl p-6 mb-6">
+            <div className="reveal bg-white border border-neutral-200 rounded-lg p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
+                <div className="bg-neutral-950 text-white text-xs font-bold px-3 py-1 rounded-md">
                   {t('apply_autofill_badge')}
                 </div>
-                <span className="text-slate-500 text-sm">{t('apply_prefilled')}</span>
+                <span className="text-neutral-500 text-sm">{t('apply_prefilled')}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {prefilled.map(({ label, value }) => (
                   <div key={label}>
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">{label}</label>
-                    <div className="border-2 border-emerald-200 bg-emerald-50 rounded-xl px-4 py-3 text-slate-800 font-medium text-sm flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wide block mb-1">{label}</label>
+                    <div className="border border-neutral-200 bg-neutral-50 rounded-md px-4 py-3 text-neutral-900 font-medium text-sm flex items-center justify-between gap-2">
                       <span>{value}</span>
-                      <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-neutral-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-slate-400 mt-4">
+              <p className="text-xs text-neutral-400 mt-4">
                 {t('apply_clipboard_hint')}
               </p>
             </div>
           )}
 
           {/* Document checklist */}
-          <div className="reveal bg-white border border-slate-200 rounded-2xl p-6 mb-6">
+          <div className="reveal bg-white border border-neutral-200 rounded-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-slate-900">{t('apply_docs_title')}</h2>
-              <span className="text-sm text-slate-500 font-medium">{checkedCount}/{program.documents.length}</span>
+              <h2 className="font-bold text-neutral-950">{t('apply_docs_title')}</h2>
+              <span className="text-sm text-neutral-500 font-medium">{checkedCount}/{program.documents.length}</span>
             </div>
-            <p className="text-slate-500 text-sm mb-4">{t('apply_docs_hint')}</p>
+            <p className="text-neutral-500 text-sm mb-4">{t('apply_docs_hint')}</p>
             <div className="flex flex-col gap-2">
               {program.documents.map(doc => (
                 <button
                   key={doc}
                   onClick={() => toggleDoc(doc)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all
+                  className={`flex items-center gap-3 px-4 py-3 rounded-md border text-left transition-all
                     ${docChecked[doc]
-                      ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                      ? 'border-neutral-950 bg-neutral-950 text-white'
+                      : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'
                     }`}
                 >
-                  <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors
-                    ${docChecked[doc] ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300'}`}
+                  <div className={`w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors
+                    ${docChecked[doc] ? 'border-white bg-white' : 'border-neutral-300'}`}
                   >
                     {docChecked[doc] && (
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-3 h-3 text-neutral-950" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
                   </div>
-                  <span className={`text-sm font-medium ${docChecked[doc] ? 'line-through text-emerald-600' : ''}`}>{doc}</span>
+                  <span className={`text-sm font-medium ${docChecked[doc] ? 'line-through opacity-70' : ''}`}>{doc}</span>
                 </button>
               ))}
             </div>
             {allDocsChecked && (
-              <div className="mt-4 text-center text-emerald-700 font-semibold text-sm animate-fade-in flex items-center justify-center gap-1.5">
+              <div className="mt-4 text-center text-neutral-700 font-semibold text-sm animate-fade-in flex items-center justify-center gap-1.5">
                 <CheckIcon />
                 {t('apply_all_docs_ready')}
               </div>
@@ -167,8 +167,7 @@ export default function Apply() {
           <div className="reveal flex flex-col gap-3">
             <button
               onClick={handleOpenApp}
-              className="w-full py-4 rounded-2xl font-bold text-base text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
-              style={{ background: program.color }}
+              className="w-full py-4 rounded-md font-bold text-base text-white bg-neutral-950 hover:bg-neutral-800 transition-all hover:-translate-y-0.5 hover:shadow-lg"
             >
               {t('apply_open')}
             </button>
