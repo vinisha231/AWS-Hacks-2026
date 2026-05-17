@@ -19,7 +19,10 @@ export async function translateText(text, targetLang, sourceLang = 'en') {
   })
   if (!res.ok) return text
   const data = await res.json()
-  return data.translated ?? text
+  // Lambda returns translated as an array even for single strings
+  const result = data.translated
+  if (Array.isArray(result)) return result[0] ?? text
+  return result ?? text
 }
 
 export async function getSupportedLanguages() {
