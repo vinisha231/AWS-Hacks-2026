@@ -34,10 +34,13 @@ export default function Apply() {
     nameKey: resultProgram.nameKey || resultProgram.name || resultProgram.id,
     fullKey: resultProgram.fullKey || resultProgram.fullName || resultProgram.name || '',
     documents: resultProgram.documents || [],
-    applicationUrl: resultProgram.applicationUrl || 'https://benefits.gov',
+    applicationUrl: resultProgram.applicationUrl || 'https://www.benefits.gov',
     waitlist: resultProgram.waitlist ?? false,
     renewalMonths: resultProgram.renewalMonths ?? 12,
   } : null)
+
+  // Steps come from the Bedrock result; static programs don't have them
+  const steps = resultProgram?.steps || []
 
   const [marked, setMarked] = useState(false)
   const [docChecked, setDocChecked] = useState({})
@@ -121,6 +124,24 @@ export default function Apply() {
               <p className="text-xs text-neutral-500 mt-4">
                 {t('apply_clipboard_hint')}
               </p>
+            </div>
+          )}
+
+          {/* Step-by-step guide */}
+          {steps.length > 0 && (
+            <div className="reveal bg-white border border-gray-200 rounded-lg p-6 mb-6">
+              <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center">✓</span>
+                Step-by-Step: How to Apply
+              </h2>
+              <ol className="space-y-3">
+                {steps.map((step, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <span className="text-sm text-gray-700 leading-relaxed pt-0.5">{step.replace(/^Step \d+:\s*/i, '')}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
           )}
 

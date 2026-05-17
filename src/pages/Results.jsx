@@ -18,7 +18,6 @@ function fmt(n) {
 
 function ProgramCard({ program, lang, onApply }) {
   const { t } = useTranslation()
-  const [expanded, setExpanded] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const [advocateOpen, setAdvocateOpen] = useState(false)
 
@@ -85,45 +84,6 @@ function ProgramCard({ program, lang, onApply }) {
                 ))}
               </ul>
             </div>
-          </div>
-        )}
-
-        {/* Documents + Steps (collapsible) */}
-        <button
-          onClick={() => setExpanded(e => !e)}
-          className="text-sm text-neutral-500 hover:text-neutral-200 font-medium flex items-center gap-1 mb-3 transition-colors"
-        >
-          <svg className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          How to Apply — Step by Step
-        </button>
-
-        {expanded && (
-          <div className="mb-4 animate-fade-in space-y-4">
-            {program.steps?.length > 0 && (
-              <ol className="space-y-2">
-                {program.steps.map((step, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-neutral-700">
-                    <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
-                    <span>{step.replace(/^Step \d+:\s*/i, '')}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
-            {program.documents?.length > 0 && (
-              <div>
-                <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">{t('results_documents')} needed ({program.documents.length})</p>
-                <ul className="space-y-1.5">
-                  {program.documents.map(doc => (
-                    <li key={doc} className="flex items-start gap-2 text-sm text-neutral-400">
-                      <span className="text-emerald-600 mt-0.5 font-bold">•</span>
-                      {doc}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         )}
 
