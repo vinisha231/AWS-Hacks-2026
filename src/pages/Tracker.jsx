@@ -11,7 +11,7 @@ const STATUS_OPTIONS = ['not_started', 'in_progress', 'applied', 'approved', 're
 const STATUS_META = {
   not_started: { bg: 'bg-neutral-800',       text: 'text-neutral-400',  border: 'border-neutral-700',      label: 'Not started',  icon: '—' },
   in_progress:  { bg: 'bg-neutral-800',      text: 'text-neutral-300',  border: 'border-neutral-600',      label: 'In progress',  icon: '○' },
-  applied:      { bg: 'bg-white',            text: 'text-neutral-950',  border: 'border-white',            label: 'Applied',      icon: '◉' },
+  applied:      { bg: 'bg-emerald-900/40',   text: 'text-emerald-300',  border: 'border-emerald-600',      label: 'Applied',      icon: '◉' },
   approved:     { bg: 'bg-emerald-900/40',   text: 'text-emerald-400',  border: 'border-emerald-700/50',   label: 'Approved ✓',   icon: '●' },
   renewal_due:  { bg: 'bg-amber-900/40',     text: 'text-amber-400',    border: 'border-amber-700/50',     label: 'Renewal due',  icon: '!' },
 }
@@ -107,7 +107,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
       <div className="relative bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl w-full max-w-md p-8 animate-scale-in" onClick={e => e.stopPropagation()}>
         {!done ? (
           <>
-            <div className="w-10 h-10 rounded-md bg-white flex items-center justify-center text-neutral-950 mb-3">
+            <div className="w-10 h-10 rounded-md bg-emerald-900 border border-emerald-700 flex items-center justify-center text-emerald-400 mb-3">
               <BellIcon />
             </div>
             <h2 className="text-xl font-black text-white mb-1">Set Renewal Reminder</h2>
@@ -149,7 +149,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
               <button
                 onClick={submit}
                 disabled={loading || (!phone && !email)}
-                className="flex-1 bg-white hover:bg-neutral-100 disabled:bg-neutral-700 disabled:text-neutral-500 text-neutral-950 font-bold py-3 rounded-md transition-colors flex items-center justify-center gap-2"
+                className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-neutral-700 disabled:text-neutral-500 text-white font-bold py-3 rounded-md transition-colors flex items-center justify-center gap-2"
               >
                 {loading && <span className="w-4 h-4 border-2 border-neutral-400/40 border-t-neutral-950 rounded-full animate-spin" />}
                 {loading ? 'Scheduling...' : 'Schedule Reminder'}
@@ -174,7 +174,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
                 Demo mode — connect VITE_SNS_ENDPOINT to send real SNS notifications.
               </p>
             )}
-            <button onClick={onClose} className="bg-white text-neutral-950 font-bold px-6 py-3 rounded-md hover:bg-neutral-100 transition-colors">
+            <button onClick={onClose} className="bg-emerald-600 text-white font-bold px-6 py-3 rounded-md hover:bg-emerald-500 transition-colors">
               Done
             </button>
           </div>
@@ -417,31 +417,31 @@ function TrashTab({ trash, onRestore, onPermanentDelete }) {
 
   if (trashItems.length === 0) {
     return (
-      <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
+      <div className="bg-neutral-900 border-2 border-dashed border-neutral-700 rounded-2xl p-12 text-center">
         <div className="text-5xl mb-4">🗑️</div>
-        <h3 className="font-bold text-slate-900 text-lg mb-1">Trash is empty</h3>
-        <p className="text-slate-500 text-sm">Removed applications will appear here for 30 days.</p>
+        <h3 className="font-bold text-neutral-200 text-lg mb-1">Trash is empty</h3>
+        <p className="text-neutral-500 text-sm">Removed applications will appear here for 30 days.</p>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs text-slate-400 text-center">Items are permanently deleted after 30 days.</p>
+      <p className="text-xs text-neutral-500 text-center">Items are permanently deleted after 30 days.</p>
       {trashItems.map(({ program, entry, daysLeft, deletedAt }) => (
-        <div key={program.id} className="bg-white border border-slate-200 rounded-2xl p-5 opacity-80">
+        <div key={program.id} className="bg-neutral-900 border border-neutral-700 rounded-2xl p-5 opacity-80">
           <div className="flex items-center gap-4">
             <span className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 grayscale" style={{ background: program.bgColor }}>
               {program.icon}
             </span>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-slate-700">{program.name}</h3>
-              <p className="text-slate-400 text-xs">Deleted {fmtDate(deletedAt.toISOString())} · {daysLeft}d left before permanent deletion</p>
+              <h3 className="font-bold text-neutral-200">{program.name}</h3>
+              <p className="text-neutral-500 text-xs">Deleted {fmtDate(deletedAt.toISOString())} · {daysLeft}d left before permanent deletion</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={() => onRestore(program.id)}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-900/40 hover:bg-emerald-900/60 px-3 py-1.5 rounded-lg transition-colors"
               >
                 ↩ Restore
               </button>
@@ -507,7 +507,7 @@ export default function Tracker() {
             <h1 className="text-3xl font-black text-white mb-1">{t('tracker_headline')}</h1>
             <p className="text-neutral-400">{t('tracker_sub')}</p>
           </div>
-          <Link to="/intake" className="bg-white hover:bg-neutral-100 text-neutral-950 font-semibold text-sm px-5 py-2.5 rounded-md transition-colors">
+          <Link to="/intake" className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-5 py-2.5 rounded-md transition-colors">
             {t('tracker_find_more')}
           </Link>
         </div>
@@ -540,7 +540,7 @@ export default function Tracker() {
               key={key}
               onClick={() => setTab(key)}
               className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all
-                ${tab === key ? 'bg-white text-neutral-950 shadow-sm' : 'text-neutral-500 hover:text-neutral-700'}`}
+                ${tab === key ? 'bg-emerald-900/50 text-emerald-300 border-emerald-700' : 'text-neutral-500 hover:text-neutral-300'}`}
             >
               {label}
             </button>
@@ -552,7 +552,7 @@ export default function Tracker() {
           <div className="reveal bg-neutral-900 border-2 border-dashed border-neutral-700 rounded-lg p-12 text-center">
             <h3 className="font-bold text-white text-lg mb-2">{t('tracker_empty')}</h3>
             <p className="text-neutral-400 mb-6">{t('tracker_empty_sub')}</p>
-            <Link to="/intake" className="bg-white hover:bg-neutral-100 text-neutral-950 font-semibold px-5 py-2.5 rounded-md transition-colors inline-block">
+            <Link to="/intake" className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-md transition-colors inline-block">
               {t('tracker_find')}
             </Link>
           </div>
