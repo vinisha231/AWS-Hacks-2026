@@ -6,6 +6,7 @@ import Layout from '../components/Layout'
 import { useRevealAll } from '../hooks/useReveal'
 import { ProgramChatbot } from '../components/ProgramChatbot'
 import { AdvocatePanel } from '../components/AdvocatePanel'
+import { saveSession } from '../services/sessionApi'
 
 const CATEGORY_LABELS = {
   food: 'Food', health: 'Health', housing: 'Housing',
@@ -330,6 +331,8 @@ export default function Results() {
     addToTracker(results)
     setSavedPrograms(results)
     setSaved(true)
+    // Persist to Aurora via RDS Data API (fire-and-forget — doesn't block navigation)
+    saveSession({ answers, programs: results, meta: eligibilityMeta || {} })
     setTimeout(() => navigate('/tracker'), 800)
   }
 

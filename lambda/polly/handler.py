@@ -1,10 +1,10 @@
 import boto3
 import base64
 import json
+import time
 
 polly = boto3.client('polly', region_name='us-east-1')
 
-# (voice_id, lang_code, engine)
 VOICE_MAP = {
     'en': ('Joanna', 'en-US',  'neural'),
     'es': ('Lupe',   'es-US',  'neural'),
@@ -27,10 +27,16 @@ CORS = {
     'Access-Control-Allow-Methods': 'POST,OPTIONS',
 }
 
+
+def cw_log(level, event, **ctx):
+    print(json.dumps({'level': level, 'event': event, 'ts': time.time(), **ctx}))
+
+
 def lambda_handler(event, context):
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS, 'body': ''}
 
+    t0 = time.time()
     try:
         body = json.loads(event.get('body') or '{}')
         text = (body.get('text') or '')[:2500].strip()
@@ -40,6 +46,7 @@ def lambda_handler(event, context):
             return {'statusCode': 400, 'headers': CORS, 'body': json.dumps({'error': 'text required'})}
 
         voice_id, lang_code, engine = VOICE_MAP.get(lang, ('Joanna', 'en-US', 'neural'))
+        cw_log('INFO', 'polly_request', lang=lang, voice=voice_id, chars=len(text))
 
         resp = polly.synthesize_speech(
             Text=text,
@@ -50,6 +57,9 @@ def lambda_handler(event, context):
         )
 
         audio_b64 = base64.b64encode(resp['AudioStream'].read()).decode()
+        cw_log('INFO', 'polly_success', lang=lang, voice=voice_id,
+               audio_bytes=len(audio_b64), total_ms=round((time.time()-t0)*1000))
+
         return {
             'statusCode': 200,
             'headers': {**CORS, 'Content-Type': 'application/json'},
@@ -57,6 +67,7 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
+        cw_log('ERROR', 'polly_error', error=str(e), total_ms=round((time.time()-t0)*1000))
         return {
             'statusCode': 500,
             'headers': CORS,

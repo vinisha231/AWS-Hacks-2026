@@ -1,6 +1,7 @@
 import boto3
 import json
 import re
+import time
 
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
@@ -11,10 +12,14 @@ CORS_HEADERS = {
     'Content-Type': 'application/json',
 }
 
+def cw_log(level, event, **ctx):
+    print(json.dumps({'level': level, 'event': event, 'ts': time.time(), **ctx}))
+
 def lambda_handler(event, context):
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS_HEADERS, 'body': ''}
 
+    t0 = time.time()
     try:
         body = json.loads(event.get('body') or '{}')
         a = body.get('answers', {})
@@ -30,10 +35,13 @@ def lambda_handler(event, context):
         citizenship      = a.get('citizenship', 'citizens')
         current_benefits = a.get('currentBenefits', [])
 
-        members_str  = ', '.join(members)  if members          else 'adults only'
+        cw_log('INFO', 'eligibility_request', state=state, household_size=household_size,
+               monthly_income=monthly_income, housing_status=housing_status)
+
+        members_str  = ', '.join(members) if members else 'adults only'
         benefits_str = ', '.join(current_benefits) if current_benefits else 'none'
 
-        # Server-side urgency logic — no LLM tokens needed
+        # Server-side urgency logic
         is_urgent = (
             housing_status == 'homeless' or
             monthly_income < 500 or
@@ -41,7 +49,6 @@ def lambda_handler(event, context):
             (monthly_income < 800 and household_size >= 3)
         )
 
-        # SNAP 130% FPL threshold: ~$1,580/mo for 1 person + ~$560 per additional
         snap_threshold = 1580 + max(0, household_size - 1) * 560
         snap_fallback = (
             monthly_income > snap_threshold and
@@ -105,6 +112,7 @@ Instructions:
 - nonprofits: 4-6 real {state} nonprofits for longer-term support — include local United Way chapter, Salvation Army, community action agency, legal aid society, and a free health clinic if applicable.
 - Return valid minified JSON only."""
 
+        bedrock_t0 = time.time()
         response = bedrock.invoke_model(
             modelId='us.anthropic.claude-sonnet-4-6',
             body=json.dumps({
@@ -113,11 +121,11 @@ Instructions:
                 'messages': [{'role': 'user', 'content': prompt}],
             }),
         )
+        bedrock_ms = round((time.time() - bedrock_t0) * 1000)
 
         raw = json.loads(response['body'].read())
         text = raw['content'][0]['text'].strip()
 
-        # Extract JSON object robustly
         match = re.search(r'\{.*\}', text, re.DOTALL)
         parsed = json.loads(match.group() if match else text)
 
@@ -125,7 +133,6 @@ Instructions:
         urgent_resources = parsed.get('urgentResources', [])
         nonprofits       = parsed.get('nonprofits', [])
 
-        # Normalize programs
         for p in programs:
             p.setdefault('nameKey',  p.get('name', p.get('id', '')))
             p.setdefault('descKey',  p.get('description', ''))
@@ -145,6 +152,11 @@ Instructions:
 
         programs.sort(key=lambda x: x.get('estimatedAnnual', 0), reverse=True)
 
+        total_ms = round((time.time() - t0) * 1000)
+        cw_log('INFO', 'eligibility_success',
+               state=state, programs_returned=len(programs),
+               is_urgent=is_urgent, bedrock_ms=bedrock_ms, total_ms=total_ms)
+
         return {
             'statusCode': 200,
             'headers': CORS_HEADERS,
@@ -160,7 +172,7 @@ Instructions:
         }
 
     except Exception as e:
-        print(f'Error: {e}')
+        cw_log('ERROR', 'eligibility_error', error=str(e), total_ms=round((time.time()-t0)*1000))
         return {
             'statusCode': 500,
             'headers': CORS_HEADERS,

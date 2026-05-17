@@ -1,6 +1,7 @@
 import boto3
 import json
 import re
+import time
 
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
@@ -12,6 +13,10 @@ CORS_HEADERS = {
 }
 
 MODEL = 'us.anthropic.claude-sonnet-4-6'
+
+
+def cw_log(level, event, **ctx):
+    print(json.dumps({'level': level, 'event': event, 'ts': time.time(), **ctx}))
 
 
 def invoke(messages, system=None, max_tokens=800):
@@ -30,6 +35,7 @@ def lambda_handler(event, context):
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS_HEADERS, 'body': ''}
 
+    t0 = time.time()
     try:
         body = json.loads(event.get('body') or '{}')
         mode         = body.get('mode', 'letter')
@@ -46,6 +52,8 @@ def lambda_handler(event, context):
         members  = ', '.join(profile.get('householdMembers', [])) or 'adults'
         housing  = profile.get('housingStatus', 'unknown')
         cit      = profile.get('citizenship', 'citizen')
+
+        cw_log('INFO', 'advocate_request', mode=mode, program=program_name, state=state)
 
         if mode == 'letter':
             prompt = f"""Write a concise 1-page advocacy letter for {user_name} applying for {program_full} in {state}.
@@ -65,9 +73,10 @@ OBJECTIONS:
 - [common objection and 1-sentence response]
 - [common objection and 1-sentence response]"""
 
+            bedrock_t0 = time.time()
             text = invoke([{'role': 'user', 'content': prompt}], max_tokens=900)
+            bedrock_ms = round((time.time() - bedrock_t0) * 1000)
 
-            # Parse sections
             letter = ''
             talking_points = []
             objections = []
@@ -90,6 +99,10 @@ OBJECTIONS:
                     for line in obj_match.group(1).strip().splitlines()
                     if line.strip() and line.strip() not in ('-', '•')
                 ]
+
+            cw_log('INFO', 'advocate_letter_success', program=program_name,
+                   letter_chars=len(letter), talking_points=len(talking_points),
+                   bedrock_ms=bedrock_ms, total_ms=round((time.time()-t0)*1000))
 
             return {
                 'statusCode': 200,
@@ -118,7 +131,13 @@ OBJECTIONS:
             if not msgs:
                 msgs.append({'role': 'user', 'content': 'Begin the interview.'})
 
+            bedrock_t0 = time.time()
             reply = invoke(msgs, system=system_prompt, max_tokens=250)
+            bedrock_ms = round((time.time() - bedrock_t0) * 1000)
+
+            cw_log('INFO', 'advocate_roleplay_turn', program=program_name,
+                   history_turns=len(history), bedrock_ms=bedrock_ms,
+                   total_ms=round((time.time()-t0)*1000))
 
             return {
                 'statusCode': 200,
@@ -134,7 +153,7 @@ OBJECTIONS:
             }
 
     except Exception as e:
-        print(f'Error: {e}')
+        cw_log('ERROR', 'advocate_error', error=str(e), total_ms=round((time.time()-t0)*1000))
         return {
             'statusCode': 500,
             'headers': CORS_HEADERS,
