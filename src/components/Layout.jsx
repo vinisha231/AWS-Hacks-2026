@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from '../hooks/useTranslation'
 import { useStore } from '../store/store'
 import LanguagePicker from './LanguagePicker'
+import { FloatingChatbot } from './FloatingChatbot'
 
 function CompassLogo() {
   return (
@@ -142,6 +143,8 @@ export default function Layout({ children }) {
       </nav>
 
       <main className="flex-1">{children}</main>
+
+      <FloatingChatbot />
 
       <footer className="bg-neutral-950 border-t border-neutral-800 py-10 px-8">
         <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
