@@ -4,7 +4,7 @@ import { useStore } from '../store/store'
 
 export function AdvocatePanel({ program, onClose }) {
   const { answers } = useStore()
-  const [mode, setMode] = useState(null)          // null | 'letter' | 'roleplay'
+  const [mode, setMode] = useState(null)
   const [loading, setLoading] = useState(false)
   const [letter, setLetter] = useState('')
   const [talkingPoints, setTalkingPoints] = useState([])
@@ -12,9 +12,14 @@ export function AdvocatePanel({ program, onClose }) {
   const [chat, setChat] = useState([])
   const [input, setInput] = useState('')
   const [copied, setCopied] = useState(false)
-  const bottomRef = useRef(null)
+  const chatContainerRef = useRef(null)
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chat])
+  // Scroll only the chat messages div, not the page
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
+  }, [chat, loading])
 
   const programName = program.nameKey || program.name || program.id
   const programFull = program.fullKey || program.fullName || programName
@@ -78,12 +83,15 @@ export function AdvocatePanel({ program, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+
+      {/* Modal — flex column with fixed max height so inner sections can scroll */}
       <div
-        className="relative bg-white border border-gray-200 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+        className="relative bg-white border border-gray-200 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col"
+        style={{ maxHeight: '88vh' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        {/* Header — never scrolls */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 flex-shrink-0 rounded-t-xl">
           <div>
             <h2 className="font-black text-gray-900 text-lg">AI Benefits Advocate</h2>
             <p className="text-sm text-gray-500">{programFull}</p>
@@ -97,14 +105,14 @@ export function AdvocatePanel({ program, onClose }) {
 
         {/* Mode picker */}
         {!mode && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
+          <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8 overflow-y-auto">
             <p className="text-gray-600 text-center text-sm max-w-sm">
               Get professional help applying for <strong>{programName}</strong>. Choose how you'd like to prepare.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
               <button
                 onClick={startLetter}
-                className="group flex flex-col gap-3 p-6 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
+                className="flex flex-col gap-3 p-6 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
               >
                 <span className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -119,7 +127,7 @@ export function AdvocatePanel({ program, onClose }) {
 
               <button
                 onClick={startRoleplay}
-                className="group flex flex-col gap-3 p-6 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
+                className="flex flex-col gap-3 p-6 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
               >
                 <span className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -135,53 +143,51 @@ export function AdvocatePanel({ program, onClose }) {
           </div>
         )}
 
-        {/* Letter mode */}
+        {/* Letter mode — min-h-0 lets flex children shrink so scroll works */}
         {mode === 'letter' && (
-          <div className="flex-1 overflow-y-auto flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             {loading ? (
               <div className="flex-1 flex items-center justify-center gap-3 text-gray-500">
                 <span className="w-5 h-5 border-2 border-gray-300 border-t-emerald-600 rounded-full animate-spin" />
                 Generating your advocacy letter…
               </div>
             ) : (
-              <div className="flex-1 flex flex-col">
-                {/* Letter */}
-                <div className="flex-1 p-6 overflow-y-auto">
+              <>
+                {/* Scrollable letter area */}
+                <div className="flex-1 overflow-y-auto p-6 min-h-0">
                   <pre className="whitespace-pre-wrap text-sm text-gray-800 font-sans leading-relaxed border border-gray-200 rounded-lg p-4 bg-gray-50">
                     {letter}
                   </pre>
+
+                  {talkingPoints.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Key Talking Points</p>
+                      <ul className="space-y-1.5">
+                        {talkingPoints.map((pt, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                            <span className="text-emerald-600 font-bold mt-0.5">•</span>{pt}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {objections.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Common Objections & Responses</p>
+                      <ul className="space-y-1.5">
+                        {objections.map((obj, i) => (
+                          <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                            <span className="text-amber-600 font-bold mt-0.5">→</span>{obj}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
-                {/* Talking points */}
-                {talkingPoints.length > 0 && (
-                  <div className="px-6 pb-4 border-t border-gray-100 pt-4">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Key Talking Points</p>
-                    <ul className="space-y-1.5">
-                      {talkingPoints.map((pt, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                          <span className="text-emerald-600 font-bold mt-0.5">•</span>{pt}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Objections */}
-                {objections.length > 0 && (
-                  <div className="px-6 pb-4 border-t border-gray-100 pt-4">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Common Objections & Responses</p>
-                    <ul className="space-y-1.5">
-                      {objections.map((obj, i) => (
-                        <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                          <span className="text-amber-600 font-bold mt-0.5">→</span>{obj}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="px-6 pb-6 pt-4 border-t border-gray-200 flex gap-3">
+                {/* Actions — pinned to bottom */}
+                <div className="flex-shrink-0 px-6 pb-6 pt-4 border-t border-gray-200 flex gap-3">
                   <button onClick={copyLetter} className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors">
                     {copied ? '✓ Copied!' : 'Copy Letter'}
                   </button>
@@ -189,20 +195,22 @@ export function AdvocatePanel({ program, onClose }) {
                     Back
                   </button>
                 </div>
-              </div>
+              </>
             )}
           </div>
         )}
 
         {/* Roleplay mode */}
         {mode === 'roleplay' && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="px-4 py-2 bg-amber-50 border-b border-amber-200 flex-shrink-0">
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex-shrink-0 px-4 py-2 bg-amber-50 border-b border-amber-200">
               <p className="text-xs text-amber-700 font-medium text-center">
                 🎭 You're practicing with a simulated {answers?.state || ''} caseworker. Respond as you would in the real interview.
               </p>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+
+            {/* Messages — only this div scrolls */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
               {chat.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'assistant' && (
@@ -224,9 +232,10 @@ export function AdvocatePanel({ program, onClose }) {
                   </div>
                 </div>
               )}
-              <div ref={bottomRef} />
             </div>
-            <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0">
+
+            {/* Input — pinned to bottom */}
+            <div className="flex-shrink-0 border-t border-gray-200 p-4 bg-white">
               <div className="flex gap-2">
                 <input
                   type="text"
