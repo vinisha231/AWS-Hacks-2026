@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { TranslationProvider } from './contexts/TranslationContext'
 import { useDynamicTranslations } from './contexts/TranslationContext'
+import { Amplify } from 'aws-amplify';
+import awsconfig from './aws-exports'; // if you use Amplify CLI
+Amplify.configure(awsconfig);
 
 const Landing  = lazy(() => import('./pages/Landing'))
 const AuthPage = lazy(() => import('./pages/Auth'))

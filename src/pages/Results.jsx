@@ -4,6 +4,7 @@ import { useStore } from '../store/store'
 import { useTranslation } from '../hooks/useTranslation'
 import Layout from '../components/Layout'
 import { useRevealAll } from '../hooks/useReveal'
+import { ProgramChatbot } from '../components/ProgramChatbot'
 
 const CATEGORY_LABELS = {
   food: 'Food', health: 'Health', housing: 'Housing',
@@ -17,6 +18,7 @@ function fmt(n) {
 function ProgramCard({ program, lang, onApply }) {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
 
   return (
     <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden hover:-translate-y-0.5 hover:shadow-lg hover:border-neutral-600 transition-all duration-200">
@@ -80,13 +82,28 @@ function ProgramCard({ program, lang, onApply }) {
           </ul>
         )}
 
-        {/* Apply button */}
-        <button
-          onClick={() => onApply(program)}
-          className="w-full py-3 rounded-md font-bold text-sm text-neutral-950 bg-white hover:bg-neutral-100 transition-all hover:-translate-y-0.5 hover:shadow-md"
-        >
-          {t('results_prefill')} →
-        </button>
+        {/* Chatbot */}
+        {chatOpen && (
+          <div className="mb-4">
+            <ProgramChatbot programId={program.id} programName={t(program.nameKey)} />
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => setChatOpen(!chatOpen)}
+            className="flex-1 py-3 rounded-md font-bold text-sm text-white bg-blue-600 hover:bg-blue-700 transition-all"
+          >
+            {chatOpen ? 'Close Chat' : 'Ask Questions'}
+          </button>
+          <button
+            onClick={() => onApply(program)}
+            className="flex-1 py-3 rounded-md font-bold text-sm text-neutral-950 bg-white hover:bg-neutral-100 transition-all hover:-translate-y-0.5 hover:shadow-md"
+          >
+            {t('results_prefill')} →
+          </button>
+        </div>
       </div>
     </div>
   )

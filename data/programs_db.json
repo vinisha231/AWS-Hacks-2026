@@ -1,0 +1,136 @@
+{
+  "programs": [
+    {
+      "id": "snap",
+      "name": "SNAP (Food Assistance)",
+      "agency": "USDA",
+      "url": "https://www.fns.usda.gov/snap/state-directory",
+      "description": "Supplemental Nutrition Assistance Program provides food benefits",
+      "eligibilityRules": [
+        "U.S. citizen or qualified immigrant",
+        "Income below 130% of federal poverty line",
+        "Asset limit (usually $2,000)",
+        "Work requirement may apply (exceptions for students, elderly, disabled)"
+      ],
+      "documents": [
+        "Social Security card or birth certificate",
+        "Proof of income (recent pay stubs, tax return)",
+        "Proof of residency (utility bill, lease)",
+        "Proof of immigration status"
+      ]
+    },
+    {
+      "id": "medicaid",
+      "name": "Medicaid",
+      "agency": "CMS",
+      "url": "https://www.medicaid.gov/",
+      "description": "Health insurance for low-income individuals and families",
+      "eligibilityRules": [
+        "Income below state limits (varies by state)",
+        "U.S. citizen or qualified immigrant",
+        "State residency requirement",
+        "Expansion states: income up to 138% of federal poverty line"
+      ],
+      "documents": [
+        "Proof of identity and Social Security number",
+        "Proof of residency",
+        "Proof of income",
+        "Proof of citizenship/immigration status"
+      ]
+    },
+    {
+      "id": "housing",
+      "name": "Section 8 Housing Vouchers",
+      "agency": "HUD",
+      "url": "https://www.hud.gov/program_offices/public_indian_housing/programs/ph/phr/about/faq",
+      "description": "Rental assistance for low-income families",
+      "eligibilityRules": [
+        "Income below 50% of area median income (AMI)",
+        "U.S. citizen or qualified immigrant",
+        "No disqualifying criminal history",
+        "Preference given to homeless, displaced, or large families"
+      ],
+      "documents": [
+        "Proof of identity",
+        "Proof of income (recent 2 years tax returns, pay stubs)",
+        "Proof of displacement or homelessness (if applicable)",
+        "Birth certificates for all family members"
+      ]
+    },
+    {
+      "id": "liheap",
+      "name": "LIHEAP (Energy Assistance)",
+      "agency": "HHS",
+      "url": "https://www.acf.hhs.gov/ocs/liheap",
+      "description": "Low Income Home Energy Assistance Program for utility bills",
+      "eligibilityRules": [
+        "Income at or below 150% of federal poverty line",
+        "Responsible for paying heating/cooling costs",
+        "U.S. citizen or qualified immigrant"
+      ],
+      "documents": [
+        "Proof of income",
+        "Proof of residency",
+        "Recent utility bills or lease showing utility responsibility"
+      ]
+    },
+    {
+      "id": "tanf",
+      "name": "TANF (Cash Assistance)",
+      "agency": "HHS",
+      "url": "https://www.acf.hhs.gov/tanf",
+      "description": "Temporary Assistance for Needy Families provides cash support",
+      "eligibilityRules": [
+        "Income below state limits (varies)",
+        "Care for child under 18 or pregnant",
+        "U.S. citizen or qualified immigrant",
+        "Work requirements apply after 24 months"
+      ],
+      "documents": [
+        "Proof of identity",
+        "Proof of residency",
+        "Birth certificates for children",
+        "Proof of income or unemployment"
+      ]
+    },
+    {
+      "id": "wic",
+      "name": "WIC (Nutrition for Mothers & Children)",
+      "agency": "USDA",
+      "url": "https://www.fns.usda.gov/wic",
+      "description": "Women, Infants, and Children nutrition program",
+      "eligibilityRules": [
+        "Pregnant, postpartum, or breastfeeding women",
+        "Infants under 5 years old",
+        "Children under 5 years old",
+        "Income below 185% of federal poverty line",
+        "U.S. citizen or qualified immigrant"
+      ],
+      "documents": [
+        "Proof of income",
+        "Proof of pregnancy (if applicable)",
+        "Birth certificate of child",
+        "Proof of residency",
+        "Proof of immigration status"
+      ]
+    },
+    {
+      "id": "eitc",
+      "name": "EITC (Earned Income Tax Credit)",
+      "agency": "IRS",
+      "url": "https://www.irs.gov/credits-deductions/individuals/earned-income-tax-credit",
+      "description": "Tax credit for working individuals with low to moderate income",
+      "eligibilityRules": [
+        "Earned income from work",
+        "Income below phase-out limit ($60,000+ depending on filing status)",
+        "U.S. citizen or resident alien",
+        "Valid Social Security number"
+      ],
+      "documents": [
+        "Tax return with W-2 or 1099 forms",
+        "Proof of valid Social Security number",
+        "Earned income documentation"
+      ]
+    }
+  ]
+}

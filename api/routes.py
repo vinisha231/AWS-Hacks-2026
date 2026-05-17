@@ -3,6 +3,7 @@ API route definitions for Benefits Navigator.
 
 POST /intake                        — submit conversational message, get structured data + session_id
 POST /eligibility                   — run cross-program eligibility check for a session
+POST /chatbot                       — conversational AI assistant for program guidance
 POST /application/create            — create a draft application with auto-filled form data
 POST /application/submit            — submit an application, schedule renewal reminder
 POST /application/upload            — upload a supporting document to S3
@@ -29,6 +30,17 @@ ROUTES = [
         "body": {
             "user_id": "string (UUID)",
             "session_id": "string (UUID from /intake)"
+        }
+    },
+    {
+        "method": "POST",
+        "path": "/chatbot",
+        "handler": "chatbot.handler.lambda_handler",
+        "description": "Conversational AI assistant for program-specific guidance and eligibility questions",
+        "body": {
+            "message": "string (user question or statement)",
+            "program_id": "string (optional: snap | medicaid | housing | liheap | tanf | wic | eitc)",
+            "session_id": "string (optional UUID for context tracking)"
         }
     },
     {
