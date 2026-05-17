@@ -73,11 +73,11 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen bg-neutral-950 flex flex-col">
       {/* Nav */}
-      <nav className="px-6 py-4 flex items-center justify-between">
+      <nav className="px-6 py-4 flex items-center justify-between border-b border-neutral-800">
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="font-bold text-xl text-neutral-950">Compass</span>
+          <span className="font-bold text-xl text-white">Compass</span>
         </Link>
         <LanguagePicker />
       </nav>
@@ -85,13 +85,13 @@ export default function AuthPage() {
       {/* Card */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md animate-scale-in">
-          <div className="bg-white rounded-md shadow-sm border border-neutral-200 p-8">
+          <div className="bg-neutral-900 rounded-md border border-neutral-800 p-8">
             {/* Header */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-black text-neutral-950 mb-1">
+              <h1 className="text-2xl font-black text-white mb-1">
                 {mode === 'login' ? t('auth_welcome') : t('auth_create')}
               </h1>
-              <p className="text-neutral-500 text-sm">
+              <p className="text-neutral-400 text-sm">
                 {mode === 'login'
                   ? t('auth_signin_desc')
                   : t('auth_signup_desc')}
@@ -99,13 +99,13 @@ export default function AuthPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex bg-neutral-100 rounded-lg p-1 mb-8">
+            <div className="flex bg-neutral-800 rounded-lg p-1 mb-8">
               {['login', 'signup'].map(m => (
                 <button
                   key={m}
                   onClick={() => { setMode(m); setError('') }}
                   className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all
-                    ${mode === m ? 'bg-white text-neutral-950 shadow-sm' : 'text-neutral-500 hover:text-neutral-700'}`}
+                    ${mode === m ? 'bg-white text-neutral-950 shadow-sm' : 'text-neutral-500 hover:text-neutral-200'}`}
                 >
                   {m === 'login' ? t('auth_tab_signin') : t('auth_tab_signup')}
                 </button>
@@ -155,7 +155,7 @@ export default function AuthPage() {
               )}
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md px-4 py-3 flex items-start gap-2">
+                <div className="bg-red-900/30 border border-red-800 text-red-400 text-sm rounded-md px-4 py-3 flex items-start gap-2">
                   <span className="flex-shrink-0 mt-0.5"><WarningIcon /></span>
                   <span>{error}</span>
                 </div>
@@ -164,7 +164,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-neutral-950 hover:bg-neutral-800 disabled:bg-neutral-300 text-white font-bold py-3.5 rounded-md transition-all mt-2 flex items-center justify-center gap-2"
+                className="w-full bg-white hover:bg-neutral-100 disabled:bg-neutral-700 disabled:text-neutral-500 text-neutral-950 font-bold py-3.5 rounded-md transition-all mt-2 flex items-center justify-center gap-2"
               >
                 {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                 {loading ? t('auth_submit_loading') : mode === 'login' ? t('auth_submit_signin') : t('auth_submit_signup')}
@@ -173,15 +173,15 @@ export default function AuthPage() {
 
             {/* Divider */}
             <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-neutral-200" /></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-neutral-700" /></div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-neutral-400">{t('auth_or')}</span>
+                <span className="bg-neutral-900 px-3 text-xs text-neutral-500">{t('auth_or')}</span>
               </div>
             </div>
 
             <Link
               to="/intake"
-              className="block w-full text-center text-sm font-medium text-neutral-600 hover:text-neutral-950 py-2 transition-colors"
+              className="block w-full text-center text-sm font-medium text-neutral-400 hover:text-white py-2 transition-colors"
             >
               {t('auth_no_account')}
             </Link>
@@ -203,9 +203,9 @@ function Field({ label, type, placeholder, value, onChange, icon, autoComplete }
   const isPassword = type === 'password'
   return (
     <div>
-      <label className="block text-xs font-semibold text-neutral-600 mb-1.5 ml-1">{label}</label>
+      <label className="block text-xs font-semibold text-neutral-400 mb-1.5 ml-1">{label}</label>
       <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none flex items-center">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none flex items-center">
           {ICON_MAP[icon]}
         </span>
         <input
@@ -215,13 +215,13 @@ function Field({ label, type, placeholder, value, onChange, icon, autoComplete }
           onChange={e => onChange(e.target.value)}
           autoComplete={autoComplete}
           required
-          className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md pl-11 pr-11 py-3.5 text-neutral-950 text-sm bg-white outline-none transition-colors"
+          className="w-full border border-neutral-700 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 rounded-md pl-11 pr-11 py-3.5 text-white text-sm bg-neutral-800 outline-none transition-colors placeholder-neutral-600"
         />
         {isPassword && (
           <button
             type="button"
             onClick={() => setShow(s => !s)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-xs font-medium"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-200 text-xs font-medium"
           >
             {show ? 'Hide' : 'Show'}
           </button>
