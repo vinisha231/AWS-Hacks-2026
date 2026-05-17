@@ -214,7 +214,7 @@ function HistoryTimeline({ history, t }) {
 }
 
 // ── Program card ─────────────────────────────────────────────────────────────
-function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t }) {
+function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, onDelete, t }) {
   const navigate = useNavigate()
   const [showHistory, setShowHistory] = useState(false)
   const [showReminder, setShowReminder] = useState(false)
@@ -303,6 +303,15 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
                     <BellIcon /> {t('tracker_set_reminder')}
                   </button>
                 )}
+
+                {/* Delete button */}
+                <button
+                  onClick={() => onDelete(program.id)}
+                  className="text-xs text-red-400 hover:text-red-600 transition-colors ml-auto flex items-center gap-1"
+                  title="Remove application"
+                >
+                  🗑 Remove
+                </button>
 
                 {/* History toggle */}
                 <button
@@ -393,14 +402,77 @@ function FullHistory({ tracker, t }) {
   )
 }
 
+const TRASH_TTL_DAYS = 30
+
+function TrashTab({ trash, onRestore, onPermanentDelete }) {
+  const trashItems = Object.entries(trash).map(([id, entry]) => {
+    const program = PROGRAMS.find(p => p.id === id)
+    if (!program) return null
+    const deletedAt = new Date(entry.deletedAt)
+    const expiresAt = new Date(deletedAt)
+    expiresAt.setDate(expiresAt.getDate() + TRASH_TTL_DAYS)
+    const daysLeft = Math.max(0, Math.round((expiresAt - new Date()) / (1000 * 60 * 60 * 24)))
+    return { program, entry, daysLeft, deletedAt }
+  }).filter(Boolean)
+
+  if (trashItems.length === 0) {
+    return (
+      <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
+        <div className="text-5xl mb-4">🗑️</div>
+        <h3 className="font-bold text-slate-900 text-lg mb-1">Trash is empty</h3>
+        <p className="text-slate-500 text-sm">Removed applications will appear here for 30 days.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-xs text-slate-400 text-center">Items are permanently deleted after 30 days.</p>
+      {trashItems.map(({ program, entry, daysLeft, deletedAt }) => (
+        <div key={program.id} className="bg-white border border-slate-200 rounded-2xl p-5 opacity-80">
+          <div className="flex items-center gap-4">
+            <span className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 grayscale" style={{ background: program.bgColor }}>
+              {program.icon}
+            </span>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-slate-700">{program.name}</h3>
+              <p className="text-slate-400 text-xs">Deleted {fmtDate(deletedAt.toISOString())} · {daysLeft}d left before permanent deletion</p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => onRestore(program.id)}
+                className="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                ↩ Restore
+              </button>
+              <button
+                onClick={() => onPermanentDelete(program.id)}
+                className="text-xs font-semibold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Delete forever
+              </button>
+            </div>
+          </div>
+          {daysLeft <= 3 && (
+            <div className="mt-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              ⚠️ This will be permanently deleted in {daysLeft} day{daysLeft !== 1 ? 's' : ''}.
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Tracker() {
   const { t } = useTranslation()
-  const { tracker, setTrackerStatus, setSnsReminder, clearTracker, savedPrograms } = useStore()
+  const { tracker, trash, setTrackerStatus, setSnsReminder, clearTracker, moveToTrash, restoreFromTrash, permanentlyDelete, savedPrograms } = useStore()
   const [tab, setTab] = useState('active')
   const [showConfirmClear, setShowConfirmClear] = useState(false)
 
   useRevealAll()
+  const trashCount = Object.keys(trash || {}).length
 
   const trackedIds = Object.keys(tracker)
   const trackedPrograms = trackedIds.map(id => {
@@ -454,28 +526,29 @@ export default function Tracker() {
                 highlight={renewalAlerts > 0}
               />
             </div>
-
-            {/* Tabs */}
-            <div className="flex bg-neutral-800 rounded-lg p-1 mb-6">
-              {[
-                { key: 'active',  label: t('tracker_tab_active', { count: trackedPrograms.length }) },
-                { key: 'history', label: t('tracker_tab_history') },
-              ].map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setTab(key)}
-                  className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all
-                    ${tab === key ? 'bg-white text-neutral-950 shadow-sm' : 'text-neutral-500 hover:text-neutral-200'}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
           </>
         )}
 
+        {/* Tabs */}
+        <div className="flex bg-neutral-100 rounded-lg p-1 mb-6">
+          {[
+            { key: 'active',  label: `Active (${trackedPrograms.length})` },
+            { key: 'history', label: t('tracker_tab_history') },
+            { key: 'trash',   label: `🗑 Trash${trashCount > 0 ? ` (${trashCount})` : ''}` },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all
+                ${tab === key ? 'bg-white text-neutral-950 shadow-sm' : 'text-neutral-500 hover:text-neutral-700'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {/* Empty state */}
-        {trackedPrograms.length === 0 && (
+        {tab === 'active' && trackedPrograms.length === 0 && (
           <div className="reveal bg-neutral-900 border-2 border-dashed border-neutral-700 rounded-lg p-12 text-center">
             <h3 className="font-bold text-white text-lg mb-2">{t('tracker_empty')}</h3>
             <p className="text-neutral-400 mb-6">{t('tracker_empty_sub')}</p>
@@ -496,6 +569,7 @@ export default function Tracker() {
                 t={t}
                 onStatusChange={(id, status) => setTrackerStatus(id, status)}
                 onReminderScheduled={(id, date) => setSnsReminder(id, date)}
+                onDelete={(id) => moveToTrash(id)}
               />
             ))}
 
@@ -519,6 +593,15 @@ export default function Tracker() {
 
         {/* History tab */}
         {tab === 'history' && <FullHistory tracker={tracker} t={t} />}
+
+        {/* Trash tab */}
+        {tab === 'trash' && (
+          <TrashTab
+            trash={trash || {}}
+            onRestore={(id) => restoreFromTrash(id)}
+            onPermanentDelete={(id) => permanentlyDelete(id)}
+          />
+        )}
       </div>
     </Layout>
   )

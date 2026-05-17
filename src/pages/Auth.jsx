@@ -171,20 +171,6 @@ export default function AuthPage() {
               </button>
             </form>
 
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-neutral-700" /></div>
-              <div className="relative flex justify-center">
-                <span className="bg-neutral-900 px-3 text-xs text-neutral-500">{t('auth_or')}</span>
-              </div>
-            </div>
-
-            <Link
-              to="/intake"
-              className="block w-full text-center text-sm font-medium text-neutral-400 hover:text-white py-2 transition-colors"
-            >
-              {t('auth_no_account')}
-            </Link>
 
             {mode === 'signup' && (
               <p className="text-center text-xs text-neutral-400 mt-4 leading-relaxed">

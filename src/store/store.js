@@ -64,7 +64,40 @@ export const useStore = create(persist(
       })
       return { tracker: next }
     }),
+    moveToTrash: (programId) => set(state => {
+      const entry = state.tracker[programId]
+      if (!entry) return {}
+      const nextTracker = { ...state.tracker }
+      delete nextTracker[programId]
+      return {
+        tracker: nextTracker,
+        trash: {
+          ...state.trash,
+          [programId]: { ...entry, deletedAt: new Date().toISOString() },
+        },
+      }
+    }),
+    restoreFromTrash: (programId) => set(state => {
+      const entry = state.trash[programId]
+      if (!entry) return {}
+      const nextTrash = { ...state.trash }
+      delete nextTrash[programId]
+      const { deletedAt, ...restored } = entry
+      return {
+        trash: nextTrash,
+        tracker: { ...state.tracker, [programId]: restored },
+      }
+    }),
+    permanentlyDelete: (programId) => set(state => {
+      const next = { ...state.trash }
+      delete next[programId]
+      return { trash: next }
+    }),
     clearTracker: () => set({ tracker: {} }),
+
+    // Trash — deleted applications held for 30 days
+    // trash[id] = { ...trackerEntry, deletedAt }
+    trash: {},
 
     // Saved programs for tracker display
     savedPrograms: [],

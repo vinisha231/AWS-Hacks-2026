@@ -71,7 +71,7 @@ export default function Apply() {
             onClick={() => navigate('/results')}
             className="text-neutral-500 hover:text-neutral-200 font-medium text-sm mb-8 flex items-center gap-1 transition-colors"
           >
-            ← {t('apply_back')}
+            {t('apply_back')}
           </button>
 
           {/* Header */}

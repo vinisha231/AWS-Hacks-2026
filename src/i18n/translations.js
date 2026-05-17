@@ -162,7 +162,57 @@ export const translations = {
     prog_ssi_name: 'SSI',
     prog_ssi_full: 'Supplemental Security Income (SSI)',
     prog_ssi_desc: 'Monthly cash payments for people 65 or older, blind, or with disabilities who have limited income.',
-    prog_ssi_why: 'You indicated someone in your household is 60+ or has a disability with low income.',
+    prog_ssi_why: 'You indicated someone in your household is 65+ or has a disability with low income.',
+
+    prog_aca_name: 'ACA Marketplace',
+    prog_aca_full: 'Affordable Care Act Health Insurance Subsidies',
+    prog_aca_desc: 'Premium tax credits that lower your monthly health insurance costs on the Marketplace.',
+    prog_aca_why: 'Your income qualifies you for significant subsidies to reduce your health insurance premium.',
+
+    prog_medicare_savings_name: 'Medicare Savings',
+    prog_medicare_savings_full: 'Medicare Savings Programs',
+    prog_medicare_savings_desc: 'State programs that help pay Medicare premiums, deductibles, and co-pays for low-income seniors.',
+    prog_medicare_savings_why: 'You have a senior in your household and your income qualifies for Medicare cost assistance.',
+
+    prog_tanf_name: 'TANF',
+    prog_tanf_full: 'Temporary Assistance for Needy Families (TANF)',
+    prog_tanf_desc: 'Monthly cash assistance for families with children who have very low income and limited employment.',
+    prog_tanf_why: 'Your household has children and qualifies for temporary cash assistance based on your income.',
+
+    prog_ctc_name: 'Child Tax Credit',
+    prog_ctc_full: 'Child Tax Credit (CTC)',
+    prog_ctc_desc: 'Up to $2,000 per child under 17 as a tax credit — up to $1,700 refundable even if you owe no taxes.',
+    prog_ctc_why: 'You have children under 17 in your household, which qualifies you for the Child Tax Credit.',
+
+    prog_vita_name: 'Free Tax Filing (VITA)',
+    prog_vita_full: 'Volunteer Income Tax Assistance (VITA)',
+    prog_vita_desc: 'Free professional tax preparation from IRS-certified volunteers — helps you claim all credits you qualify for.',
+    prog_vita_why: 'Your income is below $67,000, making you eligible for free tax preparation that could find credits you missed.',
+
+    prog_era_name: 'Rental Assistance',
+    prog_era_full: 'Emergency Rental Assistance Program',
+    prog_era_desc: 'Funds to help cover rent and utility arrears for renters experiencing housing instability.',
+    prog_era_why: 'Your housing situation and income qualify you for emergency rental assistance in your area.',
+
+    prog_lifeline_name: 'Lifeline',
+    prog_lifeline_full: 'Lifeline Phone & Internet Benefit',
+    prog_lifeline_desc: 'Up to $30/month discount on phone or internet service for qualifying low-income households.',
+    prog_lifeline_why: 'Your income or participation in other programs (SNAP, Medicaid) qualifies you for a monthly phone/internet discount.',
+
+    prog_ccdf_name: 'Child Care Assistance',
+    prog_ccdf_full: 'Child Care and Development Fund (CCDF)',
+    prog_ccdf_desc: 'Subsidized child care for working or student parents with children under 13.',
+    prog_ccdf_why: 'You have young children and are working or in school, qualifying you for child care cost assistance.',
+
+    prog_wioa_name: 'Job Training',
+    prog_wioa_full: 'Workforce Innovation and Opportunity Act (WIOA)',
+    prog_wioa_desc: 'Free job training, career counseling, and employment services for unemployed or low-income adults.',
+    prog_wioa_why: 'Your employment situation qualifies you for free job training and career services in your area.',
+
+    prog_va_name: 'VA Benefits',
+    prog_va_full: 'Veterans Affairs Healthcare & Benefits',
+    prog_va_desc: 'Comprehensive healthcare, disability compensation, education, and housing benefits for veterans.',
+    prog_va_why: 'As a veteran in your household, you are entitled to VA healthcare and may qualify for additional benefits.',
 
     // Languages
     lang_en: 'English',

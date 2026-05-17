@@ -114,7 +114,6 @@ export default function Landing() {
         <div className="relative max-w-screen-xl mx-auto px-8 w-full py-24">
           <div className="max-w-5xl">
             <p className="animate-hero-1 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500 mb-8">
-              {t('landing_badge')}
             </p>
             <h1 className="animate-hero-2 glow-text text-6xl sm:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.0] tracking-tight mb-8">
               {t('landing_headline').split('\n').map((line, i) => (
@@ -141,7 +140,6 @@ export default function Landing() {
                 {t('landing_tracker')} →
               </Link>
             </div>
-            <p className="animate-hero-4 text-neutral-600 text-sm mt-6">{t('landing_cta_sub')}</p>
           </div>
         </div>
       </section>

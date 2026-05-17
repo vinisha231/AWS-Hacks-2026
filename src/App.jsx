@@ -53,12 +53,12 @@ function AppRoutes() {
         <Route path="/"        element={<Landing />} />
         <Route path="/auth"    element={isAuthenticated ? <Navigate to="/results" replace /> : <AuthPage />} />
         <Route path="/home"    element={isAuthenticated ? <Navigate to="/results" replace /> : <Navigate to="/" replace />} />
-        <Route path="/intake"  element={<Intake />} />
-        <Route path="/results" element={<Results />} />
-        <Route path="/apply/:programId" element={<Apply />} />
-        <Route path="/tracker" element={<Tracker />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/intake"  element={<RequireAuth><Intake /></RequireAuth>} />
+        <Route path="/results" element={<RequireAuth><Results /></RequireAuth>} />
+        <Route path="/apply/:programId" element={<RequireAuth><Apply /></RequireAuth>} />
+        <Route path="/tracker" element={<RequireAuth><Tracker /></RequireAuth>} />
+        <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+        <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
