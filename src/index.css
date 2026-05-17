@@ -4,11 +4,19 @@
 
 @layer base {
   html { scroll-behavior: smooth; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    background-color: #0a0a0a; /* neutral-950 */
-    color: #ffffff;
-  }
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #0a0a0a !important;
+  color: #ffffff;
+  min-height: 100%;
+}
+
+#root {
+  background-color: #0a0a0a;
+  min-height: 100vh;
+  color: #ffffff;
 }
 
 /* ── Hero dot-grid texture ── */
