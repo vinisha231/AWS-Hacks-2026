@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import { generateLetter, roleplayTurn } from '../services/advocateApi'
 import { speakText, stopSpeaking, langToBCP47 } from '../services/pollyApi'
 import { useStore } from '../store/store'
+import { useTranslation } from '../hooks/useTranslation'
+import { translations } from '../i18n/translations'
 import jsPDF from 'jspdf'
 import { Document, Paragraph, TextRun, Packer, HeadingLevel } from 'docx'
 
@@ -46,6 +48,7 @@ function SpeakerIcon({ muted }) {
 export function AdvocatePanel({ program, onClose }) {
   const { answers } = useStore()
   const lang = useStore(s => s.language) || 'en'
+  const { t } = useTranslation()
   const [mode, setMode] = useState(null)
   const [loading, setLoading] = useState(false)
   const [letter, setLetter] = useState('')
@@ -85,8 +88,12 @@ export function AdvocatePanel({ program, onClose }) {
   // Stop audio on close
   useEffect(() => () => stopSpeaking(), [])
 
-  const programName = program.nameKey || program.name || program.id
-  const programFull = program.fullKey || program.fullName || programName
+  // For display: use translated name via t()
+  const programNameDisplay = t(program.nameKey) || program.name || program.id
+  const programFullDisplay = t(program.fullKey) || program.fullName || programNameDisplay
+  // For API calls: always English so the Lambda understands the program
+  const programName = translations.en[program.nameKey] || program.name || program.id
+  const programFull = translations.en[program.fullKey] || program.fullName || programName
 
   const startLetter = async () => {
     setMode('letter')
@@ -97,6 +104,7 @@ export function AdvocatePanel({ program, onClose }) {
         programName, programFull,
         userName: answers?.name || 'the applicant',
         profile: answers || {},
+        language: lang,
       })
       setLetter(stripMarkdown(data.letter || ''))
       setTalkingPoints((data.talking_points || []).map(stripMarkdown))
@@ -113,7 +121,7 @@ export function AdvocatePanel({ program, onClose }) {
     setBackendError(null)
     setLoading(true)
     try {
-      const data = await roleplayTurn({ programName, profile: answers || {}, message: '', history: [] })
+      const data = await roleplayTurn({ programName, profile: answers || {}, message: '', history: [], language: lang })
       setChat([{ role: 'assistant', content: stripMarkdown(data.reply) }])
     } catch {
       setChat([{ role: 'assistant', content: 'Error starting session. Please try again.' }])
@@ -132,7 +140,7 @@ export function AdvocatePanel({ program, onClose }) {
     setLoading(true)
     try {
       const history = newChat.slice(-6).map(m => ({ role: m.role, content: m.content }))
-      const data = await roleplayTurn({ programName, profile: answers || {}, message: input, history })
+      const data = await roleplayTurn({ programName, profile: answers || {}, message: input, history, language: lang })
       setChat(prev => [...prev, { role: 'assistant', content: stripMarkdown(data.reply) }])
     } catch {
       setChat(prev => [...prev, { role: 'assistant', content: 'Error — please try again.' }])
@@ -189,6 +197,43 @@ export function AdvocatePanel({ program, onClose }) {
     URL.revokeObjectURL(url)
   }
 
+  const startRecognition = (langCode) => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return false
+    stopSpeaking()
+    const rec = new SR()
+    rec.lang = langCode
+    rec.continuous = false     // Safari compatible
+    rec.interimResults = false // Only final results
+    rec.maxAlternatives = 1
+    recognitionRef.current = rec
+
+    rec.onresult = (e) => {
+      const transcript = e.results[0][0].transcript
+      setInput(transcript)
+      // Auto-send the spoken message
+      const userMsg = { role: 'user', content: transcript }
+      const newChat = [...chat, userMsg]
+      setChat(newChat)
+      setLoading(true)
+      roleplayTurn({ programName, profile: answers || {}, message: transcript, history: newChat.slice(-6).map(m => ({ role: m.role, content: m.content })), language: lang })
+        .then(data => setChat(prev => [...prev, { role: 'assistant', content: stripMarkdown(data.reply) }]))
+        .catch(() => setChat(prev => [...prev, { role: 'assistant', content: 'Error — please try again.' }]))
+        .finally(() => setLoading(false))
+    }
+    rec.onend = () => setListening(false)
+    rec.onerror = (e) => {
+      console.warn('Speech error:', e.error)
+      if (e.error === 'language-not-supported' && langCode !== 'en-US') {
+        startRecognition('en-US')
+      } else {
+        setListening(false)
+      }
+    }
+    try { rec.start(); setListening(true) } catch { setListening(false) }
+    return true
+  }
+
   const toggleListen = () => {
     if (listening) {
       recognitionRef.current?.stop()
@@ -200,21 +245,7 @@ export function AdvocatePanel({ program, onClose }) {
       alert('Speech recognition is not supported in this browser. Try Chrome.')
       return
     }
-    stopSpeaking()
-    const rec = new SR()
-    rec.lang = langToBCP47(lang)
-    rec.interimResults = true
-    rec.maxAlternatives = 1
-    recognitionRef.current = rec
-    setListening(true)
-
-    rec.onresult = (e) => {
-      const transcript = Array.from(e.results).map(r => r[0].transcript).join('')
-      setInput(transcript)
-    }
-    rec.onend = () => setListening(false)
-    rec.onerror = () => setListening(false)
-    rec.start()
+    startRecognition(langToBCP47(lang))
   }
 
   const replayMessage = (text) => {
@@ -225,19 +256,19 @@ export function AdvocatePanel({ program, onClose }) {
   }
 
   const modal = (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:px-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       <div
-        className="relative bg-white border border-gray-200 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col"
-        style={{ maxHeight: '88vh' }}
+        className="relative bg-white border border-gray-200 sm:rounded-xl shadow-2xl w-full sm:max-w-2xl flex flex-col rounded-t-2xl"
+        style={{ maxHeight: '92vh' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 flex-shrink-0 rounded-t-xl">
           <div>
-              <h2 className="font-black text-gray-900 text-lg">AI Benefits Advocate — Documents, Denials, Form Help</h2>
-              <p className="text-sm text-gray-500">{programFull} · Ask for documents, common denial reasons, or practice filing.</p>
+              <h2 className="font-black text-gray-900 text-lg">{t('advocate_title')}</h2>
+              <p className="text-sm text-gray-500">{programFullDisplay}</p>
           </div>
           <div className="flex items-center gap-2">
             {mode === 'roleplay' && (
@@ -261,54 +292,38 @@ export function AdvocatePanel({ program, onClose }) {
         {!mode && (
           <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8 overflow-y-auto">
             <p className="text-gray-600 text-center text-sm max-w-sm">
-              Get practical help for <strong>{programName}</strong>. Choose what you need below.
+              <strong>{programNameDisplay}</strong> — {t('advocate_subtitle_suffix')}
             </p>
-            <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
-              {/* Advocacy Letter */}
-              <button
-                onClick={startLetter}
-                className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-blue-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
-              >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
+              <button onClick={startLetter} className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-blue-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-left">
                 <span className="text-2xl">✉️</span>
                 <div>
-                  <p className="font-bold text-gray-900">Generate Advocacy Letter</p>
-                  <p className="text-xs text-gray-500 mt-1">AI-written letter to send to a caseworker — download as PDF or Word doc</p>
+                  <p className="font-bold text-gray-900">{t('advocate_letter_btn')}</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('advocate_letter_desc')}</p>
                 </div>
               </button>
 
-              {/* Documents Checklist */}
-              <button
-                onClick={() => setMode('documents')}
-                className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
-              >
+              <button onClick={() => setMode('documents')} className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left">
                 <span className="text-2xl">📋</span>
                 <div>
-                  <p className="font-bold text-gray-900">Documents Checklist</p>
-                  <p className="text-xs text-gray-500 mt-1">See the exact documents you'll need to apply</p>
+                  <p className="font-bold text-gray-900">{t('advocate_docs_btn')}</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('advocate_docs_desc')}</p>
                 </div>
               </button>
 
-              {/* Denial Reasons */}
-              <button
-                onClick={() => setMode('denials')}
-                className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-gray-200 hover:border-amber-500 hover:bg-amber-50 transition-all text-left"
-              >
+              <button onClick={() => setMode('denials')} className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-gray-200 hover:border-amber-500 hover:bg-amber-50 transition-all text-left">
                 <span className="text-2xl">⚠️</span>
                 <div>
-                  <p className="font-bold text-gray-900">Explain Denial Reasons</p>
-                  <p className="text-xs text-gray-500 mt-1">Common reasons applications are denied and how to appeal</p>
+                  <p className="font-bold text-gray-900">{t('advocate_denials_btn')}</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('advocate_denials_desc')}</p>
                 </div>
               </button>
 
-              {/* Mock Officer */}
-              <button
-                onClick={startRoleplay}
-                className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition-all text-left"
-              >
+              <button onClick={startRoleplay} className="group flex flex-col gap-2 p-5 rounded-xl border-2 border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition-all text-left">
                 <span className="text-2xl">🎙️</span>
                 <div>
-                  <p className="font-bold text-gray-900">Practice with Mock Officer</p>
-                  <p className="text-xs text-gray-500 mt-1">Voice roleplay with a simulated caseworker</p>
+                  <p className="font-bold text-gray-900">{t('advocate_roleplay_btn')}</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('advocate_roleplay_desc')}</p>
                 </div>
               </button>
             </div>
@@ -322,8 +337,8 @@ export function AdvocatePanel({ program, onClose }) {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">📋</span>
                 <div>
-                  <h3 className="font-black text-gray-900">Documents Checklist</h3>
-                  <p className="text-sm text-gray-500">Gather these before you apply for {programName}</p>
+                  <h3 className="font-black text-gray-900">{t('advocate_docs_title')}</h3>
+                  <p className="text-sm text-gray-500">{t('advocate_docs_gather')} {programNameDisplay}</p>
                 </div>
               </div>
               {program.documents?.length > 0 ? (
@@ -347,12 +362,12 @@ export function AdvocatePanel({ program, onClose }) {
               )}
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-sm text-emerald-800">
                 <p className="font-bold mb-1">💡 Pro tip</p>
-                <p>Make copies of everything. Bring originals and copies to your appointment. Missing a single document is the #1 reason for processing delays.</p>
+                <p>{t('advocate_docs_tip')}</p>
               </div>
             </div>
             <div className="flex-shrink-0 px-6 pb-6 pt-3 border-t border-gray-200">
               <button onClick={() => setMode(null)} className="w-full py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold transition-colors">
-                ← Back
+{t('advocate_back')}
               </button>
             </div>
           </div>
@@ -365,8 +380,8 @@ export function AdvocatePanel({ program, onClose }) {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">⚠️</span>
                 <div>
-                  <h3 className="font-black text-gray-900">Common Denial Reasons</h3>
-                  <p className="text-sm text-gray-500">Know these before you apply for {programName}</p>
+                  <h3 className="font-black text-gray-900">{t('advocate_denials_title')}</h3>
+                  <p className="text-sm text-gray-500">{t('advocate_denials_know')} {programNameDisplay}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -386,7 +401,7 @@ export function AdvocatePanel({ program, onClose }) {
                 ))}
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
-                <p className="font-bold text-amber-800 text-sm">How to respond to a denial</p>
+                <p className="font-bold text-amber-800 text-sm">{t('advocate_denials_respond')}</p>
                 <ul className="text-sm text-amber-700 space-y-1">
                   <li>• Request the denial reason in writing within 5 days</li>
                   <li>• You have the right to appeal — usually within 30–90 days</li>
@@ -397,7 +412,7 @@ export function AdvocatePanel({ program, onClose }) {
             </div>
             <div className="flex-shrink-0 px-6 pb-6 pt-3 border-t border-gray-200">
               <button onClick={() => setMode(null)} className="w-full py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold transition-colors">
-                ← Back
+{t('advocate_back')}
               </button>
             </div>
           </div>
@@ -409,7 +424,7 @@ export function AdvocatePanel({ program, onClose }) {
             {loading ? (
               <div className="flex-1 flex items-center justify-center gap-3 text-gray-500">
                 <span className="w-5 h-5 border-2 border-gray-300 border-t-emerald-600 rounded-full animate-spin" />
-                Generating your advocacy letter…
+                {t('advocate_generating')}
               </div>
             ) : (
               <>
@@ -420,7 +435,7 @@ export function AdvocatePanel({ program, onClose }) {
 
                   {talkingPoints.length > 0 && (
                     <div className="mt-4">
-                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Key Talking Points</p>
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">{t('advocate_talking_points')}</p>
                       <ul className="space-y-1.5">
                         {talkingPoints.map((pt, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
@@ -433,7 +448,7 @@ export function AdvocatePanel({ program, onClose }) {
 
                   {objections.length > 0 && (
                     <div className="mt-4">
-                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Common Objections & Responses</p>
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">{t('advocate_objections')}</p>
                       <ul className="space-y-1.5">
                         {objections.map((obj, i) => (
                           <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
@@ -448,7 +463,7 @@ export function AdvocatePanel({ program, onClose }) {
                 {/* Actions */}
                 <div className="flex-shrink-0 px-6 pb-6 pt-4 border-t border-gray-200 flex flex-wrap gap-2">
                   <button onClick={copyLetter} className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors min-w-[120px]">
-                    {copied ? '✓ Copied!' : 'Copy Letter'}
+                    {copied ? t('advocate_copied') : t('advocate_copy')}
                   </button>
                   <button onClick={downloadPDF} className="flex items-center gap-1.5 px-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition-colors">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
@@ -472,12 +487,12 @@ export function AdvocatePanel({ program, onClose }) {
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex-shrink-0 px-4 py-2 bg-amber-50 border-b border-amber-200 flex items-center justify-between gap-2">
               <p className="text-xs text-amber-700 font-medium">
-                Practicing with a simulated {answers?.state || ''} caseworker — speak or type your answers
+                {t('advocate_practicing_label')}
               </p>
               {speaking && (
                 <span className="flex items-center gap-1 text-xs text-emerald-700 font-medium flex-shrink-0">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  Speaking…
+                  {t('advocate_speaking')}
                 </span>
               )}
             </div>
@@ -546,7 +561,7 @@ export function AdvocatePanel({ program, onClose }) {
                 </button>
               </div>
               <p className="text-xs text-gray-400 mt-1.5 text-center">
-                Mic language: {lang.toUpperCase()} · Tap mic to speak, tap again to stop
+                {lang.toUpperCase()} · {t('advocate_mic_hint')}
               </p>
             </div>
           </div>

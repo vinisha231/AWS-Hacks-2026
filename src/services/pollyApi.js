@@ -37,6 +37,8 @@ export function langToBCP47(lang) {
     en: 'en-US', es: 'es-US', fr: 'fr-FR', de: 'de-DE',
     zh: 'zh-CN', hi: 'hi-IN', ar: 'ar-SA', pt: 'pt-BR',
     ko: 'ko-KR', ja: 'ja-JP', ru: 'ru-RU', it: 'it-IT', nl: 'nl-NL',
+    ta: 'ta-IN', te: 'te-IN', bn: 'bn-IN', vi: 'vi-VN',
+    tr: 'tr-TR', pl: 'pl-PL', uk: 'uk-UA', sw: 'sw-KE',
   }
   return map[lang?.slice(0, 2)] || 'en-US'
 }
