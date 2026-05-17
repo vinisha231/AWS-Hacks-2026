@@ -114,13 +114,9 @@ export function AdvocatePanel({ program, onClose }) {
       setLetter(stripMarkdown(data.letter || ''))
       setTalkingPoints((data.talking_points || []).map(stripMarkdown))
       setObjections((data.objections || []).map(stripMarkdown))
-    } catch (err) {
-      if (isApiUnavailable(err)) {
-        setBackendError('AI letter generation requires a backend connection. Use the resources below while we work on it.')
-        setMode('fallback')
-      } else {
-        setLetter('Error generating letter. Please try again.')
-      }
+    } catch {
+      setBackendError('AI letter generation is unavailable right now. Use the resources below.')
+      setMode('fallback')
     } finally {
       setLoading(false)
     }
@@ -133,13 +129,9 @@ export function AdvocatePanel({ program, onClose }) {
     try {
       const data = await roleplayTurn({ programName, profile: answers || {}, message: '', history: [], language: lang })
       setChat([{ role: 'assistant', content: stripMarkdown(data.reply) }])
-    } catch (err) {
-      if (isApiUnavailable(err)) {
-        setBackendError('The AI caseworker simulation requires a backend connection. Use the resources below while we work on it.')
-        setMode('fallback')
-      } else {
-        setChat([{ role: 'assistant', content: 'Error starting session. Please try again.' }])
-      }
+    } catch {
+      setBackendError('The AI caseworker simulation is unavailable right now. Use the resources below.')
+      setMode('fallback')
     } finally {
       setLoading(false)
     }
