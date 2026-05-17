@@ -5,6 +5,17 @@ import { useTranslation } from '../hooks/useTranslation'
 import { useStore } from '../store/store'
 import LanguagePicker from './LanguagePicker'
 
+function CompassLogo() {
+  return (
+    <svg viewBox="0 0 28 28" fill="none" className="w-5 h-5 text-neutral-950">
+      <circle cx="14" cy="14" r="11" stroke="currentColor" strokeWidth="2" />
+      <circle cx="14" cy="14" r="2.5" fill="currentColor" />
+      <path d="M14 3v3M14 22v3M3 14h3M22 14h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M17.5 10.5l-5 3.5-1.5 4 5-3.5 1.5-4z" fill="currentColor" opacity="0.85" />
+    </svg>
+  )
+}
+
 function UserMenu({ user, onLogout }) {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
@@ -81,9 +92,10 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <nav className="bg-white border-b border-neutral-200 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-          <Link to="/" className="flex-shrink-0">
-            <span className="font-bold text-lg text-neutral-950 tracking-tight">Compass</span>
+        <div className="max-w-screen-xl mx-auto px-8 h-14 flex items-center justify-between gap-6">
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+            <CompassLogo />
+            <span className="font-bold text-base text-neutral-950 tracking-tight">Compass</span>
           </Link>
 
           <div className="hidden sm:flex items-center gap-7">
@@ -105,9 +117,12 @@ export default function Layout({ children }) {
                 </Link>
                 <Link
                   to="/intake"
-                  className="bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+                  className="group inline-flex items-center gap-1.5 bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold px-4 py-2 rounded-md transition-all hover:shadow-md"
                 >
                   {t('nav_start')}
+                  <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
                 </Link>
               </div>
             )}
@@ -117,13 +132,19 @@ export default function Layout({ children }) {
 
       <main className="flex-1">{children}</main>
 
-      <footer className="bg-neutral-950 py-8 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="font-semibold text-white text-sm">Compass</span>
+      <footer className="bg-neutral-950 py-10 px-8">
+        <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="text-white opacity-70">
+              <CompassLogo />
+            </div>
+            <span className="font-semibold text-white text-sm">Compass</span>
+          </div>
           <span className="text-neutral-500 text-xs text-center">{t('landing_footer')}</span>
-          <div className="flex items-center gap-4 text-xs text-neutral-500">
+          <div className="flex items-center gap-5 text-xs text-neutral-500">
             <Link to="/intake" className="hover:text-white transition-colors">{t('nav_start')}</Link>
             <Link to="/tracker" className="hover:text-white transition-colors">{t('nav_tracker')}</Link>
+            <Link to="/profile" className="hover:text-white transition-colors">Profile</Link>
           </div>
         </div>
       </footer>
