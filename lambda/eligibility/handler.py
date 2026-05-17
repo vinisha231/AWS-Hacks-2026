@@ -66,7 +66,7 @@ Return ONLY a valid JSON array. Each object must have exactly these fields:
 Return only the JSON array. No markdown, no explanation, no code blocks."""
 
         response = bedrock.invoke_model(
-            modelId='anthropic.claude-3-sonnet-20240229-v1:0',
+            modelId='us.anthropic.claude-sonnet-4-6',
             body=json.dumps({
                 'anthropic_version': 'bedrock-2023-05-31',
                 'max_tokens': 4096,
