@@ -14,6 +14,14 @@ CORS_HEADERS = {
 
 MODEL = 'us.anthropic.claude-sonnet-4-6'
 
+LANG_NAMES = {
+    'en': 'English', 'es': 'Spanish', 'fr': 'French', 'de': 'German',
+    'zh': 'Chinese (Simplified)', 'hi': 'Hindi', 'ar': 'Arabic',
+    'pt': 'Portuguese', 'ko': 'Korean', 'ja': 'Japanese', 'ru': 'Russian',
+    'it': 'Italian', 'nl': 'Dutch', 'ta': 'Tamil', 'te': 'Telugu',
+    'bn': 'Bengali', 'vi': 'Vietnamese', 'tr': 'Turkish', 'pl': 'Polish',
+}
+
 
 def cw_log(level, event, **ctx):
     print(json.dumps({'level': level, 'event': event, 'ts': time.time(), **ctx}))
@@ -45,6 +53,8 @@ def lambda_handler(event, context):
         profile      = body.get('profile', {})
         message      = body.get('message', '')
         history      = body.get('history', [])
+        lang_code    = (body.get('language') or 'en')[:2].lower()
+        lang_name    = LANG_NAMES.get(lang_code, 'English')
 
         state    = profile.get('state', 'the US')
         income   = profile.get('monthlyIncome', 'unknown')
@@ -56,7 +66,8 @@ def lambda_handler(event, context):
         cw_log('INFO', 'advocate_request', mode=mode, program=program_name, state=state)
 
         if mode == 'letter':
-            prompt = f"""Write a concise 1-page advocacy letter for {user_name} applying for {program_full} in {state}.
+            lang_instruction = f' Write the entire response in {lang_name}.' if lang_code != 'en' else ''
+            prompt = f"""Write a concise 1-page advocacy letter for {user_name} applying for {program_full} in {state}.{lang_instruction}
 
 Applicant profile: {hh_size}-person household, ${income}/mo income, members: {members}, housing: {housing}, citizenship: {cit}.
 
@@ -116,10 +127,12 @@ OBJECTIONS:
             }
 
         elif mode == 'roleplay':
+            lang_instruction = f' Conduct the entire interview in {lang_name} — all your questions and responses must be in {lang_name}.' if lang_code != 'en' else ''
             system_prompt = (
                 f"You are a {state} government caseworker conducting an eligibility interview for {program_name}. "
                 f"Be professional, slightly formal, but helpful. Ask realistic questions about income, household, and documents. "
                 f"Keep each response to 2-3 sentences. If this is the opening (no user message yet), greet the applicant and ask your first question."
+                f"{lang_instruction}"
             )
 
             msgs = []

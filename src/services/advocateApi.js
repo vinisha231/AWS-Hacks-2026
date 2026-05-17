@@ -60,7 +60,7 @@ async function fetchWithRetry(url, options, retries = 3) {
   }
 }
 
-export async function generateLetter({ programName, programFull, userName, profile }) {
+export async function generateLetter({ programName, programFull, userName, profile, language = 'en' }) {
   if (!API_BASE) throw new Error('No API endpoint configured')
   return fetchWithRetry(`${API_BASE}/advocate`, {
     method: 'POST',
@@ -71,12 +71,13 @@ export async function generateLetter({ programName, programFull, userName, profi
       program_full: programFull,
       user_name: userName,
       profile,
+      language,
       session_id: getSessionId(),
     }),
   })
 }
 
-export async function roleplayTurn({ programName, profile, message, history }) {
+export async function roleplayTurn({ programName, profile, message, history, language = 'en' }) {
   if (!API_BASE) throw new Error('No API endpoint configured')
   return fetchWithRetry(`${API_BASE}/advocate`, {
     method: 'POST',
@@ -87,6 +88,7 @@ export async function roleplayTurn({ programName, profile, message, history }) {
       profile,
       message,
       history,
+      language,
       session_id: getSessionId(),
     }),
   })

@@ -60,13 +60,14 @@ async function fetchWithRetry(url, options, retries = 3) {
   }
 }
 
-export async function chatWithBot(message, programId, programName) {
+export async function chatWithBot(message, programId, programName, language = 'en') {
   if (!API_BASE) throw new Error('No API endpoint configured')
   const payload = {
     message,
     program_id: programId,
     program_name: programName || programId,
     session_id: getSessionId(),
+    language,
   }
   return fetchWithRetry(`${API_BASE}/chatbot`, {
     method: 'POST',
