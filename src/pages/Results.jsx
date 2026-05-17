@@ -16,7 +16,42 @@ function fmt(n) {
   return n >= 1000 ? `$${(n / 1000).toFixed(1).replace('.0', '')}k` : `$${n}`
 }
 
-function ProgramCard({ program, lang, onApply }) {
+function fmtRange(min, max) {
+  return `${fmt(min)}–${fmt(max)}`
+}
+
+function confidenceLabel(score) {
+  if (score >= 4) return 'High'
+  if (score >= 3) return 'Medium'
+  return 'Low'
+}
+
+function confidenceTone(score) {
+  if (score >= 4) return 'bg-emerald-950/60 border-emerald-800 text-emerald-200'
+  if (score >= 3) return 'bg-amber-950/40 border-amber-800 text-amber-200'
+  return 'bg-red-950/40 border-red-800 text-red-200'
+}
+
+function documentContext(program, answers) {
+  const notes = []
+  const household = answers?.householdMembers || []
+  const hasDisability = household.includes('disabled')
+  const hasAgeBased = household.some(x => ['senior','infant','toddler','school_child','teen','pregnant'].includes(x))
+  const proofNeedsIncome = program.documents?.some(doc => /proof of income/i.test(doc))
+  const proofNeedsMedical = program.documents?.some(doc => /medical|disability/i.test(doc)) || program.id === 'ssi'
+  if (hasDisability && proofNeedsMedical) {
+    notes.push('Because disability is a qualifying factor, include medical records and disability verification.')
+  }
+  if (hasAgeBased && program.documents?.some(doc => /birth certificate|immunization|pregnancy|child/i.test(doc))) {
+    notes.push('Age-based eligibility means birth certificates, immunization records, or pregnancy verification are important.')
+  }
+  if (proofNeedsIncome) {
+    notes.push('Income-based eligibility means pay stubs, bank statements, or benefit award letters are essential.')
+  }
+  return notes[0] || null
+}
+
+function ProgramCard({ program, lang, onApply, answers }) {
   const { t } = useTranslation()
   const [chatOpen, setChatOpen] = useState(false)
   const [advocateOpen, setAdvocateOpen] = useState(false)
@@ -45,21 +80,48 @@ function ProgramCard({ program, lang, onApply }) {
           </div>
           <div className="text-right flex-shrink-0">
             <div className="text-2xl font-black text-white">
-              {fmt(program.estimatedAnnual)}
-            </div>
-            <div className="text-xs text-neutral-500">{t('results_annual')}</div>
+                {(() => {
+                  const est = Number(program.estimatedAnnual) || 0
+                  const min = Math.max(0, Math.round(est * 0.6 / 100) * 100)
+                  const max = Math.round(est * 1.4 / 100) * 100
+                  return fmtRange(min, max)
+                })()}
+              </div>
+              <div className="text-xs text-neutral-500">{t('results_annual')} · estimated range</div>
           </div>
         </div>
 
         <p className="text-neutral-400 text-sm leading-relaxed mb-4">{t(program.descKey)}</p>
 
-        {/* Why you qualify */}
-        <div className="text-xs rounded-md px-4 py-3 mb-4 flex items-start gap-2 bg-emerald-950/40 border border-emerald-800/50 text-emerald-200">
-          <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-          <span className="font-medium">{t(program.whyKey)}</span>
+        {/* Time to benefit / difficulty badges */}
+        <div className="flex items-center gap-2 mb-4">
+          {program.timeToBenefit && (
+            <span className="text-xs bg-neutral-800 text-neutral-300 px-2 py-1 rounded-full">⏱ {program.timeToBenefit}</span>
+          )}
+          {program.difficulty && (
+            <span className="text-xs bg-neutral-800 text-neutral-300 px-2 py-1 rounded-full">⚙️ {program.difficulty}</span>
+          )}
         </div>
+
+        {/* Confidence qualifier + caveats */}
+        {(() => {
+          const confidence = program.scores?.eligibility ?? 0
+          const label = confidence >= 4 ? 'Likely eligible' : confidence >= 3 ? 'Possible eligibility' : 'Eligibility uncertain'
+          const note = confidenceLabel(confidence)
+          return (
+            <div className={`text-xs rounded-md px-4 py-3 mb-4 flex flex-col gap-2 border ${confidence >= 4 ? 'bg-emerald-950/40 border-emerald-800 text-emerald-200' : confidence >= 3 ? 'bg-amber-950/40 border-amber-800 text-amber-200' : 'bg-red-950/40 border-red-800 text-red-200'}`}>
+              <div className="flex items-start gap-2">
+                <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" style={{ color: confidence >= 4 ? '#34d399' : confidence >= 3 ? '#fbbf24' : '#f87171' }}>
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium">{label} — {t(program.whyKey)}</span>
+              </div>
+              <div className="text-neutral-200 opacity-90 text-xs">
+                Confidence: <span className="font-semibold">{note}</span>. What could disqualify you: <span className="font-semibold text-amber-100">{(program.cons && program.cons.length > 0) ? program.cons.join('; ') : 'Income too high, non-citizen status, missing documentation'}</span>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Pros & Cons */}
         {/* Pros & Cons — always show; fall back to generic if Bedrock didn't return them */}
@@ -83,6 +145,50 @@ function ProgramCard({ program, lang, onApply }) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Documents + Steps (collapsible) */}
+        <button
+          onClick={() => setExpanded(e => !e)}
+          className="text-sm text-neutral-500 hover:text-neutral-200 font-medium flex items-center gap-1 mb-3 transition-colors"
+        >
+          <svg className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          How to Apply — Step by Step
+        </button>
+
+        {expanded && (
+          <div className="mb-4 animate-fade-in space-y-4">
+            {program.steps?.length > 0 && (
+              <ol className="space-y-2">
+                {program.steps.map((step, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-neutral-700">
+                    <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <span>{step.replace(/^Step \d+:\s*/i, '')}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+            {program.documents?.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">{t('results_documents')} needed ({program.documents.length})</p>
+                {documentContext(program, answers) && (
+                  <p className="text-xs text-neutral-400 mb-3">{documentContext(program, answers)}</p>
+                )}
+                <ul className="space-y-1.5">
+                  {program.documents.map(doc => (
+                    <li key={doc} className="flex items-start gap-2 text-sm text-neutral-400">
+                      <span className="text-emerald-600 mt-0.5 font-bold">•</span>
+                      {doc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
           </div>
         </div>
 
@@ -320,7 +426,7 @@ export default function Results() {
             )}
 
             {results.map(p => (
-              <ProgramCard key={p.id} program={p} lang={lang} onApply={handleApply} />
+              <ProgramCard key={p.id} program={p} lang={lang} onApply={handleApply} answers={answers} />
             ))}
 
             {/* Local nonprofits */}
