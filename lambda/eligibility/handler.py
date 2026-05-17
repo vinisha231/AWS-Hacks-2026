@@ -33,43 +33,21 @@ def lambda_handler(event, context):
         members_str  = ', '.join(members)  if members          else 'adults only'
         benefits_str = ', '.join(current_benefits) if current_benefits else 'none'
 
-        prompt = f"""You are a US government benefits eligibility expert with deep knowledge of both federal programs and every state's specific programs.
+        prompt = f"""US benefits expert. List the top 8 assistance programs for this household. Be specific to {state}.
 
-A person in {state} needs help finding assistance programs. Here is their profile:
-- State: {state}
-- Household size: {household_size} people
-- Monthly income: ~${monthly_income}/month ({income_range})
-- Household members: {members_str}
-- Employment: {employment}
-- Health coverage: {health_coverage}
-- Housing situation: {housing_status}
-- Immigration/citizenship: {citizenship}
-- Already receiving: {benefits_str}
+Profile: {state}, {household_size} people, ${monthly_income}/mo, members: {members_str}, employment: {employment}, health: {health_coverage}, housing: {housing_status}, citizenship: {citizenship}, already has: {benefits_str}.
 
-Identify ALL federal AND {state}-specific assistance programs this household qualifies for. Be thorough — include food, health, housing, energy, childcare, education, and financial programs. Include programs specific to {state} that many people don't know about.
+Exclude programs they already have. Include state-specific {state} programs.
 
-Exclude any programs they are already receiving ({benefits_str}).
+Return ONLY a JSON array (no markdown). Each item: {{"id":"snap","name":"SNAP","fullName":"Supplemental Nutrition Assistance Program","category":"food","description":"Monthly food benefits.","why":"Qualifies due to income below 130% FPL.","estimatedAnnual":3600,"applicationUrl":"https://benefits.gov","documents":["ID","Proof of income"],"renewalMonths":12,"waitlist":false}}
 
-Return ONLY a valid JSON array. Each object must have exactly these fields:
-- "id": unique lowercase string with underscores (e.g., "snap", "ca_calworks")
-- "name": short program name (e.g., "SNAP", "CalWORKs")
-- "fullName": complete official program name
-- "category": one of: "food", "health", "housing", "energy", "financial", "education"
-- "description": 1-2 sentence plain-English description
-- "why": specific reason THIS person qualifies based on their actual profile
-- "estimatedAnnual": realistic annual benefit amount as a number (not a string)
-- "applicationUrl": official .gov application URL
-- "documents": array of 3-5 required documents (plain strings)
-- "renewalMonths": months until renewal required (number)
-- "waitlist": true or false
-
-Return only the JSON array. No markdown, no explanation, no code blocks."""
+Categories: food, health, housing, energy, financial, education. Return JSON array only."""
 
         response = bedrock.invoke_model(
             modelId='us.anthropic.claude-sonnet-4-6',
             body=json.dumps({
                 'anthropic_version': 'bedrock-2023-05-31',
-                'max_tokens': 4096,
+                'max_tokens': 2048,
                 'messages': [{'role': 'user', 'content': prompt}],
             }),
         )
