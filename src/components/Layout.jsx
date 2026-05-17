@@ -9,7 +9,7 @@ import { FloatingChatbot } from './FloatingChatbot'
 function RtaLogo() {
   return (
     <span
-      className="flex items-center justify-center w-7 h-7 rounded-md text-white font-black text-sm leading-none select-none"
+      className="flex items-center justify-center w-8 h-8 rounded-lg text-white font-black text-base leading-none select-none flex-shrink-0"
       style={{ background: 'linear-gradient(135deg,#fbbf24,#fb923c,#fb7185)', fontFamily: 'system-ui,sans-serif' }}
       aria-hidden="true"
     >
@@ -29,15 +29,15 @@ function UserMenu({ user, onLogout, t }) {
     <div className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors"
       >
-        <span className="w-6 h-6 rounded bg-white text-neutral-950 text-xs font-bold flex items-center justify-center">
+        <span className="w-6 h-6 rounded bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
           {initials}
         </span>
-        <span className="text-sm font-medium text-neutral-300 hidden sm:block max-w-24 truncate">
+        <span className="text-sm font-medium text-gray-700 hidden sm:block max-w-24 truncate">
           {user.name || user.email}
         </span>
-        <svg className={`w-3.5 h-3.5 text-neutral-500 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -45,10 +45,10 @@ function UserMenu({ user, onLogout, t }) {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-2 w-52 bg-neutral-900 border border-neutral-800 rounded-lg shadow-2xl z-20">
-            <div className="px-4 py-3 border-b border-neutral-800">
-              <p className="font-semibold text-white text-sm truncate">{user.name || 'My Account'}</p>
-              <p className="text-xs text-neutral-500 truncate">{user.email}</p>
+          <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <p className="font-semibold text-gray-900 text-sm truncate">{user.name || 'My Account'}</p>
+              <p className="text-xs text-gray-400 truncate">{user.email}</p>
             </div>
             {[
               { label: t('nav_profile'), path: '/profile' },
@@ -58,15 +58,15 @@ function UserMenu({ user, onLogout, t }) {
               <button
                 key={path}
                 onClick={() => { navigate(path); setOpen(false) }}
-                className="w-full text-left px-4 py-2.5 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 {label}
               </button>
             ))}
-            <div className="border-t border-neutral-800">
+            <div className="border-t border-gray-100">
               <button
                 onClick={() => { onLogout(); setOpen(false) }}
-                className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-neutral-800 transition-colors"
+                className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-gray-50 transition-colors"
               >
                 {t('nav_signout')}
               </button>
@@ -92,12 +92,14 @@ export default function Layout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col">
-      <nav className="bg-neutral-950 border-b border-neutral-800 sticky top-0 z-30 backdrop-blur-sm">
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* ── Navbar: always white, always static, never animates ── */}
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-30">
         <div className="max-w-screen-xl mx-auto px-8 h-14 flex items-center justify-between gap-6">
-          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+          {/* Logo — static, no hover effects */}
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2.5 pointer-events-auto">
             <RtaLogo />
-            <span className="font-bold text-base text-white tracking-tight">Rta</span>
+            <span className="font-black text-base text-gray-900 tracking-tight">Rta</span>
           </Link>
 
           <div className="hidden sm:flex items-center gap-7">
@@ -111,10 +113,10 @@ export default function Layout({ children }) {
               <div className="flex items-center gap-3">
                 <Link
                   to="/intake"
-                  className="group hidden sm:inline-flex items-center gap-1.5 bg-black hover:bg-neutral-800 text-white text-sm font-semibold px-4 py-2 rounded-full transition-all rta-btn"
+                  className="hidden sm:inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
                 >
                   {t('nav_start')}
-                  <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
                 </Link>
@@ -124,16 +126,16 @@ export default function Layout({ children }) {
               <div className="flex items-center gap-3">
                 <Link
                   to="/auth"
-                  className="hidden sm:block text-sm font-medium text-neutral-400 hover:text-white transition-colors"
+                  className="hidden sm:block text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
                 >
                   {t('nav_signin')}
                 </Link>
                 <Link
                   to="/intake"
-                  className="group inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-md transition-all hover:shadow-lg hover:shadow-emerald-900/30"
+                  className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
                 >
                   {t('nav_start')}
-                  <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
                 </Link>
@@ -147,17 +149,17 @@ export default function Layout({ children }) {
 
       <FloatingChatbot />
 
-      <footer className="bg-neutral-950 border-t border-neutral-800 py-10 px-8">
+      <footer className="bg-gray-50 border-t border-gray-200 py-8 px-8">
         <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <RtaLogo />
-            <span className="font-semibold text-white text-sm">Rta</span>
+            <span className="font-black text-gray-900 text-sm">Rta</span>
           </div>
-          <span className="text-neutral-600 text-xs text-center">{t('landing_footer')}</span>
-          <div className="flex items-center gap-5 text-xs text-neutral-600">
-            <Link to="/intake" className="hover:text-white transition-colors">{t('nav_start')}</Link>
-            <Link to="/tracker" className="hover:text-white transition-colors">{t('nav_tracker')}</Link>
-            <Link to="/profile" className="hover:text-white transition-colors">Profile</Link>
+          <span className="text-gray-400 text-xs text-center">{t('landing_footer')}</span>
+          <div className="flex items-center gap-5 text-xs text-gray-400">
+            <Link to="/intake" className="hover:text-gray-900 transition-colors">{t('nav_start')}</Link>
+            <Link to="/tracker" className="hover:text-gray-900 transition-colors">{t('nav_tracker')}</Link>
+            <Link to="/profile" className="hover:text-gray-900 transition-colors">Profile</Link>
           </div>
         </div>
       </footer>
@@ -170,11 +172,11 @@ function NavLink({ to, label, badge, active }) {
     <Link
       to={to}
       className={`flex items-center gap-2 text-sm font-medium transition-colors
-        ${active ? 'text-white' : 'text-neutral-500 hover:text-neutral-200'}`}
+        ${active ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}
     >
       {label}
       {badge > 0 && (
-        <span className="bg-white text-neutral-950 text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
+        <span className="bg-gray-900 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
           {badge}
         </span>
       )}

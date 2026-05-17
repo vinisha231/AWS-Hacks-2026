@@ -73,11 +73,15 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Nav */}
-      <nav className="px-6 py-4 flex items-center justify-between border-b border-neutral-800">
+      <nav className="px-6 py-4 flex items-center justify-between border-b border-gray-200 bg-white">
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="font-bold text-xl text-white">Compass</span>
+          <span
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-white font-black text-base leading-none select-none"
+            style={{ background: 'linear-gradient(135deg,#fbbf24,#fb923c,#fb7185)', fontFamily: 'system-ui,sans-serif' }}
+          >ऋ</span>
+          <span className="font-black text-xl text-gray-900">Rta</span>
         </Link>
         <LanguagePicker />
       </nav>

@@ -19,14 +19,12 @@ const US_STATES = [
 
 const TOTAL = 9
 
-function CompassIcon() {
+function RtaLogo() {
   return (
-    <svg viewBox="0 0 32 32" fill="none" className="w-6 h-6 text-white">
-      <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2.5" />
-      <circle cx="16" cy="16" r="3" fill="currentColor" />
-      <path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M20 12l-6 4-2 6 6-4 2-6z" fill="currentColor" opacity="0.8" />
-    </svg>
+    <span
+      className="flex items-center justify-center w-8 h-8 rounded-lg text-white font-black text-base leading-none select-none flex-shrink-0"
+      style={{ background: 'linear-gradient(135deg,#fbbf24,#fb923c,#fb7185)', fontFamily: 'system-ui,sans-serif' }}
+    >ऋ</span>
   )
 }
 
@@ -205,9 +203,9 @@ export default function Intake() {
     <div className="min-h-screen bg-white flex flex-col">
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
         <div className="max-w-xl mx-auto flex items-center justify-between gap-4">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
-            <CompassIcon />
-            <span className="font-bold text-gray-900">Compass</span>
+          <button onClick={() => navigate('/')} className="flex items-center gap-2.5">
+            <RtaLogo />
+            <span className="font-black text-gray-900">Rta</span>
           </button>
           <div className="flex-1 max-w-48">
             <ProgressBar step={step} total={TOTAL} />

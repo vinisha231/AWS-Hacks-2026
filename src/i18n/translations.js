@@ -1,7 +1,7 @@
 export const translations = {
   en: {
     // Nav
-    nav_home: 'Compass',
+    nav_home: 'Rta',
     nav_tracker: 'My Applications',
     nav_start: 'Check My Benefits',
 
@@ -21,7 +21,7 @@ export const translations = {
     landing_step3_desc: 'Your answers auto-fill each application. Track your status and get renewal reminders.',
     landing_programs_title: 'Programs we check',
     landing_languages: 'Available in 75+ languages',
-    landing_footer: 'Compass · Built at AWS Hacks 2026 · Not affiliated with any government agency',
+    landing_footer: 'Rta · Built at AWS Hacks 2026 · Not affiliated with any government agency',
 
     // Intake
     intake_progress: 'Step {current} of {total}',
@@ -465,7 +465,7 @@ export const translations = {
   },
 
   es: {
-    nav_home: 'Compass',
+    nav_home: 'Rta',
     nav_tracker: 'Mis Solicitudes',
     nav_start: 'Ver Mis Beneficios',
 
@@ -484,7 +484,7 @@ export const translations = {
     landing_step3_desc: 'Tus respuestas rellenan automáticamente cada solicitud. Sigue tu estado y recibe recordatorios de renovación.',
     landing_programs_title: 'Programas que verificamos',
     landing_languages: 'Disponible en 6 idiomas',
-    landing_footer: 'Compass · Construido en AWS Hacks 2026 · No afiliado con ninguna agencia gubernamental',
+    landing_footer: 'Rta · Construido en AWS Hacks 2026 · No afiliado con ninguna agencia gubernamental',
 
     intake_progress: 'Paso {current} de {total}',
     intake_back: '← Atrás',

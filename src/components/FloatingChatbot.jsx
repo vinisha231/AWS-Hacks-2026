@@ -35,7 +35,7 @@ export function FloatingChatbot() {
     if (open && messages.length === 0) {
       setMessages([{
         role: 'assistant',
-        content: "Hi! I'm your Compass benefits assistant. Ask me anything about government programs, eligibility, or how to apply.",
+        content: "Hi! I'm your Rta benefits assistant. Ask me anything about government programs, eligibility, or how to apply.",
       }])
     }
     if (open) setTimeout(() => inputRef.current?.focus(), 100)
@@ -48,7 +48,7 @@ export function FloatingChatbot() {
     setInput('')
     setLoading(true)
     try {
-      const data = await chatWithBot(msg, 'general', 'Compass Benefits Assistant')
+      const data = await chatWithBot(msg, 'general', 'Rta Benefits Assistant')
       setMessages(prev => [...prev, { role: 'assistant', content: stripMarkdown(data.reply || data.response || 'Sorry, try again.') }])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I had trouble reaching the server. Please try again.' }])
@@ -74,7 +74,7 @@ export function FloatingChatbot() {
                 </svg>
               </div>
               <div>
-                <p className="text-white font-bold text-sm leading-tight">Compass Assistant</p>
+                <p className="text-white font-bold text-sm leading-tight">Rta Assistant</p>
                 <p className="text-emerald-200 text-xs">Benefits help · always available</p>
               </div>
             </div>

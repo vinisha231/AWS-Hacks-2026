@@ -33,7 +33,7 @@ export function EstimateChat({ onNegotiateUpdate }) {
       {isOpen && (
         <div className="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl z-50 flex flex-col border-l border-neutral-200">
           <div className="flex items-center justify-between p-4 border-b bg-emerald-50">
-            <h3 className="font-bold text-emerald-800">Compass AI</h3>
+            <h3 className="font-bold text-emerald-800">Rta AI</h3>
             <button onClick={() => setIsOpen(false)} className="text-neutral-500">✕</button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
