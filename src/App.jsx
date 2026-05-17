@@ -22,14 +22,19 @@ function Spinner() {
 }
 
 function TranslatingBanner() {
-  const { loading } = useDynamicTranslations()
-  if (!loading) return null
-  return (
+  const { loading, noApi, lang } = useDynamicTranslations()
+  if (loading) return (
     <div className="fixed bottom-4 right-4 z-50 bg-neutral-950 text-white text-sm px-4 py-2.5 rounded-md shadow-lg flex items-center gap-2">
       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       Translating via Amazon Translate…
     </div>
   )
+  if (noApi && lang !== 'en') return (
+    <div className="fixed bottom-4 right-4 z-50 bg-neutral-800 text-neutral-200 text-xs px-4 py-2.5 rounded-md shadow-lg max-w-xs">
+      Translation requires API connection. Set <code className="bg-neutral-700 px-1 rounded">VITE_API_ENDPOINT</code> in .env.local — showing English.
+    </div>
+  )
+  return null
 }
 
 function RequireAuth({ children }) {

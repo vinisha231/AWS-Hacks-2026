@@ -34,15 +34,22 @@ export function TranslationProvider({ children }) {
   const lang = useStore(s => s.language)
   const [dynamicDict, setDynamicDict] = useState({})
   const [loading, setLoading] = useState(false)
+  const [noApi, setNoApi] = useState(false)
 
   useEffect(() => {
-    if (STATIC_LANGS.has(lang)) { setDynamicDict({}); setLoading(false); return }
+    if (STATIC_LANGS.has(lang)) { setDynamicDict({}); setLoading(false); setNoApi(false); return }
 
     const cached = getCached(lang)
-    if (cached) { setDynamicDict(cached); setLoading(false); return }
+    if (cached) { setDynamicDict(cached); setLoading(false); setNoApi(false); return }
 
-    if (!API_BASE) { setLoading(false); return }
+    if (!API_BASE) {
+      setLoading(false)
+      setNoApi(true)
+      setDynamicDict({})
+      return
+    }
 
+    setNoApi(false)
     let alive = true
     setLoading(true)
 
@@ -50,7 +57,6 @@ export function TranslationProvider({ children }) {
     const keys = Object.keys(enDict)
     const values = Object.values(enDict)
 
-    // Single batch request — all strings at once
     batchTranslate(values, lang)
       .then(translated => {
         if (!alive) return
@@ -68,7 +74,7 @@ export function TranslationProvider({ children }) {
   }, [lang])
 
   return (
-    <TranslationContext.Provider value={{ dynamicDict, loading, lang }}>
+    <TranslationContext.Provider value={{ dynamicDict, loading, noApi, lang }}>
       {children}
     </TranslationContext.Provider>
   )
