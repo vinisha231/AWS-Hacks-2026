@@ -1,10 +1,10 @@
-# Compass — Benefits Navigator
+# Rta — Benefits Navigator
 
 > **AWS Hacks 2026**
 
-Compass is an AWS-powered platform that helps underserved individuals discover and apply for government assistance programs — including SNAP, Medicaid, LIHEAP, Section 8, WIC, CHIP, EITC, Head Start, and more — without needing to understand the bureaucracy behind them.
+Rta is an AWS-powered platform that helps underserved individuals discover and apply for government assistance programs — including SNAP, Medicaid, LIHEAP, Section 8, WIC, CHIP, EITC, Head Start, and more — without needing to understand the bureaucracy behind them.
 
-Instead of filling out complex forms, users answer a short conversational intake. Compass checks 10+ programs at once, ranks results by estimated annual dollar value, and guides users all the way through to applied, tracked, and renewed. All interactions are translated in real time across 75+ languages via Amazon Translate.
+Instead of filling out complex forms, users answer a short conversational intake. Rta checks 10+ programs at once, ranks results by estimated annual dollar value, and guides users all the way through to applied, tracked, and renewed. All interactions are translated in real time across 75+ languages via Amazon Translate.
 
 ---
 
@@ -91,7 +91,7 @@ User Browser
 ## Project Structure
 
 ```
-compass/
+Rta/
 ├── src/                        # React frontend
 │   ├── pages/                  # Intake, Results, Apply, Tracker, Auth, Profile, Settings
 │   ├── components/             # Layout, LanguagePicker
@@ -153,4 +153,4 @@ sam build && sam deploy --guided
 | BenefitsCal | California only |
 | Propel (Fresh EBT) | SNAP balance tracking, not a full navigator |
 
-Compass is the only tool that covers intake → eligibility → auto-fill → document upload → status tracking → renewal reminders in one flow, across 10+ programs, in 75+ languages.
+Rta is the only tool that covers intake → eligibility → auto-fill → document upload → status tracking → renewal reminders in one flow, across 10+ programs, in 75+ languages.
