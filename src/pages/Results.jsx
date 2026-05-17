@@ -55,6 +55,7 @@ function ProgramCard({ program, lang, onApply, answers }) {
   const { t } = useTranslation()
   const [chatOpen, setChatOpen] = useState(false)
   const [advocateOpen, setAdvocateOpen] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden hover:-translate-y-0.5 hover:shadow-lg hover:border-neutral-600 transition-all duration-200">
@@ -146,7 +147,7 @@ function ProgramCard({ program, lang, onApply, answers }) {
               ))}
             </ul>
           </div>
-        )}
+        </div>
 
         {/* Documents + Steps (collapsible) */}
         <button
@@ -189,8 +190,6 @@ function ProgramCard({ program, lang, onApply, answers }) {
             )}
           </div>
         )}
-          </div>
-        </div>
 
         {/* Chatbot */}
         {chatOpen && (
