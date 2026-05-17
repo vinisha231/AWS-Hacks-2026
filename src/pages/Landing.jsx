@@ -126,7 +126,7 @@ export default function Landing() {
             <div className="animate-hero-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Link
                 to="/intake"
-                className="group inline-flex items-center gap-2 bg-white hover:bg-neutral-100 text-neutral-950 font-semibold text-base px-8 py-4 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-white/10"
+                className="group inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-base px-8 py-4 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-900/30"
               >
                 {t('landing_cta')}
                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -194,8 +194,8 @@ export default function Landing() {
                 key={p.id}
                 className="reveal bg-neutral-950 border border-neutral-800 rounded-md p-6 flex flex-col gap-3 hover:border-neutral-600 hover:-translate-y-0.5 hover:bg-neutral-900 transition-all"
               >
-                <div className="w-8 h-8 rounded bg-white flex items-center justify-center">
-                  <span className="text-neutral-950 text-xs font-black">{(p.name || p.id).slice(0, 2).toUpperCase()}</span>
+                <div className="w-8 h-8 rounded bg-emerald-900 flex items-center justify-center">
+                  <span className="text-emerald-400 text-xs font-black">{(p.name || p.id).slice(0, 2).toUpperCase()}</span>
                 </div>
                 <span className="text-sm font-semibold text-white">{p.name || p.id.toUpperCase()}</span>
                 <span className="text-xs text-neutral-600 uppercase tracking-wide">{p.category}</span>
@@ -228,20 +228,20 @@ export default function Landing() {
       </section>
 
       {/* ── Final CTA — inverted bright section for impact ── */}
-      <section className="bg-white">
+      <section className="bg-emerald-950">
         <div className="max-w-screen-xl mx-auto px-8 py-32 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12">
           <div className="reveal">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-neutral-950 leading-tight mb-4">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
               {t('landing_final_title')}
             </h2>
-            <p className="text-neutral-600 text-base max-w-md">
+            <p className="text-emerald-200 text-base max-w-md">
               {t('landing_final_sub')}
             </p>
           </div>
           <div className="reveal flex-shrink-0">
             <Link
               to="/intake"
-              className="group inline-flex items-center gap-2 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-base px-10 py-4 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-2xl"
+              className="group inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-base px-10 py-4 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-2xl"
             >
               {t('landing_cta')}
               <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

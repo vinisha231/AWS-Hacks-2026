@@ -109,7 +109,7 @@ export default function Layout({ children }) {
               <div className="flex items-center gap-3">
                 <Link
                   to="/intake"
-                  className="group hidden sm:inline-flex items-center gap-1.5 bg-white hover:bg-neutral-100 text-neutral-950 text-sm font-semibold px-4 py-2 rounded-md transition-all"
+                  className="group hidden sm:inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-md transition-all"
                 >
                   {t('nav_start')}
                   <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -128,7 +128,7 @@ export default function Layout({ children }) {
                 </Link>
                 <Link
                   to="/intake"
-                  className="group inline-flex items-center gap-1.5 bg-white hover:bg-neutral-100 text-neutral-950 text-sm font-semibold px-4 py-2 rounded-md transition-all hover:shadow-lg hover:shadow-white/10"
+                  className="group inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-md transition-all hover:shadow-lg hover:shadow-emerald-900/30"
                 >
                   {t('nav_start')}
                   <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
