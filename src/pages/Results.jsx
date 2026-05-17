@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '../store/store'
 import { useTranslation } from '../hooks/useTranslation'
 import Layout from '../components/Layout'
+import { useRevealAll } from '../hooks/useReveal'
 
 const CATEGORY_LABELS = {
   food: 'Food', health: 'Health', housing: 'Housing',
@@ -19,17 +20,14 @@ function ProgramCard({ program, lang, onApply }) {
 
   return (
     <div
-      className="bg-white border-2 rounded-2xl overflow-hidden hover:shadow-lg transition-all"
+      className="reveal bg-white border-2 rounded-2xl overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
       style={{ borderColor: program.borderColor }}
     >
       <div className="p-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <span
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
-              style={{ background: program.bgColor }}
-            >
-              {program.icon}
+            <span className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-600 flex-shrink-0">
+              {program.category[0].toUpperCase()}
             </span>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -59,11 +57,8 @@ function ProgramCard({ program, lang, onApply }) {
         <p className="text-slate-600 text-sm leading-relaxed mb-4">{t(program.descKey)}</p>
 
         {/* Why you qualify */}
-        <div
-          className="text-xs rounded-xl px-4 py-3 mb-4 flex items-start gap-2"
-          style={{ background: program.bgColor, color: program.color }}
-        >
-          <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <div className="text-xs rounded-xl px-4 py-3 mb-4 flex items-start gap-2 bg-neutral-50 border border-neutral-200 text-neutral-700">
+          <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-neutral-500" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
           <span className="font-medium">{t(program.whyKey)}</span>
@@ -111,6 +106,8 @@ export default function Results() {
   const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
 
+  useRevealAll()
+
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200)
     return () => clearTimeout(timer)
@@ -135,13 +132,12 @@ export default function Results() {
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
           <div className="relative">
             <div className="w-20 h-20 rounded-full border-4 border-neutral-200 border-t-neutral-900 animate-spin" />
-            <span className="absolute inset-0 flex items-center justify-center text-2xl">🧭</span>
           </div>
           <p className="text-slate-700 font-semibold text-xl">{t('results_loading')}</p>
           <div className="flex flex-col gap-2 text-sm text-slate-500 max-w-xs">
             {[t('results_loading_snap'), t('results_loading_medicaid'), t('results_loading_housing'), t('results_loading_values')].map((msg, i) => (
               <div key={msg} className="flex items-center gap-2 animate-fade-in" style={{ animationDelay: `${i * 0.2}s` }}>
-                <div className="w-2 h-2 rounded-full bg-neutral-950 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 inline-block flex-shrink-0 mt-1.5" />
                 {msg}
               </div>
             ))}
@@ -168,18 +164,18 @@ export default function Results() {
   return (
     <Layout>
       {/* Results header */}
-      <div className="bg-neutral-950 text-white py-12 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          {name && <p className="text-neutral-400 text-sm font-medium mb-2">{t('results_for_name', { name })}</p>}
-          <h1 className="text-4xl font-black mb-3">
+      <div className="border-b border-neutral-200 bg-white py-16 px-6">
+        <div className="max-w-screen-xl mx-auto px-6 lg:px-12 text-center">
+          {name && <p className="text-neutral-500 text-sm font-medium mb-2">{t('results_for_name', { name })}</p>}
+          <h1 className="text-4xl font-black mb-3 text-slate-900">
             {results.length > 0
               ? t('results_headline', { count: results.length })
               : t('results_no_match')}
           </h1>
           {results.length > 0 && (
-            <div className="inline-flex items-center gap-3 bg-white/15 border border-white/25 rounded-2xl px-6 py-4 mt-2">
-              <span className="text-4xl font-black text-emerald-300">{fmt(total)}</span>
-              <span className="text-neutral-400 text-left">
+            <div className="inline-flex items-center gap-3 bg-neutral-50 border border-neutral-200 rounded-2xl px-6 py-4 mt-2">
+              <span className="text-4xl font-black text-emerald-600">{fmt(total)}</span>
+              <span className="text-neutral-500 text-left">
                 <div className="font-bold">{t('results_per_year')}</div>
                 <div className="text-sm opacity-80">{t('results_benefits_qualify')}</div>
               </span>
@@ -191,7 +187,7 @@ export default function Results() {
       {/* Summary bar */}
       {results.length > 0 && (
         <div className="bg-white border-b border-neutral-200 py-4 px-4 sticky top-16 z-20 shadow-sm">
-          <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="max-w-screen-xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-slate-600 text-sm">
               {t('results_count_label', { count: results.length })}
             </p>
@@ -218,7 +214,7 @@ export default function Results() {
       )}
 
       {/* Program cards */}
-      <div className="max-w-3xl mx-auto px-4 py-10">
+      <div className="max-w-screen-xl mx-auto px-6 lg:px-12 py-10">
         {results.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-500 text-lg mb-6">{t('results_none')}</p>
@@ -233,12 +229,12 @@ export default function Results() {
             ))}
 
             {/* Bottom save CTA */}
-            <div className="bg-neutral-50 border-2 border-neutral-200 rounded-lg p-6 text-center">
-              <h3 className="font-black text-neutral-950 text-lg mb-2">{t('results_dont_lose')}</h3>
-              <p className="text-neutral-600 text-sm mb-4">{t('results_save_desc')}</p>
+            <div className="reveal bg-neutral-950 text-white rounded-lg p-8 text-center">
+              <h3 className="font-black text-white text-lg mb-2">{t('results_dont_lose')}</h3>
+              <p className="text-neutral-400 text-sm mb-4">{t('results_save_desc')}</p>
               <button
                 onClick={handleSave}
-                className="bg-neutral-950 hover:bg-neutral-800 text-white font-bold px-6 py-3 rounded-xl transition-colors"
+                className="bg-white hover:bg-neutral-100 text-neutral-950 font-bold px-6 py-3 rounded-xl transition-colors"
               >
                 {saved ? t('results_saved') : t('results_save')}
               </button>

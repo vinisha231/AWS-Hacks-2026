@@ -4,15 +4,34 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from '../hooks/useTranslation'
 import LanguagePicker from '../components/LanguagePicker'
 
-function CompassIcon() {
-  return (
-    <svg viewBox="0 0 32 32" fill="none" className="w-8 h-8 text-neutral-950">
-      <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2.5" />
-      <circle cx="16" cy="16" r="3" fill="currentColor" />
-      <path d="M16 3v4M16 25v4M3 16h4M25 16h4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M20 12l-6 4-2 6 6-4 2-6z" fill="currentColor" opacity="0.8" />
-    </svg>
-  )
+const PersonIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+  </svg>
+)
+
+const EmailIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+  </svg>
+)
+
+const LockIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+  </svg>
+)
+
+const WarningIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+  </svg>
+)
+
+const ICON_MAP = {
+  person: <PersonIcon />,
+  email: <EmailIcon />,
+  lock: <LockIcon />,
 }
 
 export default function AuthPage() {
@@ -58,7 +77,6 @@ export default function AuthPage() {
       {/* Nav */}
       <nav className="px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
-          <CompassIcon />
           <span className="font-bold text-xl text-slate-900">Compass</span>
         </Link>
         <LanguagePicker />
@@ -102,7 +120,7 @@ export default function AuthPage() {
                   placeholder="Maria Garcia"
                   value={form.name}
                   onChange={v => set('name', v)}
-                  icon="👤"
+                  icon="person"
                   autoComplete="name"
                 />
               )}
@@ -112,7 +130,7 @@ export default function AuthPage() {
                 placeholder="you@example.com"
                 value={form.email}
                 onChange={v => set('email', v)}
-                icon="✉️"
+                icon="email"
                 autoComplete="email"
               />
               <Field
@@ -121,7 +139,7 @@ export default function AuthPage() {
                 placeholder={mode === 'signup' ? t('auth_password_hint') : '••••••••'}
                 value={form.password}
                 onChange={v => set('password', v)}
-                icon="🔒"
+                icon="lock"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               />
               {mode === 'signup' && (
@@ -131,14 +149,14 @@ export default function AuthPage() {
                   placeholder="••••••••"
                   value={form.confirm}
                   onChange={v => set('confirm', v)}
-                  icon="🔒"
+                  icon="lock"
                   autoComplete="new-password"
                 />
               )}
 
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-start gap-2">
-                  <span>⚠️</span>
+                  <span className="flex-shrink-0 mt-0.5"><WarningIcon /></span>
                   <span>{error}</span>
                 </div>
               )}
@@ -187,7 +205,9 @@ function Field({ label, type, placeholder, value, onChange, icon, autoComplete }
     <div>
       <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">{label}</label>
       <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base pointer-events-none">{icon}</span>
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none flex items-center">
+          {ICON_MAP[icon]}
+        </span>
         <input
           type={isPassword && show ? 'text' : type}
           placeholder={placeholder}

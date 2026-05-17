@@ -4,12 +4,27 @@ import { useStore } from '../store/store'
 import { useTranslation } from '../hooks/useTranslation'
 import { PROGRAMS } from '../data/programs'
 import Layout from '../components/Layout'
+import { useRevealAll } from '../hooks/useReveal'
+
+const WarningIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+  </svg>
+)
 
 export default function Apply() {
   const { programId } = useParams()
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { answers, setTrackerStatus, results } = useStore()
+
+  useRevealAll()
 
   const program = PROGRAMS.find(p => p.id === programId)
   const resultProgram = results?.find(p => p.id === programId)
@@ -49,130 +64,130 @@ export default function Apply() {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        {/* Back */}
-        <button
-          onClick={() => navigate('/results')}
-          className="text-slate-500 hover:text-slate-700 font-medium text-sm mb-8 flex items-center gap-1 transition-colors"
-        >
-          ← {t('apply_back')}
-        </button>
-
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <span
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
-            style={{ background: program.bgColor }}
+      <div className="max-w-screen-xl mx-auto px-6 lg:px-12 py-12">
+        <div className="max-w-2xl mx-auto">
+          {/* Back */}
+          <button
+            onClick={() => navigate('/results')}
+            className="text-slate-500 hover:text-slate-700 font-medium text-sm mb-8 flex items-center gap-1 transition-colors"
           >
-            {program.icon}
-          </span>
-          <div>
-            <h1 className="text-3xl font-black text-slate-900">{t('apply_headline', { program: t(program.nameKey) })}</h1>
-            <p className="text-slate-500">{t(program.fullKey)}</p>
-          </div>
-        </div>
+            ← {t('apply_back')}
+          </button>
 
-        {/* Pre-filled form */}
-        {prefilled.length > 0 && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
-                {t('apply_autofill_badge')}
+          {/* Header */}
+          <div className="reveal flex items-center gap-4 mb-8">
+            <span className="w-12 h-12 rounded-lg bg-neutral-100 flex items-center justify-center text-sm font-bold text-neutral-600 flex-shrink-0">
+              {program.category[0].toUpperCase()}
+            </span>
+            <div>
+              <h1 className="text-3xl font-black text-slate-900">{t('apply_headline', { program: t(program.nameKey) })}</h1>
+              <p className="text-slate-500">{t(program.fullKey)}</p>
+            </div>
+          </div>
+
+          {/* Pre-filled form */}
+          {prefilled.length > 0 && (
+            <div className="reveal bg-white border border-slate-200 rounded-2xl p-6 mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
+                  {t('apply_autofill_badge')}
+                </div>
+                <span className="text-slate-500 text-sm">{t('apply_prefilled')}</span>
               </div>
-              <span className="text-slate-500 text-sm">{t('apply_prefilled')}</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {prefilled.map(({ label, value }) => (
-                <div key={label}>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">{label}</label>
-                  <div className="border-2 border-emerald-200 bg-emerald-50 rounded-xl px-4 py-3 text-slate-800 font-medium text-sm flex items-center justify-between gap-2">
-                    <span>{value}</span>
-                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {prefilled.map(({ label, value }) => (
+                  <div key={label}>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">{label}</label>
+                    <div className="border-2 border-emerald-200 bg-emerald-50 rounded-xl px-4 py-3 text-slate-800 font-medium text-sm flex items-center justify-between gap-2">
+                      <span>{value}</span>
+                      <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-slate-400 mt-4">
-              {t('apply_clipboard_hint')}
-            </p>
-          </div>
-        )}
-
-        {/* Document checklist */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-900">{t('apply_docs_title')}</h2>
-            <span className="text-sm text-slate-500 font-medium">{checkedCount}/{program.documents.length}</span>
-          </div>
-          <p className="text-slate-500 text-sm mb-4">{t('apply_docs_hint')}</p>
-          <div className="flex flex-col gap-2">
-            {program.documents.map(doc => (
-              <button
-                key={doc}
-                onClick={() => toggleDoc(doc)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all
-                  ${docChecked[doc]
-                    ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                  }`}
-              >
-                <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors
-                  ${docChecked[doc] ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300'}`}
-                >
-                  {docChecked[doc] && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className={`text-sm font-medium ${docChecked[doc] ? 'line-through text-emerald-600' : ''}`}>{doc}</span>
-              </button>
-            ))}
-          </div>
-          {allDocsChecked && (
-            <div className="mt-4 text-center text-emerald-700 font-semibold text-sm animate-fade-in">
-              {t('apply_all_docs_ready')}
+                ))}
+              </div>
+              <p className="text-xs text-slate-400 mt-4">
+                {t('apply_clipboard_hint')}
+              </p>
             </div>
           )}
-        </div>
 
-        {/* Waitlist warning */}
-        {program.waitlist && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex gap-3">
-            <span className="text-amber-500 text-lg">⚠️</span>
-            <div>
-              <p className="font-semibold text-amber-800 text-sm">{t('apply_waitlist_title')}</p>
-              <p className="text-amber-700 text-sm">{t('apply_waitlist_desc')}</p>
+          {/* Document checklist */}
+          <div className="reveal bg-white border border-slate-200 rounded-2xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-slate-900">{t('apply_docs_title')}</h2>
+              <span className="text-sm text-slate-500 font-medium">{checkedCount}/{program.documents.length}</span>
             </div>
+            <p className="text-slate-500 text-sm mb-4">{t('apply_docs_hint')}</p>
+            <div className="flex flex-col gap-2">
+              {program.documents.map(doc => (
+                <button
+                  key={doc}
+                  onClick={() => toggleDoc(doc)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all
+                    ${docChecked[doc]
+                      ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                    }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors
+                    ${docChecked[doc] ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300'}`}
+                  >
+                    {docChecked[doc] && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                  <span className={`text-sm font-medium ${docChecked[doc] ? 'line-through text-emerald-600' : ''}`}>{doc}</span>
+                </button>
+              ))}
+            </div>
+            {allDocsChecked && (
+              <div className="mt-4 text-center text-emerald-700 font-semibold text-sm animate-fade-in flex items-center justify-center gap-1.5">
+                <CheckIcon />
+                {t('apply_all_docs_ready')}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Action buttons */}
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={handleOpenApp}
-            className="w-full py-4 rounded-2xl font-bold text-base text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
-            style={{ background: program.color }}
-          >
-            {t('apply_open')}
-          </button>
-          <button
-            onClick={handleMarkProgress}
-            className={`w-full py-3.5 rounded-md font-semibold text-sm border-2 transition-all
-              ${marked
-                ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500'
-              }`}
-          >
-            {marked ? t('apply_marked') : t('apply_track')}
-          </button>
-        </div>
+          {/* Waitlist warning */}
+          {program.waitlist && (
+            <div className="reveal bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex gap-3">
+              <span className="text-amber-500 flex-shrink-0 mt-0.5"><WarningIcon /></span>
+              <div>
+                <p className="font-semibold text-amber-800 text-sm">{t('apply_waitlist_title')}</p>
+                <p className="text-amber-700 text-sm">{t('apply_waitlist_desc')}</p>
+              </div>
+            </div>
+          )}
 
-        {/* Renewal info */}
-        <div className="mt-6 text-center text-xs text-slate-400">
-          {t('apply_renewal_info', { months: program.renewalMonths })}
+          {/* Action buttons */}
+          <div className="reveal flex flex-col gap-3">
+            <button
+              onClick={handleOpenApp}
+              className="w-full py-4 rounded-2xl font-bold text-base text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              style={{ background: program.color }}
+            >
+              {t('apply_open')}
+            </button>
+            <button
+              onClick={handleMarkProgress}
+              className={`w-full py-3.5 rounded-md font-semibold text-sm border-2 transition-all
+                ${marked
+                  ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                  : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500'
+                }`}
+            >
+              {marked ? t('apply_marked') : t('apply_track')}
+            </button>
+          </div>
+
+          {/* Renewal info */}
+          <div className="mt-6 text-center text-xs text-slate-400">
+            {t('apply_renewal_info', { months: program.renewalMonths })}
+          </div>
         </div>
       </div>
     </Layout>
