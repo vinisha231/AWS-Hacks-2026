@@ -6,7 +6,7 @@ import { PROGRAMS } from '../data/programs'
 
 const STATS = [
   { value: '$6,200', labelKey: 'stat1_label' },
-  { value: '10+',    labelKey: 'stat2_label' },
+  { value: '20+',    labelKey: 'stat2_label' },
   { value: '3 min',  labelKey: 'stat3_label' },
   { value: '75+',    labelKey: 'stat4_label' },
 ]
@@ -101,6 +101,41 @@ const STEPS = [
   },
 ]
 
+function RibbonSVG() {
+  return (
+    <svg
+      viewBox="0 0 800 600"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-full"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="rtaRibbon" x1="100%" y1="100%" x2="0%" y2="10%">
+          <stop offset="0%"   stopColor="#fbbf24" />
+          <stop offset="35%"  stopColor="#fb923c" />
+          <stop offset="70%"  stopColor="#f87171" />
+          <stop offset="100%" stopColor="#e879a0" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M 750,530
+           C 730,410 680,250 560,175
+           C 440,100 290,110 215,195
+           C 140,280 165,415 265,450
+           C 365,485 475,415 465,325
+           C 455,235 365,205 285,248
+           C 205,291 175,385 115,438"
+        stroke="url(#rtaRibbon)"
+        strokeWidth="88"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  )
+}
+
 export default function Landing() {
   const { t } = useTranslation()
   useRevealAll()
@@ -109,33 +144,40 @@ export default function Landing() {
     <Layout>
 
       {/* ── Hero ── */}
-      <section className="relative min-h-[92vh] flex flex-col justify-center bg-neutral-950 border-b border-neutral-800 overflow-hidden">
-        <div className="absolute inset-0 hero-grid opacity-40" />
+      <section className="relative min-h-[92vh] flex flex-col justify-center bg-white overflow-hidden">
+        {/* Flowing ribbon — right half of hero */}
+        <div className="absolute inset-0 pointer-events-none select-none flex items-center justify-end">
+          <div className="w-full sm:w-3/4 lg:w-[60%] h-full opacity-90">
+            <RibbonSVG />
+          </div>
+        </div>
+
         <div className="relative max-w-screen-xl mx-auto px-8 w-full py-24">
-          <div className="max-w-5xl">
-            <p className="animate-hero-1 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500 mb-8">
+          <div className="max-w-2xl">
+            <p className="animate-hero-1 text-xs font-semibold uppercase tracking-[0.22em] text-neutral-400 mb-7">
+              Benefits Navigator
             </p>
-            <h1 className="animate-hero-2 glow-text text-6xl sm:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.0] tracking-tight mb-8">
+            <h1 className="animate-hero-2 text-6xl sm:text-7xl lg:text-[5.5rem] font-black text-black leading-[1.0] tracking-tight mb-8">
               {t('landing_headline').split('\n').map((line, i) => (
                 <span key={i} className="block">{line}</span>
               ))}
             </h1>
-            <p className="animate-hero-3 text-neutral-400 text-lg sm:text-xl max-w-2xl leading-relaxed mb-12">
+            <p className="animate-hero-3 text-neutral-500 text-lg sm:text-xl max-w-lg leading-relaxed mb-12">
               {t('landing_sub')}
             </p>
             <div className="animate-hero-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Link
                 to="/intake"
-                className="group inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-base px-8 py-4 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-900/30"
+                className="group inline-flex items-center gap-2.5 bg-black hover:bg-neutral-800 text-white font-semibold text-base px-8 py-4 rounded-full transition-all hover:-translate-y-0.5 rta-btn"
               >
                 {t('landing_cta')}
-                <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </Link>
               <Link
                 to="/tracker"
-                className="text-neutral-500 hover:text-neutral-200 font-medium text-base transition-colors"
+                className="text-neutral-500 hover:text-black font-medium text-base transition-colors"
               >
                 {t('landing_tracker')} →
               </Link>
@@ -145,12 +187,17 @@ export default function Landing() {
       </section>
 
       {/* ── Stats ── */}
-      <section className="bg-neutral-900 border-b border-neutral-800">
+      <section className="bg-white border-y border-gray-100">
         <div className="max-w-screen-xl mx-auto px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-neutral-800">
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-100">
             {STATS.map(({ value, labelKey }) => (
-              <div key={labelKey} className="reveal py-14 px-8 text-center">
-                <div className="text-4xl font-black text-white mb-2">{value}</div>
+              <div key={labelKey} className="reveal py-12 px-8 text-center">
+                <div
+                  className="text-4xl font-black mb-2"
+                  style={{ background: 'linear-gradient(135deg,#fb923c,#e879a0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+                >
+                  {value}
+                </div>
                 <div className="text-neutral-500 text-sm">{t(labelKey)}</div>
               </div>
             ))}
@@ -159,20 +206,20 @@ export default function Landing() {
       </section>
 
       {/* ── How it works ── */}
-      <section className="bg-neutral-950 border-b border-neutral-800">
+      <section className="bg-gray-50 border-b border-gray-100">
         <div className="max-w-screen-xl mx-auto px-8 py-28">
           <div className="reveal mb-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-600 mb-3">Process</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white">{t('landing_how_title')}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 mb-3">Process</p>
+            <h2 className="text-4xl sm:text-5xl font-black text-black">{t('landing_how_title')}</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-neutral-800 stagger">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger">
             {STEPS.map(({ num, titleKey, descKey, icon }) => (
-              <div key={num} className="reveal bg-neutral-950 p-10 hover:bg-neutral-900 transition-colors group">
+              <div key={num} className="reveal bg-white border border-gray-100 rounded-2xl p-10 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-50 transition-all group">
                 <div className="flex items-start justify-between mb-8">
-                  <p className="text-6xl font-black text-neutral-800 select-none group-hover:text-neutral-700 transition-colors">{num}</p>
-                  <div className="text-neutral-700 group-hover:text-neutral-400 transition-colors">{icon}</div>
+                  <p className="text-6xl font-black text-gray-100 select-none group-hover:text-orange-100 transition-colors">{num}</p>
+                  <div className="text-orange-400 group-hover:text-orange-500 transition-colors">{icon}</div>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-3">{t(titleKey)}</h3>
+                <h3 className="text-lg font-bold text-black mb-3">{t(titleKey)}</h3>
                 <p className="text-neutral-500 text-sm leading-relaxed">{t(descKey)}</p>
               </div>
             ))}
@@ -181,26 +228,26 @@ export default function Landing() {
       </section>
 
       {/* ── Programs ── */}
-      <section className="bg-neutral-900 border-b border-neutral-800">
+      <section className="bg-white border-b border-gray-100">
         <div className="max-w-screen-xl mx-auto px-8 py-28">
           <div className="reveal mb-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-600 mb-3">Coverage</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white">{t('landing_programs_title')}</h2>
-            <p className="text-neutral-500 text-sm mt-3">All checked in one session — no separate searches.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 mb-3">Coverage</p>
+            <h2 className="text-4xl sm:text-5xl font-black text-black">{t('landing_programs_title')}</h2>
+            <p className="text-neutral-400 text-sm mt-3">All checked in one session — no separate searches.</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 stagger">
             {PROGRAMS.map(p => (
               <div
                 key={p.id}
-                className="reveal bg-neutral-950 border border-neutral-800 rounded-md p-6 flex flex-col gap-3 hover:border-neutral-600 hover:-translate-y-0.5 hover:bg-neutral-900 transition-all"
+                className="reveal bg-white border border-gray-100 rounded-xl p-5 flex flex-col gap-3 hover:border-orange-200 hover:-translate-y-0.5 hover:shadow-md transition-all"
               >
-                <div className="w-8 h-8 rounded bg-emerald-900 flex items-center justify-center">
-                  <span className="text-emerald-400 text-xs font-black">{(p.name || p.id).slice(0, 2).toUpperCase()}</span>
+                <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                  <span className="text-amber-600 text-xs font-black">{(p.name || p.id).slice(0, 2).toUpperCase()}</span>
                 </div>
-                <span className="text-sm font-semibold text-white">{p.name || p.id.toUpperCase()}</span>
-                <span className="text-xs text-neutral-600 uppercase tracking-wide">{p.category}</span>
+                <span className="text-sm font-semibold text-black">{p.name || p.id.toUpperCase()}</span>
+                <span className="text-xs text-neutral-400 uppercase tracking-wide">{p.category}</span>
                 {p.estimatedValue && (
-                  <span className="text-xs text-neutral-500 font-medium">{p.estimatedValue}</span>
+                  <span className="text-xs text-neutral-400 font-medium">{p.estimatedValue}</span>
                 )}
               </div>
             ))}
@@ -209,17 +256,17 @@ export default function Landing() {
       </section>
 
       {/* ── Differentiators ── */}
-      <section className="bg-neutral-950 border-b border-neutral-800">
+      <section className="bg-gray-50 border-b border-gray-100">
         <div className="max-w-screen-xl mx-auto px-8 py-28">
           <div className="reveal mb-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-600 mb-3">Why Compass</p>
-            <h2 className="text-4xl sm:text-5xl font-black text-white">What makes us different</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 mb-3">Why Rta</p>
+            <h2 className="text-4xl sm:text-5xl font-black text-black">What makes us different</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-neutral-800 stagger">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
             {DIFFERENTIATORS.map(({ titleKey, descKey, icon }) => (
-              <div key={titleKey} className="reveal bg-neutral-950 p-8 hover:bg-neutral-900 transition-colors group">
-                <div className="text-neutral-700 group-hover:text-white transition-colors mb-5">{icon}</div>
-                <h3 className="font-bold text-white mb-3">{t(titleKey)}</h3>
+              <div key={titleKey} className="reveal bg-white border border-gray-100 rounded-2xl p-8 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-50 transition-all group">
+                <div className="text-orange-400 group-hover:text-orange-500 transition-colors mb-5">{icon}</div>
+                <h3 className="font-bold text-black mb-3">{t(titleKey)}</h3>
                 <p className="text-neutral-500 text-sm leading-relaxed">{t(descKey)}</p>
               </div>
             ))}
@@ -227,24 +274,24 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Final CTA — inverted bright section for impact ── */}
-      <section className="bg-emerald-950">
+      {/* ── Final CTA ── */}
+      <section className="bg-black">
         <div className="max-w-screen-xl mx-auto px-8 py-32 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12">
           <div className="reveal">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
               {t('landing_final_title')}
             </h2>
-            <p className="text-emerald-200 text-base max-w-md">
+            <p className="text-neutral-400 text-base max-w-md">
               {t('landing_final_sub')}
             </p>
           </div>
           <div className="reveal flex-shrink-0">
             <Link
               to="/intake"
-              className="group inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-base px-10 py-4 rounded-md transition-all hover:-translate-y-0.5 hover:shadow-2xl"
+              className="group inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-black font-bold text-base px-10 py-4 rounded-full transition-all hover:-translate-y-0.5"
             >
               {t('landing_cta')}
-              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </Link>

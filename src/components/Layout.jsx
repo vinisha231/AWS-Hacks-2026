@@ -6,14 +6,15 @@ import { useStore } from '../store/store'
 import LanguagePicker from './LanguagePicker'
 import { FloatingChatbot } from './FloatingChatbot'
 
-function CompassLogo() {
+function RtaLogo() {
   return (
-    <svg viewBox="0 0 28 28" fill="none" className="w-5 h-5 text-white">
-      <circle cx="14" cy="14" r="11" stroke="currentColor" strokeWidth="2" />
-      <circle cx="14" cy="14" r="2.5" fill="currentColor" />
-      <path d="M14 3v3M14 22v3M3 14h3M22 14h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M17.5 10.5l-5 3.5-1.5 4 5-3.5 1.5-4z" fill="currentColor" opacity="0.85" />
-    </svg>
+    <span
+      className="flex items-center justify-center w-7 h-7 rounded-md text-white font-black text-sm leading-none select-none"
+      style={{ background: 'linear-gradient(135deg,#fbbf24,#fb923c,#fb7185)', fontFamily: 'system-ui,sans-serif' }}
+      aria-hidden="true"
+    >
+      ऋ
+    </span>
   )
 }
 
@@ -95,8 +96,8 @@ export default function Layout({ children }) {
       <nav className="bg-neutral-950 border-b border-neutral-800 sticky top-0 z-30 backdrop-blur-sm">
         <div className="max-w-screen-xl mx-auto px-8 h-14 flex items-center justify-between gap-6">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <CompassLogo />
-            <span className="font-bold text-base text-white tracking-tight">Compass</span>
+            <RtaLogo />
+            <span className="font-bold text-base text-white tracking-tight">Rta</span>
           </Link>
 
           <div className="hidden sm:flex items-center gap-7">
@@ -110,7 +111,7 @@ export default function Layout({ children }) {
               <div className="flex items-center gap-3">
                 <Link
                   to="/intake"
-                  className="group hidden sm:inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-md transition-all"
+                  className="group hidden sm:inline-flex items-center gap-1.5 bg-black hover:bg-neutral-800 text-white text-sm font-semibold px-4 py-2 rounded-full transition-all rta-btn"
                 >
                   {t('nav_start')}
                   <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -149,8 +150,8 @@ export default function Layout({ children }) {
       <footer className="bg-neutral-950 border-t border-neutral-800 py-10 px-8">
         <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <CompassLogo />
-            <span className="font-semibold text-white text-sm">Compass</span>
+            <RtaLogo />
+            <span className="font-semibold text-white text-sm">Rta</span>
           </div>
           <span className="text-neutral-600 text-xs text-center">{t('landing_footer')}</span>
           <div className="flex items-center gap-5 text-xs text-neutral-600">
