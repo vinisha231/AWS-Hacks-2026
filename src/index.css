@@ -42,7 +42,9 @@ html, body {
 .bg-emerald-700.text-white,
 .bg-emerald-500.text-white,
 .bg-emerald-600 .text-white,
-.bg-emerald-700 .text-white { color: #ffffff !important; }
+.bg-emerald-700 .text-white,
+.bg-amber-600.text-white,
+.bg-amber-500.text-white { color: #ffffff !important; }
 
 /* Inputs stay readable */
 input.bg-neutral-800, textarea.bg-neutral-800 {

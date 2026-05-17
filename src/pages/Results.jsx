@@ -156,8 +156,8 @@ function ProgramCard({ program, lang, onApply }) {
           </button>
         </div>
       </div>
+      {advocateOpen && <AdvocatePanel program={program} onClose={() => setAdvocateOpen(false)} />}
     </div>
-    {advocateOpen && <AdvocatePanel program={program} onClose={() => setAdvocateOpen(false)} />}
   )
 }
 
