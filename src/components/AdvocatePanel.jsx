@@ -95,6 +95,11 @@ export function AdvocatePanel({ program, onClose }) {
   const programName = translations.en[program.nameKey] || program.name || program.id
   const programFull = translations.en[program.fullKey] || program.fullName || programName
 
+  const isApiUnavailable = (err) =>
+    !import.meta.env.VITE_API_ENDPOINT ||
+    err?.message?.includes('No API endpoint') ||
+    err?.reason === 'network'
+
   const startLetter = async () => {
     setMode('letter')
     setBackendError(null)
@@ -109,8 +114,13 @@ export function AdvocatePanel({ program, onClose }) {
       setLetter(stripMarkdown(data.letter || ''))
       setTalkingPoints((data.talking_points || []).map(stripMarkdown))
       setObjections((data.objections || []).map(stripMarkdown))
-    } catch {
-      setLetter('Error generating letter. Please try again.')
+    } catch (err) {
+      if (isApiUnavailable(err)) {
+        setBackendError('AI letter generation requires a backend connection. Use the resources below while we work on it.')
+        setMode('fallback')
+      } else {
+        setLetter('Error generating letter. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -123,8 +133,13 @@ export function AdvocatePanel({ program, onClose }) {
     try {
       const data = await roleplayTurn({ programName, profile: answers || {}, message: '', history: [], language: lang })
       setChat([{ role: 'assistant', content: stripMarkdown(data.reply) }])
-    } catch {
-      setChat([{ role: 'assistant', content: 'Error starting session. Please try again.' }])
+    } catch (err) {
+      if (isApiUnavailable(err)) {
+        setBackendError('The AI caseworker simulation requires a backend connection. Use the resources below while we work on it.')
+        setMode('fallback')
+      } else {
+        setChat([{ role: 'assistant', content: 'Error starting session. Please try again.' }])
+      }
     } finally {
       setLoading(false)
     }

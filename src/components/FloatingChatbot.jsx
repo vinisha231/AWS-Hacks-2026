@@ -34,16 +34,66 @@ const GREETING_MAP = {
   ta: 'வணக்கம்! நான் உங்கள் Rta நலன்கள் உதவியாளர். அரசு திட்டங்கள், தகுதி அல்லது விண்ணப்பிப்பது பற்றி கேளுங்கள்.',
 }
 
+const FOLLOWUP_MAP = {
+  en: [
+    ['What documents do I need?', 'How long does it take?', 'Can I apply online?'],
+    ['What happens after I apply?', 'Who else can help me?', 'Are there other benefits?'],
+    ['How do I check my status?', 'What if I get denied?', 'Is there a deadline?'],
+  ],
+  es: [
+    ['¿Qué documentos necesito?', '¿Cuánto tiempo tarda?', '¿Puedo aplicar en línea?'],
+    ['¿Qué pasa después de aplicar?', '¿Quién más puede ayudarme?', '¿Hay otros beneficios?'],
+    ['¿Cómo verifico mi estado?', '¿Qué pasa si me niegan?', '¿Hay una fecha límite?'],
+  ],
+  fr: [
+    ['Quels documents faut-il?', 'Combien de temps?', 'Puis-je postuler en ligne?'],
+    ['Que se passe-t-il après?', 'Qui d\'autre peut m\'aider?', 'Y a-t-il d\'autres aides?'],
+    ['Comment vérifier mon statut?', 'Que faire si refus?', 'Y a-t-il une date limite?'],
+  ],
+  hi: [
+    ['कौन से दस्तावेज़ चाहिए?', 'कितना समय लगेगा?', 'क्या ऑनलाइन आवेदन हो सकता है?'],
+    ['आवेदन के बाद क्या होगा?', 'और कौन मदद कर सकता है?', 'अन्य लाभ क्या हैं?'],
+    ['स्थिति कैसे जांचें?', 'अगर अस्वीकृति हो तो?', 'कोई समय सीमा है?'],
+  ],
+  ar: [
+    ['ما المستندات المطلوبة؟', 'كم يستغرق؟', 'هل يمكنني التقديم أونلاين؟'],
+    ['ماذا يحدث بعد التقديم؟', 'من يمكنه مساعدتي؟', 'هل هناك مزايا أخرى؟'],
+    ['كيف أتحقق من الحالة؟', 'ماذا لو رُفض طلبي؟', 'هل هناك موعد نهائي؟'],
+  ],
+  zh: [
+    ['需要哪些文件？', '需要多长时间？', '可以在线申请吗？'],
+    ['申请后会怎样？', '还有谁可以帮助我？', '还有其他福利吗？'],
+    ['如何查询状态？', '被拒绝怎么办？', '有截止日期吗？'],
+  ],
+  ta: [
+    ['என்ன ஆவணங்கள் தேவை?', 'எவ்வளவு நேரம் ஆகும்?', 'ஆன்லைனில் விண்ணப்பிக்கலாமா?'],
+    ['விண்ணப்பித்த பிறகு என்ன?', 'வேறு யார் உதவலாம்?', 'வேறு நலன்கள் உள்ளதா?'],
+    ['நிலையை எப்படி சரிபார்க்கலாம்?', 'மறுக்கப்பட்டால் என்ன?', 'கடைசி தேதி உள்ளதா?'],
+  ],
+}
+
+const OFFLINE_MSG = {
+  en: "I'm not connected to the backend right now. For benefits help, call 211 or visit benefits.gov. Ask me a question anyway and I'll do my best!",
+  es: "No estoy conectado al servidor ahora. Para ayuda con beneficios, llame al 211 o visite benefits.gov.",
+  fr: "Je ne suis pas connecté au serveur. Pour les aides, appelez le 211 ou visitez benefits.gov.",
+  hi: "अभी सर्वर से कनेक्ट नहीं हूँ। मदद के लिए 211 पर कॉल करें या benefits.gov पर जाएं।",
+  ar: "لست متصلاً بالخادم الآن. للمساعدة، اتصل بـ 211 أو زر benefits.gov.",
+  zh: "目前无法连接服务器。如需帮助，请拨打211或访问benefits.gov。",
+  ta: "இப்போது சர்வரில் இணைக்கப்படவில்லை. உதவிக்கு 211 அழையுங்கள் அல்லது benefits.gov பார்வையிடுங்கள்.",
+}
+
 export function FloatingChatbot() {
   const lang = useStore(s => s.language) || 'en'
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([])
+  const [followUps, setFollowUps] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [listening, setListening] = useState(false)
   const containerRef = useRef(null)
   const inputRef = useRef(null)
   const recognitionRef = useRef(null)
+  const followUpRoundRef = useRef(0)
 
   useEffect(() => {
     if (containerRef.current) {
@@ -56,6 +106,8 @@ export function FloatingChatbot() {
     if (open) {
       const greeting = GREETING_MAP[lang] || GREETING_MAP.en
       setMessages([{ role: 'assistant', content: greeting }])
+      setFollowUps([])
+      followUpRoundRef.current = 0
       setTimeout(() => inputRef.current?.focus(), 100)
     }
   }, [open, lang])
@@ -64,18 +116,26 @@ export function FloatingChatbot() {
     const msg = text.trim()
     if (!msg || loading) return
     setMessages(prev => [...prev, { role: 'user', content: msg }])
+    setFollowUps([])
     setInput('')
     setLoading(true)
     try {
       const data = await chatWithBot(msg, 'general', 'Rta Benefits Assistant', lang)
       let reply = stripMarkdown(data.reply || data.response || 'Sorry, try again.')
-      // Translate to selected language if not English
       if (lang !== 'en') {
         reply = await translateText(reply, lang, 'en').catch(() => reply)
       }
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I had trouble reaching the server. Please try again.' }])
+      const pool = FOLLOWUP_MAP[lang] || FOLLOWUP_MAP.en
+      const round = followUpRoundRef.current % pool.length
+      followUpRoundRef.current += 1
+      setFollowUps(pool[round])
+    } catch (err) {
+      const isOffline = !import.meta.env.VITE_API_ENDPOINT || err?.message?.includes('No API endpoint') || err?.reason === 'network'
+      const errMsg = isOffline
+        ? (OFFLINE_MSG[lang] || OFFLINE_MSG.en)
+        : 'Sorry, I had trouble reaching the server. Please try again.'
+      setMessages(prev => [...prev, { role: 'assistant', content: errMsg }])
     } finally {
       setLoading(false)
     }
@@ -171,10 +231,10 @@ export function FloatingChatbot() {
             )}
           </div>
 
-          {/* Quick starters */}
-          {!hasUserMessage && (
+          {/* Quick starters or follow-up chips */}
+          {(!hasUserMessage || followUps.length > 0) && !loading && (
             <div className="px-3 pb-2 bg-gray-50 flex gap-1.5 flex-wrap flex-shrink-0">
-              {starters.map(s => (
+              {(hasUserMessage ? followUps : starters).map(s => (
                 <button
                   key={s}
                   onClick={() => send(s)}
