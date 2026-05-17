@@ -43,7 +43,8 @@ IMPORTANT for applicationUrl: Use ONLY these reliable URLs — never invent deep
 - Federal programs (SNAP, Medicaid, LIHEAP, WIC, SSI, TANF, Section 8): "https://www.benefits.gov"
 - State-specific {state} programs: use only the main homepage of the state agency (e.g. "https://dhhs.state.name.us" NOT a subpage). If unsure, use "https://www.benefits.gov".
 
-Return ONLY a JSON array (no markdown). Each item: {{"id":"snap","name":"SNAP","fullName":"Supplemental Nutrition Assistance Program","category":"food","description":"Monthly food benefits.","why":"Qualifies due to income below 130% FPL.","estimatedAnnual":3600,"applicationUrl":"https://www.benefits.gov","documents":["Photo ID","Proof of income"],"renewalMonths":12,"waitlist":false}}
+Return ONLY a JSON array (no markdown). Each item:
+{{"id":"snap","name":"SNAP","fullName":"Supplemental Nutrition Assistance Program","category":"food","description":"Monthly food benefits.","why":"Qualifies due to income below 130% FPL.","estimatedAnnual":3600,"applicationUrl":"https://www.benefits.gov","documents":["Photo ID","Proof of income"],"renewalMonths":12,"waitlist":false,"pros":["Immediate grocery relief","Accepted at most major stores"],"cons":["Must recertify every 6-12 months","Benefits may not cover full food costs"],"steps":["Step 1: Visit benefits.gov and click Apply for SNAP","Step 2: Create or log in to your account","Step 3: Complete the online application with household and income info","Step 4: Upload proof of income and ID documents","Step 5: Attend a phone or in-person interview if scheduled","Step 6: Receive decision letter within 30 days","Step 7: Activate your EBT card when approved"]}}
 
 Categories: food, health, housing, energy, financial, education. Return JSON array only."""
 
@@ -51,7 +52,7 @@ Categories: food, health, housing, energy, financial, education. Return JSON arr
             modelId='us.anthropic.claude-sonnet-4-6',
             body=json.dumps({
                 'anthropic_version': 'bedrock-2023-05-31',
-                'max_tokens': 2048,
+                'max_tokens': 3000,
                 'messages': [{'role': 'user', 'content': prompt}],
             }),
         )
@@ -73,6 +74,9 @@ Categories: food, health, housing, energy, financial, education. Return JSON arr
             p.setdefault('renewalMonths', 12)
             p.setdefault('waitlist', False)
             p.setdefault('applicationUrl', 'https://benefits.gov')
+            p.setdefault('pros', [])
+            p.setdefault('cons', [])
+            p.setdefault('steps', [])
             try:
                 p['estimatedAnnual'] = int(float(str(p.get('estimatedAnnual', 0)).replace(',', '')))
             except (ValueError, TypeError):

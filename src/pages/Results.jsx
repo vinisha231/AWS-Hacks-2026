@@ -62,7 +62,33 @@ function ProgramCard({ program, lang, onApply }) {
           <span className="font-medium">{t(program.whyKey)}</span>
         </div>
 
-        {/* Documents (collapsible) */}
+        {/* Pros & Cons */}
+        {(program.pros?.length > 0 || program.cons?.length > 0) && (
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="rounded-md px-3 py-2.5 bg-emerald-50 border border-emerald-200">
+              <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-1.5">Pros</p>
+              <ul className="space-y-1">
+                {(program.pros || []).map((pro, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-emerald-800">
+                    <span className="text-emerald-600 font-bold mt-0.5 flex-shrink-0">+</span>{pro}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-md px-3 py-2.5 bg-amber-50 border border-amber-200">
+              <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-1.5">Cons</p>
+              <ul className="space-y-1">
+                {(program.cons || []).map((con, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-amber-800">
+                    <span className="text-amber-600 font-bold mt-0.5 flex-shrink-0">−</span>{con}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Documents + Steps (collapsible) */}
         <button
           onClick={() => setExpanded(e => !e)}
           className="text-sm text-neutral-500 hover:text-neutral-200 font-medium flex items-center gap-1 mb-3 transition-colors"
@@ -70,18 +96,35 @@ function ProgramCard({ program, lang, onApply }) {
           <svg className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          {t('results_documents')} ({program.documents.length})
+          How to Apply — Step by Step
         </button>
 
         {expanded && (
-          <ul className="mb-4 space-y-1.5 animate-fade-in">
-            {program.documents.map(doc => (
-              <li key={doc} className="flex items-start gap-2 text-sm text-neutral-400">
-                <span className="text-emerald-600 mt-0.5 font-bold">•</span>
-                {doc}
-              </li>
-            ))}
-          </ul>
+          <div className="mb-4 animate-fade-in space-y-4">
+            {program.steps?.length > 0 && (
+              <ol className="space-y-2">
+                {program.steps.map((step, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-neutral-700">
+                    <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <span>{step.replace(/^Step \d+:\s*/i, '')}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+            {program.documents?.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1.5">{t('results_documents')} needed ({program.documents.length})</p>
+                <ul className="space-y-1.5">
+                  {program.documents.map(doc => (
+                    <li key={doc} className="flex items-start gap-2 text-sm text-neutral-400">
+                      <span className="text-emerald-600 mt-0.5 font-bold">•</span>
+                      {doc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Chatbot */}
