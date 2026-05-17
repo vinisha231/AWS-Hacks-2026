@@ -107,7 +107,7 @@ export default function Settings() {
         <div className="max-w-2xl mx-auto">
 
           <div className="reveal mb-8">
-            <h1 className="text-3xl font-black text-neutral-950 mb-1">Settings</h1>
+            <h1 className="text-3xl font-black text-white mb-1">Settings</h1>
             <p className="text-neutral-500">Manage notifications, language, and privacy preferences.</p>
           </div>
 
@@ -132,12 +132,12 @@ export default function Settings() {
                     value={prefs.email}
                     onChange={e => set('email', e.target.value)}
                     placeholder="you@example.com"
-                    className="border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-4 py-2.5 text-sm w-full outline-none transition-colors"
+                    className="border border-neutral-700 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 rounded-md px-4 py-2.5 text-sm w-full outline-none transition-colors bg-neutral-800 text-white placeholder-neutral-600"
                   />
                 </div>
               )}
 
-              <div className="border-t border-neutral-100 my-5" />
+              <div className="border-t border-neutral-800 my-5" />
 
               <Toggle
                 label="SMS notifications"
@@ -153,7 +153,7 @@ export default function Settings() {
                     value={prefs.phone}
                     onChange={e => set('phone', e.target.value)}
                     placeholder="+1 (555) 000-0000"
-                    className="border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-4 py-2.5 text-sm w-full outline-none transition-colors"
+                    className="border border-neutral-700 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 rounded-md px-4 py-2.5 text-sm w-full outline-none transition-colors bg-neutral-800 text-white placeholder-neutral-600"
                   />
                   <p className="text-xs text-neutral-400 mt-1.5">Standard message rates may apply.</p>
                 </div>
@@ -173,8 +173,8 @@ export default function Settings() {
                     onClick={() => set('language', lang.code)}
                     className={`flex items-center gap-2 px-3 py-2.5 rounded-md border text-sm font-medium transition-all text-left
                       ${prefs.language === lang.code
-                        ? 'bg-neutral-950 border-neutral-950 text-white'
-                        : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                        ? 'bg-white border-white text-neutral-950'
+                        : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                       }`}
                   >
                     <span>{lang.flag}</span>
@@ -193,14 +193,14 @@ export default function Settings() {
                 checked={prefs.shareAnonymous}
                 onChange={v => set('shareAnonymous', v)}
               />
-              <div className="border-t border-neutral-100 my-5" />
+              <div className="border-t border-neutral-800 my-5" />
               <Toggle
                 label="Allow benefit agencies to contact me"
                 description="Agencies may reach out with program updates or application assistance."
                 checked={prefs.allowContact}
                 onChange={v => set('allowContact', v)}
               />
-              <div className="mt-5 text-xs text-neutral-400 bg-neutral-50 border border-neutral-200 rounded-md p-3 leading-relaxed">
+              <div className="mt-5 text-xs text-neutral-400 bg-neutral-800 border border-neutral-700 rounded-md p-3 leading-relaxed">
                 Your data is stored locally on your device. We do not sell or share your personal information.
               </div>
             </SettingsCard>
@@ -210,7 +210,7 @@ export default function Settings() {
               <p className="text-sm text-neutral-500 mb-4">Update your name, household size, income, and benefit profile.</p>
               <button
                 onClick={() => navigate('/profile')}
-                className="group inline-flex items-center gap-2 text-sm font-semibold text-neutral-950 hover:text-neutral-600 transition-colors"
+                className="group inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-neutral-300 transition-colors"
               >
                 Edit Profile
                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -221,7 +221,7 @@ export default function Settings() {
 
             {/* Save */}
             <div className="reveal flex items-center justify-between py-2">
-              <button onClick={() => navigate(-1)} className="text-neutral-500 hover:text-neutral-700 text-sm font-medium transition-colors">
+              <button onClick={() => navigate(-1)} className="text-neutral-500 hover:text-neutral-200 text-sm font-medium transition-colors">
                 ← Back
               </button>
               <button
@@ -229,10 +229,10 @@ export default function Settings() {
                 disabled={!dirty && !saved}
                 className={`px-8 py-3 rounded-md font-bold text-sm transition-all
                   ${saved
-                    ? 'bg-neutral-800 text-white'
+                    ? 'bg-emerald-600 text-white'
                     : dirty
-                      ? 'bg-neutral-950 hover:bg-neutral-800 text-white hover:-translate-y-0.5'
-                      : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                      ? 'bg-white hover:bg-neutral-100 text-neutral-950 hover:-translate-y-0.5'
+                      : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                   }`}
               >
                 {saved ? 'Saved!' : 'Save Settings'}
@@ -241,7 +241,7 @@ export default function Settings() {
 
             {/* Auth section */}
             {isAuthenticated && (
-              <div className="border-t border-neutral-200 pt-4 flex flex-col gap-4">
+              <div className="border-t border-neutral-800 pt-4 flex flex-col gap-4">
 
                 {/* Change Password */}
                 <SettingsCard title="Change Password" icon={<LockIcon />}>
@@ -249,12 +249,12 @@ export default function Settings() {
                     <PwField label="Current password" value={pwForm.old} onChange={v => setPwForm(f => ({ ...f, old: v }))} />
                     <PwField label="New password" value={pwForm.new} onChange={v => setPwForm(f => ({ ...f, new: v }))} />
                     <PwField label="Confirm new password" value={pwForm.confirm} onChange={v => setPwForm(f => ({ ...f, confirm: v }))} />
-                    {pwError && <p className="text-sm text-red-600">{pwError}</p>}
-                    {pwSuccess && <p className="text-sm text-emerald-600 font-semibold">Password updated!</p>}
+                    {pwError && <p className="text-sm text-red-400">{pwError}</p>}
+                    {pwSuccess && <p className="text-sm text-emerald-400 font-semibold">Password updated!</p>}
                     <button
                       type="button"
                       onClick={changePassword}
-                      className="self-start bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-sm px-5 py-2.5 rounded-md transition-colors"
+                      className="self-start bg-white hover:bg-neutral-100 text-neutral-950 font-semibold text-sm px-5 py-2.5 rounded-md transition-colors"
                     >
                       Update Password
                     </button>
@@ -269,13 +269,13 @@ export default function Settings() {
                   {!showDelete ? (
                     <button
                       onClick={() => setShowDelete(true)}
-                      className="text-red-600 hover:text-red-800 font-semibold text-sm transition-colors"
+                      className="text-red-500 hover:text-red-400 font-semibold text-sm transition-colors"
                     >
                       Delete my account →
                     </button>
                   ) : (
-                    <div className="bg-red-50 border border-red-200 rounded-md p-4 flex flex-col gap-3">
-                      <p className="text-sm text-red-700 font-medium">
+                    <div className="bg-red-900/30 border border-red-800 rounded-md p-4 flex flex-col gap-3">
+                      <p className="text-sm text-red-400 font-medium">
                         Type <strong>delete my account</strong> to confirm:
                       </p>
                       <input
@@ -283,7 +283,7 @@ export default function Settings() {
                         value={deleteConfirm}
                         onChange={e => setDeleteConfirm(e.target.value)}
                         placeholder="delete my account"
-                        className="border border-red-300 focus:border-red-500 rounded-md px-4 py-2.5 text-sm outline-none transition-colors"
+                        className="border border-red-700 focus:border-red-500 rounded-md px-4 py-2.5 text-sm outline-none transition-colors bg-neutral-800 text-white placeholder-neutral-600"
                       />
                       <div className="flex gap-3">
                         <button
@@ -315,10 +315,10 @@ export default function Settings() {
 
 function SettingsCard({ title, icon, children }) {
   return (
-    <div className="reveal bg-white border border-neutral-200 rounded-lg p-6 hover:border-neutral-300 transition-colors">
+    <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg p-6 hover:border-neutral-700 transition-colors">
       <div className="flex items-center gap-3 mb-5">
-        <div className="text-neutral-400">{icon}</div>
-        <h2 className="font-bold text-neutral-950">{title}</h2>
+        <div className="text-neutral-500">{icon}</div>
+        <h2 className="font-bold text-white">{title}</h2>
       </div>
       {children}
     </div>
@@ -331,12 +331,12 @@ function Toggle({ label, description, checked, onChange }) {
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className={`relative mt-0.5 w-11 h-6 rounded-full transition-colors flex-shrink-0 ${checked ? 'bg-neutral-950' : 'bg-neutral-300'}`}
+        className={`relative mt-0.5 w-11 h-6 rounded-full transition-colors flex-shrink-0 ${checked ? 'bg-white' : 'bg-neutral-700'}`}
       >
-        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full shadow transition-all ${checked ? 'translate-x-5 bg-neutral-950' : 'translate-x-0 bg-white'}`} />
       </button>
       <div>
-        <p className="font-semibold text-neutral-900 text-sm">{label}</p>
+        <p className="font-semibold text-neutral-200 text-sm">{label}</p>
         {description && <p className="text-xs text-neutral-500 mt-0.5">{description}</p>}
       </div>
     </div>
@@ -353,12 +353,12 @@ function PwField({ label, value, onChange }) {
           type={show ? 'text' : 'password'}
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-4 py-2.5 text-sm outline-none transition-colors pr-16"
+          className="w-full border border-neutral-700 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 rounded-md px-4 py-2.5 text-sm outline-none transition-colors pr-16 bg-neutral-800 text-white"
         />
         <button
           type="button"
           onClick={() => setShow(s => !s)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 hover:text-neutral-600 font-medium"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500 hover:text-neutral-200 font-medium"
         >
           {show ? 'Hide' : 'Show'}
         </button>
