@@ -145,7 +145,7 @@ export default function Profile() {
           {/* Header */}
           <div className="reveal mb-8 flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-neutral-950 mb-1">{t('profile_title')}</h1>
+              <h1 className="text-2xl font-bold text-white mb-1">{t('profile_title')}</h1>
               <p className="text-neutral-500 text-sm">
                 {t('profile_sub')}
               </p>
@@ -160,16 +160,16 @@ export default function Profile() {
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-neutral-600">{t('profile_clear_confirm')}</span>
+                  <span className="text-sm text-neutral-400">{t('profile_clear_confirm')}</span>
                   <button
                     onClick={resetProfile}
-                    className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"
+                    className="text-sm font-semibold text-red-500 hover:text-red-400 transition-colors"
                   >
                     {t('profile_clear_yes')}
                   </button>
                   <button
                     onClick={() => setConfirmReset(false)}
-                    className="text-sm text-neutral-400 hover:text-neutral-600 transition-colors"
+                    className="text-sm text-neutral-500 hover:text-neutral-200 transition-colors"
                   >
                     {t('profile_cancel')}
                   </button>
@@ -180,12 +180,12 @@ export default function Profile() {
 
           {/* Summary card — only shown when data exists */}
           {hasData && (
-            <div className="reveal bg-neutral-50 border border-neutral-200 rounded-lg p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
                 {form.name && (
-                  <p className="font-semibold text-neutral-950">{form.name}</p>
+                  <p className="font-semibold text-white">{form.name}</p>
                 )}
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-400">
                   {form.state && <span>{form.state}</span>}
                   {form.householdSize && <span>{form.householdSize === 1 ? t('profile_person') : t('profile_people', { n: form.householdSize })}</span>}
                   {form.incomeRange && <span>{form.incomeRange}/mo</span>}
@@ -193,7 +193,7 @@ export default function Profile() {
               </div>
               <button
                 onClick={checkEligibility}
-                className="bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+                className="bg-white hover:bg-neutral-100 text-neutral-950 text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
               >
                 {t('profile_recheck')}
               </button>
@@ -256,8 +256,8 @@ export default function Profile() {
                       onClick={() => update('householdSize', n)}
                       className={`py-2 rounded-lg border-2 font-bold text-sm transition-all
                         ${form.householdSize === n
-                          ? 'bg-neutral-950 border-neutral-950 text-white'
-                          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                          ? 'bg-white border-white text-neutral-950'
+                          : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                         }`}
                     >
                       {n === 8 ? '8+' : n}
@@ -276,13 +276,13 @@ export default function Profile() {
                         onClick={() => toggleList('situation', value)}
                         className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-between gap-2
                           ${selected
-                            ? 'bg-neutral-950 border-neutral-950 text-white'
-                            : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                            ? 'bg-white border-white text-neutral-950'
+                            : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                           }`}
                       >
                         <span>{label}</span>
                         {selected && (
-                          <svg className="w-4 h-4 text-white shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-neutral-950 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
@@ -304,8 +304,8 @@ export default function Profile() {
                       onClick={() => update('incomeRange', opt)}
                       className={`w-full text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all
                         ${form.incomeRange === opt
-                          ? 'bg-neutral-950 border-neutral-950 text-white'
-                          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                          ? 'bg-white border-white text-neutral-950'
+                          : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                         }`}
                     >
                       {opt}
@@ -322,8 +322,8 @@ export default function Profile() {
                       onClick={() => update('employmentStatus', value)}
                       className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all
                         ${form.employmentStatus === value
-                          ? 'bg-neutral-950 border-neutral-950 text-white'
-                          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                          ? 'bg-white border-white text-neutral-950'
+                          : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                         }`}
                     >
                       {label}
@@ -372,8 +372,8 @@ export default function Profile() {
                   ${saved
                     ? 'bg-emerald-600 text-white'
                     : dirty
-                      ? 'bg-neutral-950 hover:bg-neutral-800 text-white'
-                      : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                      ? 'bg-white hover:bg-neutral-100 text-neutral-950'
+                      : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                   }`}
               >
                 {t(saved ? 'profile_saved' : 'profile_save')}
@@ -384,8 +384,8 @@ export default function Profile() {
                 disabled={!form.state || !form.householdSize || !form.incomeRange}
                 className={`w-full sm:w-auto px-8 py-3 rounded-lg font-semibold text-sm transition-all
                   ${(form.state && form.householdSize && form.incomeRange)
-                    ? 'bg-neutral-950 hover:bg-neutral-800 text-white'
-                    : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                    ? 'bg-white hover:bg-neutral-100 text-neutral-950'
+                    : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                   }`}
               >
                 {t('profile_check')}
@@ -402,12 +402,12 @@ export default function Profile() {
   )
 }
 
-const inputCls = 'w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-lg px-4 py-2.5 text-neutral-950 text-sm bg-white outline-none transition-colors'
+const inputCls = 'w-full border border-neutral-700 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 rounded-lg px-4 py-2.5 text-white text-sm bg-neutral-800 outline-none transition-colors placeholder-neutral-600'
 
 function Section({ title, children }) {
   return (
-    <div className="reveal bg-white border border-neutral-200 hover:border-neutral-300 transition-colors rounded-lg p-6 flex flex-col gap-4">
-      <h2 className="font-semibold text-neutral-950 border-b border-neutral-100 pb-3">{title}</h2>
+    <div className="reveal bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors rounded-lg p-6 flex flex-col gap-4">
+      <h2 className="font-semibold text-white border-b border-neutral-800 pb-3">{title}</h2>
       {children}
     </div>
   )
