@@ -5,6 +5,7 @@ import { useTranslation } from '../hooks/useTranslation'
 import Layout from '../components/Layout'
 import { useRevealAll } from '../hooks/useReveal'
 import { ProgramChatbot } from '../components/ProgramChatbot'
+import { AdvocatePanel } from '../components/AdvocatePanel'
 
 const CATEGORY_LABELS = {
   food: 'Food', health: 'Health', housing: 'Housing',
@@ -19,6 +20,7 @@ function ProgramCard({ program, lang, onApply }) {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const [advocateOpen, setAdvocateOpen] = useState(false)
 
   return (
     <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden hover:-translate-y-0.5 hover:shadow-lg hover:border-neutral-600 transition-all duration-200">
@@ -90,22 +92,29 @@ function ProgramCard({ program, lang, onApply }) {
         )}
 
         {/* Action buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setChatOpen(!chatOpen)}
-            className="flex-1 py-3 rounded-md font-bold text-sm text-white bg-emerald-700 hover:bg-emerald-600 transition-all"
+            className="flex-1 py-3 rounded-md font-bold text-sm text-white bg-emerald-700 hover:bg-emerald-600 transition-all min-w-[120px]"
           >
             {chatOpen ? 'Close Chat' : 'Ask Questions'}
           </button>
           <button
+            onClick={() => setAdvocateOpen(true)}
+            className="flex-1 py-3 rounded-md font-bold text-sm bg-amber-600 hover:bg-amber-500 text-white transition-all hover:-translate-y-0.5 min-w-[120px]"
+          >
+            🤝 AI Advocate
+          </button>
+          <button
             onClick={() => onApply(program)}
-            className="flex-1 py-3 rounded-md font-bold text-sm text-neutral-950 bg-white hover:bg-neutral-100 transition-all hover:-translate-y-0.5 hover:shadow-md"
+            className="flex-1 py-3 rounded-md font-bold text-sm text-gray-900 bg-gray-100 hover:bg-gray-200 border border-gray-300 transition-all hover:-translate-y-0.5 min-w-[120px]"
           >
             {t('results_prefill')} →
           </button>
         </div>
       </div>
     </div>
+    {advocateOpen && <AdvocatePanel program={program} onClose={() => setAdvocateOpen(false)} />}
   )
 }
 
