@@ -110,8 +110,8 @@ export default function Results() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-          <p className="text-slate-600 mb-6 text-lg">{t('results_no_data')}</p>
-          <Link to="/intake" className="bg-neutral-950 text-white font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors">
+          <p className="text-neutral-600 mb-6 text-lg">{t('results_no_data')}</p>
+          <Link to="/intake" className="bg-neutral-950 text-white font-bold px-6 py-3 rounded-md hover:bg-neutral-800 transition-colors">
             {t('results_check_benefits')}
           </Link>
         </div>
@@ -126,8 +126,8 @@ export default function Results() {
           <div className="relative">
             <div className="w-20 h-20 rounded-full border-4 border-neutral-200 border-t-neutral-900 animate-spin" />
           </div>
-          <p className="text-slate-700 font-semibold text-xl">{t('results_loading')}</p>
-          <div className="flex flex-col gap-2 text-sm text-slate-500 max-w-xs">
+          <p className="text-neutral-700 font-semibold text-xl">{t('results_loading')}</p>
+          <div className="flex flex-col gap-2 text-sm text-neutral-500 max-w-xs">
             {[t('results_loading_snap'), t('results_loading_medicaid'), t('results_loading_housing'), t('results_loading_values')].map((msg, i) => (
               <div key={msg} className="flex items-center gap-2 animate-fade-in" style={{ animationDelay: `${i * 0.2}s` }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 inline-block flex-shrink-0 mt-1.5" />
@@ -160,7 +160,7 @@ export default function Results() {
       <div className="border-b border-neutral-200 bg-white py-16 px-6">
         <div className="max-w-screen-xl mx-auto px-6 lg:px-12 text-center">
           {name && <p className="text-neutral-500 text-sm font-medium mb-2">{t('results_for_name', { name })}</p>}
-          <h1 className="text-4xl font-black mb-3 text-slate-900">
+          <h1 className="text-4xl font-black mb-3 text-neutral-950">
             {results.length > 0
               ? t('results_headline', { count: results.length })
               : t('results_no_match')}
@@ -181,19 +181,19 @@ export default function Results() {
       {results.length > 0 && (
         <div className="bg-white border-b border-neutral-200 py-4 px-4 sticky top-16 z-20 shadow-sm">
           <div className="max-w-screen-xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-slate-600 text-sm">
+            <p className="text-neutral-600 text-sm">
               {t('results_count_label', { count: results.length })}
             </p>
             <div className="flex gap-3">
               <Link
                 to="/intake"
-                className="text-slate-500 hover:text-slate-700 text-sm font-medium px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
+                className="text-neutral-500 hover:text-neutral-700 text-sm font-medium px-4 py-2 rounded-md border border-neutral-200 hover:bg-neutral-50 transition-colors"
               >
                 {t('results_restart')}
               </Link>
               <button
                 onClick={handleSave}
-                className={`text-sm font-bold px-4 py-2 rounded-xl transition-all
+                className={`text-sm font-bold px-4 py-2 rounded-md transition-all
                   ${saved
                     ? 'bg-emerald-600 text-white'
                     : 'bg-neutral-950 hover:bg-neutral-800 text-white'
@@ -210,8 +210,8 @@ export default function Results() {
       <div className="max-w-screen-xl mx-auto px-6 lg:px-12 py-10">
         {results.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-500 text-lg mb-6">{t('results_none')}</p>
-            <Link to="/intake" className="bg-neutral-950 text-white font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 transition-colors">
+            <p className="text-neutral-500 text-lg mb-6">{t('results_none')}</p>
+            <Link to="/intake" className="bg-neutral-950 text-white font-bold px-6 py-3 rounded-md hover:bg-neutral-800 transition-colors">
               {t('results_restart')}
             </Link>
           </div>
@@ -227,7 +227,7 @@ export default function Results() {
               <p className="text-neutral-400 text-sm mb-4">{t('results_save_desc')}</p>
               <button
                 onClick={handleSave}
-                className="bg-white hover:bg-neutral-100 text-neutral-950 font-bold px-6 py-3 rounded-xl transition-colors"
+                className="bg-white hover:bg-neutral-100 text-neutral-950 font-bold px-6 py-3 rounded-md transition-colors"
               >
                 {saved ? t('results_saved') : t('results_save')}
               </button>

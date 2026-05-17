@@ -145,8 +145,8 @@ export default function Profile() {
           {/* Header */}
           <div className="reveal mb-8 flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 mb-1">{t('profile_title')}</h1>
-              <p className="text-slate-500 text-sm">
+              <h1 className="text-2xl font-bold text-neutral-950 mb-1">{t('profile_title')}</h1>
+              <p className="text-neutral-500 text-sm">
                 {t('profile_sub')}
               </p>
             </div>
@@ -154,13 +154,13 @@ export default function Profile() {
               {!confirmReset ? (
                 <button
                   onClick={() => setConfirmReset(true)}
-                  className="text-sm text-slate-400 hover:text-red-500 font-medium transition-colors"
+                  className="text-sm text-neutral-400 hover:text-red-500 font-medium transition-colors"
                 >
                   {t('profile_reset')}
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-600">{t('profile_clear_confirm')}</span>
+                  <span className="text-sm text-neutral-600">{t('profile_clear_confirm')}</span>
                   <button
                     onClick={resetProfile}
                     className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"
@@ -169,7 +169,7 @@ export default function Profile() {
                   </button>
                   <button
                     onClick={() => setConfirmReset(false)}
-                    className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
+                    className="text-sm text-neutral-400 hover:text-neutral-600 transition-colors"
                   >
                     {t('profile_cancel')}
                   </button>
@@ -180,12 +180,12 @@ export default function Profile() {
 
           {/* Summary card — only shown when data exists */}
           {hasData && (
-            <div className="reveal bg-slate-50 border border-slate-200 rounded-lg p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="reveal bg-neutral-50 border border-neutral-200 rounded-lg p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
                 {form.name && (
-                  <p className="font-semibold text-slate-900">{form.name}</p>
+                  <p className="font-semibold text-neutral-950">{form.name}</p>
                 )}
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600">
                   {form.state && <span>{form.state}</span>}
                   {form.householdSize && <span>{form.householdSize === 1 ? t('profile_person') : t('profile_people', { n: form.householdSize })}</span>}
                   {form.incomeRange && <span>{form.incomeRange}/mo</span>}
@@ -335,7 +335,7 @@ export default function Profile() {
 
             {/* Current benefits */}
             <Section title={t('profile_benefits_section')}>
-              <p className="text-sm text-slate-500 -mt-2">{t('profile_benefits_sub')}</p>
+              <p className="text-sm text-neutral-500 -mt-2">{t('profile_benefits_sub')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {CURRENT_BENEFITS_OPTIONS.map(({ value, label }) => {
                   const selected = (form.currentBenefits || []).includes(value)
@@ -372,8 +372,8 @@ export default function Profile() {
                   ${saved
                     ? 'bg-emerald-600 text-white'
                     : dirty
-                      ? 'bg-slate-900 hover:bg-slate-700 text-white'
-                      : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      ? 'bg-neutral-950 hover:bg-slate-700 text-white'
+                      : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
                   }`}
               >
                 {t(saved ? 'profile_saved' : 'profile_save')}
@@ -392,7 +392,7 @@ export default function Profile() {
               </button>
             </div>
             {(!form.state || !form.householdSize || !form.incomeRange) && (
-              <p className="text-xs text-slate-400 -mt-3">{t('profile_fill_hint')}</p>
+              <p className="text-xs text-neutral-400 -mt-3">{t('profile_fill_hint')}</p>
             )}
 
           </div>
@@ -406,8 +406,8 @@ const inputCls = 'w-full border border-neutral-300 focus:border-neutral-950 focu
 
 function Section({ title, children }) {
   return (
-    <div className="reveal bg-white border border-slate-200 hover:border-neutral-300 transition-colors rounded-lg p-6 flex flex-col gap-4">
-      <h2 className="font-semibold text-slate-900 border-b border-slate-100 pb-3">{title}</h2>
+    <div className="reveal bg-white border border-neutral-200 hover:border-neutral-300 transition-colors rounded-lg p-6 flex flex-col gap-4">
+      <h2 className="font-semibold text-neutral-950 border-b border-neutral-100 pb-3">{title}</h2>
       {children}
     </div>
   )
@@ -416,7 +416,7 @@ function Section({ title, children }) {
 function Field({ label, required, children }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+      <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
         {label}{required && <span className="text-red-400 ml-0.5"> *</span>}
       </label>
       {children}

@@ -36,7 +36,7 @@ export default function Apply() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-          <p className="text-slate-600 mb-4">{t('apply_not_found')}</p>
+          <p className="text-neutral-600 mb-4">{t('apply_not_found')}</p>
           <button onClick={() => navigate('/results')} className="text-neutral-600 font-medium hover:underline">
             {t('apply_back')}
           </button>
@@ -69,7 +69,7 @@ export default function Apply() {
           {/* Back */}
           <button
             onClick={() => navigate('/results')}
-            className="text-slate-500 hover:text-slate-700 font-medium text-sm mb-8 flex items-center gap-1 transition-colors"
+            className="text-neutral-500 hover:text-neutral-700 font-medium text-sm mb-8 flex items-center gap-1 transition-colors"
           >
             ← {t('apply_back')}
           </button>
@@ -80,8 +80,8 @@ export default function Apply() {
               {program.category[0].toUpperCase()}
             </span>
             <div>
-              <h1 className="text-3xl font-black text-slate-900">{t('apply_headline', { program: t(program.nameKey) })}</h1>
-              <p className="text-slate-500">{t(program.fullKey)}</p>
+              <h1 className="text-3xl font-black text-neutral-950">{t('apply_headline', { program: t(program.nameKey) })}</h1>
+              <p className="text-neutral-500">{t(program.fullKey)}</p>
             </div>
           </div>
 
@@ -154,7 +154,7 @@ export default function Apply() {
 
           {/* Waitlist warning */}
           {program.waitlist && (
-            <div className="reveal bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex gap-3">
+            <div className="reveal bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex gap-3">
               <span className="text-amber-500 flex-shrink-0 mt-0.5"><WarningIcon /></span>
               <div>
                 <p className="font-semibold text-amber-800 text-sm">{t('apply_waitlist_title')}</p>
@@ -184,7 +184,7 @@ export default function Apply() {
           </div>
 
           {/* Renewal info */}
-          <div className="mt-6 text-center text-xs text-slate-400">
+          <div className="mt-6 text-center text-xs text-neutral-400">
             {t('apply_renewal_info', { months: program.renewalMonths })}
           </div>
         </div>

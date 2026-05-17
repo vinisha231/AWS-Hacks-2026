@@ -77,7 +77,7 @@ export default function AuthPage() {
       {/* Nav */}
       <nav className="px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="font-bold text-xl text-slate-900">Compass</span>
+          <span className="font-bold text-xl text-neutral-950">Compass</span>
         </Link>
         <LanguagePicker />
       </nav>
@@ -85,13 +85,13 @@ export default function AuthPage() {
       {/* Card */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md animate-scale-in">
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-8">
+          <div className="bg-white rounded-md shadow-sm border border-neutral-200 p-8">
             {/* Header */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-black text-slate-900 mb-1">
+              <h1 className="text-2xl font-black text-neutral-950 mb-1">
                 {mode === 'login' ? t('auth_welcome') : t('auth_create')}
               </h1>
-              <p className="text-slate-500 text-sm">
+              <p className="text-neutral-500 text-sm">
                 {mode === 'login'
                   ? t('auth_signin_desc')
                   : t('auth_signup_desc')}
@@ -155,7 +155,7 @@ export default function AuthPage() {
               )}
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-start gap-2">
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md px-4 py-3 flex items-start gap-2">
                   <span className="flex-shrink-0 mt-0.5"><WarningIcon /></span>
                   <span>{error}</span>
                 </div>
@@ -173,9 +173,9 @@ export default function AuthPage() {
 
             {/* Divider */}
             <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200" /></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-neutral-200" /></div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-slate-400">{t('auth_or')}</span>
+                <span className="bg-white px-3 text-xs text-neutral-400">{t('auth_or')}</span>
               </div>
             </div>
 
@@ -187,7 +187,7 @@ export default function AuthPage() {
             </Link>
 
             {mode === 'signup' && (
-              <p className="text-center text-xs text-slate-400 mt-4 leading-relaxed">
+              <p className="text-center text-xs text-neutral-400 mt-4 leading-relaxed">
                 {t('auth_privacy')}
               </p>
             )}
@@ -203,7 +203,7 @@ function Field({ label, type, placeholder, value, onChange, icon, autoComplete }
   const isPassword = type === 'password'
   return (
     <div>
-      <label className="block text-xs font-semibold text-slate-600 mb-1.5 ml-1">{label}</label>
+      <label className="block text-xs font-semibold text-neutral-600 mb-1.5 ml-1">{label}</label>
       <div className="relative">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none flex items-center">
           {ICON_MAP[icon]}
@@ -221,7 +221,7 @@ function Field({ label, type, placeholder, value, onChange, icon, autoComplete }
           <button
             type="button"
             onClick={() => setShow(s => !s)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-medium"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-xs font-medium"
           >
             {show ? 'Hide' : 'Show'}
           </button>

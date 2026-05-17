@@ -9,7 +9,7 @@ import { useRevealAll } from '../hooks/useReveal'
 
 const STATUS_OPTIONS = ['not_started', 'in_progress', 'applied', 'approved', 'renewal_due']
 const STATUS_META = {
-  not_started: { bg: 'bg-slate-100',   text: 'text-slate-600',   border: 'border-slate-200', label: 'Not started',    icon: '—' },
+  not_started: { bg: 'bg-neutral-100',   text: 'text-neutral-600',   border: 'border-neutral-200', label: 'Not started',    icon: '—' },
   in_progress:  { bg: 'bg-neutral-100',  text: 'text-neutral-700', border: 'border-neutral-300', label: 'In progress',  icon: '○' },
   applied:      { bg: 'bg-neutral-800',  text: 'text-white',       border: 'border-neutral-800', label: 'Applied',      icon: '◉' },
   approved:     { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200',label: 'Approved ✓',   icon: '●' },
@@ -103,22 +103,22 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" />
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 animate-scale-in" onClick={e => e.stopPropagation()}>
+      <div className="absolute inset-0 bg-neutral-950/50 backdrop-blur-sm" />
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-8 animate-scale-in" onClick={e => e.stopPropagation()}>
         {!done ? (
           <>
             <div className="w-10 h-10 rounded-md bg-neutral-950 flex items-center justify-center text-white mb-3">
               <BellIcon />
             </div>
-            <h2 className="text-xl font-black text-slate-900 mb-1">Set Renewal Reminder</h2>
-            <p className="text-slate-500 text-sm mb-6">
+            <h2 className="text-xl font-black text-neutral-950 mb-1">Set Renewal Reminder</h2>
+            <p className="text-neutral-500 text-sm mb-6">
               We'll send you a reminder <strong>30 days before</strong> your renewal is due on{' '}
               <strong>{fmtDate(renewalDate.toISOString())}</strong> via Amazon SNS.
             </p>
 
             <div className="flex flex-col gap-4 mb-6">
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
                   <PhoneIcon /> SMS (phone number)
                 </label>
                 <input
@@ -130,7 +130,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
                   <EmailIcon /> Email address
                 </label>
                 <input
@@ -143,7 +143,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 mb-5">Powered by Amazon SNS. Enter at least one contact method.</p>
+            <p className="text-xs text-neutral-400 mb-5">Powered by Amazon SNS. Enter at least one contact method.</p>
 
             <div className="flex gap-3">
               <button
@@ -154,7 +154,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
                 {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                 {loading ? 'Scheduling...' : 'Schedule Reminder'}
               </button>
-              <button onClick={onClose} className="px-5 py-3 rounded-2xl border-2 border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors">
+              <button onClick={onClose} className="px-5 py-3 rounded-lg border-2 border-neutral-200 text-neutral-600 font-semibold hover:bg-neutral-50 transition-colors">
                 Cancel
               </button>
             </div>
@@ -164,13 +164,13 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
             <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4 text-emerald-600">
               <CheckIcon />
             </div>
-            <h2 className="text-xl font-black text-slate-900 mb-2">Reminder Scheduled!</h2>
-            <p className="text-slate-500 text-sm mb-2">
+            <h2 className="text-xl font-black text-neutral-950 mb-2">Reminder Scheduled!</h2>
+            <p className="text-neutral-500 text-sm mb-2">
               You'll be notified 30 days before your renewal date:
             </p>
             <p className="font-bold text-neutral-950 mb-4">{fmtDate(renewalDate.toISOString())}</p>
             {demo && (
-              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 mb-4">
+              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-4 py-2 mb-4">
                 Demo mode — connect VITE_SNS_ENDPOINT to send real SNS notifications.
               </p>
             )}
@@ -186,7 +186,7 @@ function ReminderModal({ program, renewalDate, onClose, onScheduled }) {
 
 // ── History timeline ─────────────────────────────────────────────────────────
 function HistoryTimeline({ history, t }) {
-  if (!history?.length) return <p className="text-xs text-slate-400 italic">{t ? t('tracker_no_history') : 'No history yet.'}</p>
+  if (!history?.length) return <p className="text-xs text-neutral-400 italic">{t ? t('tracker_no_history') : 'No history yet.'}</p>
 
   return (
     <div className="flex flex-col gap-0">
@@ -199,12 +199,12 @@ function HistoryTimeline({ history, t }) {
               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 ${meta.bg} ${meta.text} ${meta.border} flex-shrink-0`}>
                 {meta.icon}
               </span>
-              {!isLast && <div className="w-0.5 h-4 bg-slate-200 my-0.5" />}
+              {!isLast && <div className="w-0.5 h-4 bg-neutral-200 my-0.5" />}
             </div>
             <div className="pb-3">
               <p className={`text-xs font-bold ${meta.text}`}>{meta.label}</p>
-              <p className="text-xs text-slate-400">{fmtDate(entry.timestamp)} · {fmtTime(entry.timestamp)}</p>
-              {entry.note && <p className="text-xs text-slate-500 mt-0.5 italic">{entry.note}</p>}
+              <p className="text-xs text-neutral-400">{fmtDate(entry.timestamp)} · {fmtTime(entry.timestamp)}</p>
+              {entry.note && <p className="text-xs text-neutral-500 mt-0.5 italic">{entry.note}</p>}
             </div>
           </div>
         )
@@ -231,7 +231,7 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
 
   return (
     <>
-      <div className="reveal bg-white border border-slate-200 rounded-2xl overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
+      <div className="reveal bg-white border border-neutral-200 rounded-lg overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
         {/* Urgency bar */}
         {urgent  && <div className="h-1 bg-red-500 w-full" />}
         {warning && <div className="h-1 bg-amber-400 w-full" />}
@@ -245,8 +245,8 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
                 <div>
-                  <h3 className="font-bold text-slate-900">{t(program.nameKey)}</h3>
-                  <p className="text-slate-500 text-xs">{t(program.fullKey)}</p>
+                  <h3 className="font-bold text-neutral-950">{t(program.nameKey)}</h3>
+                  <p className="text-neutral-500 text-xs">{t(program.fullKey)}</p>
                 </div>
                 <span className={`text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 ${meta.bg} ${meta.text}`}>
                   {meta.label}
@@ -255,17 +255,17 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
 
               {/* Renewal alerts */}
               {urgent && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-3 py-2 mb-3 flex items-center gap-2 font-medium">
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-md px-3 py-2 mb-3 flex items-center gap-2 font-medium">
                   <AlertIcon /> {daysLeft <= 0 ? t('tracker_urgent_now') : t('tracker_urgent_days', { days: daysLeft })} — {fmtDate(renewal.toISOString())}
                 </div>
               )}
               {warning && (
-                <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-3 py-2 mb-3 flex items-center gap-2 font-medium">
+                <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-md px-3 py-2 mb-3 flex items-center gap-2 font-medium">
                   <ClockIcon /> {t('tracker_warning_days', { days: daysLeft })} — {fmtDate(renewal.toISOString())}
                 </div>
               )}
               {renewal && daysLeft !== null && daysLeft > 60 && (
-                <p className="text-xs text-slate-400 mb-3">
+                <p className="text-xs text-neutral-400 mb-3">
                   {t('tracker_next_renewal', { date: fmtDate(renewal.toISOString()), days: daysLeft })}
                 </p>
               )}
@@ -307,7 +307,7 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
                 {/* History toggle */}
                 <button
                   onClick={() => setShowHistory(s => !s)}
-                  className="text-xs text-slate-400 hover:text-slate-600 transition-colors ml-auto flex items-center gap-1"
+                  className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors ml-auto flex items-center gap-1"
                 >
                   {showHistory ? '▲' : '▼'} {t('tracker_history_label', { count: entry.history?.length || 0 })}
                 </button>
@@ -315,7 +315,7 @@ function ProgramCard({ program, entry, onStatusChange, onReminderScheduled, t })
 
               {/* History */}
               {showHistory && (
-                <div className="mt-4 pl-2 border-l-2 border-slate-100 animate-fade-in">
+                <div className="mt-4 pl-2 border-l-2 border-neutral-100 animate-fade-in">
                   <HistoryTimeline history={entry.history} t={t} />
                 </div>
               )}
@@ -349,7 +349,7 @@ function FullHistory({ tracker, t }) {
   allEvents.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 
   if (!allEvents.length) return (
-    <div className="text-center py-12 text-slate-400 text-sm">{t ? t('tracker_no_activity') : 'No activity yet.'}</div>
+    <div className="text-center py-12 text-neutral-400 text-sm">{t ? t('tracker_no_activity') : 'No activity yet.'}</div>
   )
 
   // Group by date
@@ -364,24 +364,24 @@ function FullHistory({ tracker, t }) {
     <div className="flex flex-col gap-6">
       {Object.entries(grouped).map(([day, events]) => (
         <div key={day}>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">{day}</p>
+          <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3">{day}</p>
           <div className="flex flex-col gap-2">
             {events.map((e, i) => {
               const meta = STATUS_META[e.status] || STATUS_META.not_started
               return (
-                <div key={i} className="bg-white border border-slate-200 rounded-2xl px-5 py-4 flex items-center gap-4">
+                <div key={i} className="bg-white border border-neutral-200 rounded-lg px-5 py-4 flex items-center gap-4">
                   <span className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-600 flex-shrink-0">
                     {e.program.category[0].toUpperCase()}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-900 text-sm">{e.program.id.toUpperCase()}</p>
-                    <p className="text-slate-500 text-xs">{e.note || (t ? t('tracker_status_updated') : 'Status updated')}</p>
+                    <p className="font-semibold text-neutral-950 text-sm">{e.program.id.toUpperCase()}</p>
+                    <p className="text-neutral-500 text-xs">{e.note || (t ? t('tracker_status_updated') : 'Status updated')}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${meta.bg} ${meta.text}`}>
                       {meta.label}
                     </span>
-                    <p className="text-xs text-slate-400 mt-1">{fmtTime(e.timestamp)}</p>
+                    <p className="text-xs text-neutral-400 mt-1">{fmtTime(e.timestamp)}</p>
                   </div>
                 </div>
               )
@@ -432,8 +432,8 @@ export default function Tracker() {
         {/* Header */}
         <div className="reveal mb-8 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 mb-1">{t('tracker_headline')}</h1>
-            <p className="text-slate-500">{t('tracker_sub')}</p>
+            <h1 className="text-3xl font-black text-neutral-950 mb-1">{t('tracker_headline')}</h1>
+            <p className="text-neutral-500">{t('tracker_sub')}</p>
           </div>
           <Link to="/intake" className="bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-sm px-5 py-2.5 rounded-md transition-colors">
             {t('tracker_find_more')}
@@ -450,7 +450,7 @@ export default function Tracker() {
               <StatCard
                 label={t('tracker_stat_alerts')}
                 value={renewalAlerts}
-                color={renewalAlerts > 0 ? 'text-amber-600' : 'text-slate-400'}
+                color={renewalAlerts > 0 ? 'text-amber-600' : 'text-neutral-400'}
                 highlight={renewalAlerts > 0}
               />
             </div>
@@ -476,9 +476,9 @@ export default function Tracker() {
 
         {/* Empty state */}
         {trackedPrograms.length === 0 && (
-          <div className="reveal bg-white border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
-            <h3 className="font-bold text-slate-900 text-lg mb-2">{t('tracker_empty')}</h3>
-            <p className="text-slate-500 mb-6">{t('tracker_empty_sub')}</p>
+          <div className="reveal bg-white border-2 border-dashed border-neutral-200 rounded-lg p-12 text-center">
+            <h3 className="font-bold text-neutral-950 text-lg mb-2">{t('tracker_empty')}</h3>
+            <p className="text-neutral-500 mb-6">{t('tracker_empty_sub')}</p>
             <Link to="/intake" className="bg-neutral-950 hover:bg-neutral-800 text-white font-semibold px-5 py-2.5 rounded-md transition-colors inline-block">
               {t('tracker_find')}
             </Link>
@@ -501,16 +501,16 @@ export default function Tracker() {
 
             <div className="text-center pt-2">
               {!showConfirmClear ? (
-                <button onClick={() => setShowConfirmClear(true)} className="text-slate-400 hover:text-slate-600 text-sm transition-colors">
+                <button onClick={() => setShowConfirmClear(true)} className="text-neutral-400 hover:text-neutral-600 text-sm transition-colors">
                   {t('tracker_clear')}
                 </button>
               ) : (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-center gap-4 flex-wrap">
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 flex items-center justify-center gap-4 flex-wrap">
                   <p className="text-red-700 text-sm font-medium">{t('tracker_clear_confirm')}</p>
                   <button onClick={() => { clearTracker(); setShowConfirmClear(false) }} className="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors">
                     {t('tracker_clear_yes')}
                   </button>
-                  <button onClick={() => setShowConfirmClear(false)} className="text-slate-500 text-xs font-medium">{t('tracker_cancel')}</button>
+                  <button onClick={() => setShowConfirmClear(false)} className="text-neutral-500 text-xs font-medium">{t('tracker_cancel')}</button>
                 </div>
               )}
             </div>
@@ -526,9 +526,9 @@ export default function Tracker() {
 
 function StatCard({ label, value, color, highlight }) {
   return (
-    <div className={`bg-white border rounded-xl p-5 text-center hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ${highlight ? 'border-amber-300' : 'border-slate-200'}`}>
+    <div className={`bg-white border rounded-md p-5 text-center hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ${highlight ? 'border-amber-300' : 'border-neutral-200'}`}>
       <div className={`text-3xl font-black ${color}`}>{value}</div>
-      <div className="text-xs text-slate-500 mt-1.5 font-medium">{label}</div>
+      <div className="text-xs text-neutral-500 mt-1.5 font-medium">{label}</div>
     </div>
   )
 }

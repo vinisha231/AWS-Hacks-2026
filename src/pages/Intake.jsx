@@ -28,7 +28,7 @@ function CompassIcon() {
 
 function ProgressBar({ step, total }) {
   return (
-    <div className="w-full bg-slate-200 rounded-full h-1.5">
+    <div className="w-full bg-neutral-200 rounded-full h-1.5">
       <div
         className="bg-neutral-950 h-1.5 rounded-full transition-all duration-500"
         style={{ width: `${((step) / total) * 100}%` }}
@@ -113,15 +113,15 @@ export default function Intake() {
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
+      <div className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-4">
         <div className="max-w-xl mx-auto flex items-center justify-between gap-4">
           <button onClick={() => navigate('/')} className="flex items-center gap-2 text-neutral-700 hover:text-neutral-950 transition-colors">
             <CompassIcon />
-            <span className="font-bold text-slate-900">Compass</span>
+            <span className="font-bold text-neutral-950">Compass</span>
           </button>
           <div className="flex-1 max-w-48">
             <ProgressBar step={step} total={TOTAL} />
-            <p className="text-xs text-slate-400 mt-1 text-right">
+            <p className="text-xs text-neutral-400 mt-1 text-right">
               {t('intake_progress', { current: step, total: TOTAL })}
             </p>
           </div>
@@ -137,7 +137,7 @@ export default function Intake() {
           <div className="flex items-center justify-between mt-10">
             <button
               onClick={back}
-              className="text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors"
+              className="text-neutral-500 hover:text-neutral-700 font-medium text-sm transition-colors"
             >
               {t('intake_back')}
             </button>
@@ -163,8 +163,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 1) return (
     <div>
       <StepLabel num={1} />
-      <h2 className="text-3xl font-black text-slate-900 mb-2">{t('step1_q')}</h2>
-      <p className="text-slate-500 mb-8">{t('step1_hint')}</p>
+      <h2 className="text-3xl font-black text-neutral-950 mb-2">{t('step1_q')}</h2>
+      <p className="text-neutral-500 mb-8">{t('step1_hint')}</p>
       <select
         value={answers.state || ''}
         onChange={e => set('state', e.target.value)}
@@ -179,8 +179,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 2) return (
     <div>
       <StepLabel num={2} />
-      <h2 className="text-3xl font-black text-slate-900 mb-2">{t('step2_q')}</h2>
-      <p className="text-slate-500 mb-8">{t('step2_hint')}</p>
+      <h2 className="text-3xl font-black text-neutral-950 mb-2">{t('step2_q')}</h2>
+      <p className="text-neutral-500 mb-8">{t('step2_hint')}</p>
       <div className="grid grid-cols-4 gap-3">
         {[1,2,3,4,5,6,7,8].map(n => (
           <button
@@ -202,8 +202,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 3) return (
     <div>
       <StepLabel num={3} />
-      <h2 className="text-3xl font-black text-slate-900 mb-2">{t('step3_q')}</h2>
-      <p className="text-slate-500 mb-8">{t('step3_hint')}</p>
+      <h2 className="text-3xl font-black text-neutral-950 mb-2">{t('step3_q')}</h2>
+      <p className="text-neutral-500 mb-8">{t('step3_hint')}</p>
       <div className="flex flex-col gap-2">
         {['step3_opt1','step3_opt2','step3_opt3','step3_opt4','step3_opt5','step3_opt6','step3_opt7','step3_opt8'].map(key => {
           const label = t(key)
@@ -228,8 +228,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 4) return (
     <div>
       <StepLabel num={4} />
-      <h2 className="text-3xl font-black text-slate-900 mb-2">{t('step4_q')}</h2>
-      <p className="text-slate-500 mb-8">{t('step4_hint')}</p>
+      <h2 className="text-3xl font-black text-neutral-950 mb-2">{t('step4_q')}</h2>
+      <p className="text-neutral-500 mb-8">{t('step4_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
           ['pregnant', t('step4_pregnant'), '🤱'],
@@ -269,8 +269,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 5) return (
     <div>
       <StepLabel num={5} />
-      <h2 className="text-3xl font-black text-slate-900 mb-2">{t('step5_q')}</h2>
-      <p className="text-slate-500 mb-8">{t('step5_hint')}</p>
+      <h2 className="text-3xl font-black text-neutral-950 mb-2">{t('step5_q')}</h2>
+      <p className="text-neutral-500 mb-8">{t('step5_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
           ['snap',     t('step5_snap'),     '🛒'],
@@ -307,8 +307,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 6) return (
     <div>
       <StepLabel num={6} />
-      <h2 className="text-3xl font-black text-slate-900 mb-2">{t('step6_q')}</h2>
-      <p className="text-slate-500 mb-8">{t('step6_hint')}</p>
+      <h2 className="text-3xl font-black text-neutral-950 mb-2">{t('step6_q')}</h2>
+      <p className="text-neutral-500 mb-8">{t('step6_hint')}</p>
       <input
         type="text"
         placeholder={t('step6_placeholder')}
@@ -316,7 +316,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
         onChange={e => set('name', e.target.value)}
         className="w-full border border-neutral-300 focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950 rounded-md px-5 py-4 text-neutral-950 text-base bg-white outline-none transition-colors font-medium"
       />
-      <p className="text-slate-400 text-sm mt-3">
+      <p className="text-neutral-400 text-sm mt-3">
         You're almost there! Click "{t('intake_submit')}" to see your results.
       </p>
     </div>
@@ -327,7 +327,7 @@ function StepLabel({ num }) {
   return (
     <div className="flex items-center gap-2 mb-4">
       <span className="w-7 h-7 rounded-full bg-neutral-950 text-white text-xs font-bold flex items-center justify-center">{num}</span>
-      <span className="text-xs text-slate-400 font-semibold uppercase tracking-widest">Question {num}</span>
+      <span className="text-xs text-neutral-400 font-semibold uppercase tracking-widest">Question {num}</span>
     </div>
   )
 }
