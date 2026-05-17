@@ -173,7 +173,7 @@ export default function Settings() {
                     onClick={() => set('language', lang.code)}
                     className={`flex items-center gap-2 px-3 py-2.5 rounded-md border text-sm font-medium transition-all text-left
                       ${prefs.language === lang.code
-                        ? 'bg-white border-white text-neutral-950'
+                        ? 'bg-emerald-600 border-emerald-600 text-white'
                         : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                       }`}
                   >
@@ -231,7 +231,7 @@ export default function Settings() {
                   ${saved
                     ? 'bg-emerald-600 text-white'
                     : dirty
-                      ? 'bg-white hover:bg-neutral-100 text-neutral-950 hover:-translate-y-0.5'
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white hover:-translate-y-0.5'
                       : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                   }`}
               >
@@ -254,7 +254,7 @@ export default function Settings() {
                     <button
                       type="button"
                       onClick={changePassword}
-                      className="self-start bg-white hover:bg-neutral-100 text-neutral-950 font-semibold text-sm px-5 py-2.5 rounded-md transition-colors"
+                      className="self-start bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-5 py-2.5 rounded-md transition-colors"
                     >
                       Update Password
                     </button>
@@ -331,7 +331,7 @@ function Toggle({ label, description, checked, onChange }) {
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className={`relative mt-0.5 w-11 h-6 rounded-full transition-colors flex-shrink-0 ${checked ? 'bg-white' : 'bg-neutral-700'}`}
+        className={`relative mt-0.5 w-11 h-6 rounded-full transition-colors flex-shrink-0 ${checked ? 'bg-emerald-600' : 'bg-neutral-700'}`}
       >
         <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full shadow transition-all ${checked ? 'translate-x-5 bg-neutral-950' : 'translate-x-0 bg-white'}`} />
       </button>

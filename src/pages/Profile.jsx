@@ -193,7 +193,7 @@ export default function Profile() {
               </div>
               <button
                 onClick={checkEligibility}
-                className="bg-white hover:bg-neutral-100 text-neutral-950 text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap"
               >
                 {t('profile_recheck')}
               </button>
@@ -256,7 +256,7 @@ export default function Profile() {
                       onClick={() => update('householdSize', n)}
                       className={`py-2 rounded-lg border-2 font-bold text-sm transition-all
                         ${form.householdSize === n
-                          ? 'bg-white border-white text-neutral-950'
+                          ? 'bg-emerald-600 border-emerald-600 text-white'
                           : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                         }`}
                     >
@@ -276,7 +276,7 @@ export default function Profile() {
                         onClick={() => toggleList('situation', value)}
                         className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-between gap-2
                           ${selected
-                            ? 'bg-white border-white text-neutral-950'
+                            ? 'bg-emerald-600 border-emerald-600 text-white'
                             : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                           }`}
                       >
@@ -304,7 +304,7 @@ export default function Profile() {
                       onClick={() => update('incomeRange', opt)}
                       className={`w-full text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all
                         ${form.incomeRange === opt
-                          ? 'bg-white border-white text-neutral-950'
+                          ? 'bg-emerald-600 border-emerald-600 text-white'
                           : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                         }`}
                     >
@@ -322,7 +322,7 @@ export default function Profile() {
                       onClick={() => update('employmentStatus', value)}
                       className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all
                         ${form.employmentStatus === value
-                          ? 'bg-white border-white text-neutral-950'
+                          ? 'bg-emerald-600 border-emerald-600 text-white'
                           : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                         }`}
                     >
@@ -347,7 +347,7 @@ export default function Profile() {
                       className={`text-left px-4 py-2.5 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-between gap-2
                         ${selected
                           ? 'bg-neutral-950 border-neutral-950 text-white'
-                          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+                          : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
                         }`}
                     >
                       <span>{label}</span>
@@ -372,7 +372,7 @@ export default function Profile() {
                   ${saved
                     ? 'bg-emerald-600 text-white'
                     : dirty
-                      ? 'bg-white hover:bg-neutral-100 text-neutral-950'
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                       : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                   }`}
               >
@@ -384,7 +384,7 @@ export default function Profile() {
                 disabled={!form.state || !form.householdSize || !form.incomeRange}
                 className={`w-full sm:w-auto px-8 py-3 rounded-lg font-semibold text-sm transition-all
                   ${(form.state && form.householdSize && form.incomeRange)
-                    ? 'bg-white hover:bg-neutral-100 text-neutral-950'
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                     : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                   }`}
               >
