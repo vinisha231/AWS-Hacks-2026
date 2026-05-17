@@ -15,18 +15,18 @@ const Settings = lazy(() => import('./pages/Settings'))
 
 function Spinner() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <span className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <span className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-950 rounded-full animate-spin" />
     </div>
   )
 }
 
 function TranslatingBanner() {
-  const { loading, lang } = useDynamicTranslations()
+  const { loading } = useDynamicTranslations()
   if (!loading) return null
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
-      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+    <div className="fixed bottom-4 right-4 z-50 bg-neutral-950 text-white text-sm px-4 py-2.5 rounded-md shadow-lg flex items-center gap-2">
+      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       Translating via Amazon Translate…
     </div>
   )
