@@ -149,6 +149,52 @@ Resources:
             Path: /application/status
             Method: get
 
+  # Lambda: Chatbot
+  ChatbotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: chatbot.handler.lambda_handler
+      Timeout: 60
+      Policies:
+        - AmazonBedrockFullAccess
+        - TranslateReadOnly
+      Events:
+        ChatbotPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CompassApi
+            Path: /chatbot
+            Method: post
+        ChatbotOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CompassApi
+            Path: /chatbot
+            Method: options
+
+  # Lambda: Advocate
+  AdvocateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.advocate.handler.lambda_handler
+      Timeout: 60
+      Policies:
+        - AmazonBedrockFullAccess
+        - TranslateReadOnly
+      Events:
+        AdvocatePost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CompassApi
+            Path: /advocate
+            Method: post
+        AdvocateOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CompassApi
+            Path: /advocate
+            Method: options
+
   # Lambda: SMS Fallback
   SmsFunction:
     Type: AWS::Serverless::Function

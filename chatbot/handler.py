@@ -12,7 +12,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.bedrock import invoke, invoke_json
-from utils.response import api_response
+from utils.response import ok as _ok, error as _err
+
+def api_response(status, body):
+    return _ok(body, status) if status < 400 else _err(body.get('error', str(body)), status)
 
 # Load programs database
 PROGRAMS_PATH = Path(__file__).parent.parent / "data" / "programs_db.json"
