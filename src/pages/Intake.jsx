@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/store'
 import { useTranslation } from '../hooks/useTranslation'
 import { PROGRAMS, INCOME_BRACKETS } from '../data/programs'
+import { prioritize } from '../services/prioritization'
 import { fetchBedrockEligibility } from '../services/bedrockEligibility'
 import LanguagePicker from '../components/LanguagePicker'
 
@@ -134,7 +135,7 @@ export default function Intake() {
   const submit = async () => {
     setSubmitting(true)
     const a = localAnswers
-    const monthlyIncome = INCOME_BRACKETS[a.incomeRange] || 2500
+    const monthlyIncome = INCOME_BRACKETS[a.incomeRange] ?? null
     const payload = {
       ...a,
       monthlyIncome,
@@ -159,19 +160,26 @@ export default function Intake() {
     try {
       const data = await fetchBedrockEligibility(payload)
       programs = data.programs
-      setEligibilityMeta({
+      const apiMeta = {
         isUrgent:        data.isUrgent,
         snapFallback:    data.snapFallback,
         urgentResources: data.urgentResources,
         nonprofits:      data.nonprofits,
-      })
+      }
+      // prioritize using Bedrock-provided metadata
+      const prioritized = prioritize(programs, payload, apiMeta)
+      setEligibilityMeta({ ...apiMeta, fallback: prioritized.fallback, highRisk: prioritized.highRisk })
+      programs = prioritized.programs
     } catch (err) {
       console.warn('Bedrock API unavailable, using static programs:', err)
       programs = PROGRAMS.filter(p => p.check(payload)).map(p => {
         const est = p.estimatedAnnual(payload.householdSize || 1, monthlyIncome, payload)
         return { ...p, estimatedAnnual: est }
       }).sort((a, b) => b.estimatedAnnual - a.estimatedAnnual)
-      setEligibilityMeta(null)
+      // prioritize static results
+      const prioritized = prioritize(programs, payload, {})
+      setEligibilityMeta({ isUrgent: false, snapFallback: false, nonprofits: [], fallback: prioritized.fallback, highRisk: prioritized.highRisk })
+      programs = prioritized.programs
     }
 
     setResults(programs)

@@ -7,6 +7,12 @@ export function getFPL(size) {
   return FPL[8] + (size - 8) * 5380
 }
 
+export function getAnnualIncome(a) {
+  return typeof a.monthlyIncome === 'number' && !Number.isNaN(a.monthlyIncome)
+    ? a.monthlyIncome * 12
+    : null
+}
+
 export const INCOME_BRACKETS = {
   'Under $1,000':       500,
   '$1,000 – $1,500':   1250,
@@ -15,7 +21,7 @@ export const INCOME_BRACKETS = {
   '$2,500 – $3,500':   3000,
   '$3,500 – $5,000':   4250,
   'Over $5,000':        6000,
-  'I prefer not to say': 2500,
+  'I prefer not to say': null,
 }
 
 // Helper: check if household has children of certain age groups
@@ -61,16 +67,20 @@ export const PROGRAMS = [
       const monthly = Math.min(1756, 281 + (size - 1) * 155)
       return Math.round(monthly * 12 / 100) * 100
     },
+    timeToBenefit: '~30 days (expedited available)',
+    difficulty: 'Low',
     renewalMonths: 12,
     applicationUrl: 'https://www.fns.usda.gov/snap/state-directory',
     documents: ['Government-issued ID', 'Proof of income (pay stubs or tax return)', 'Proof of residence (lease or utility bill)', 'Social Security numbers for all household members'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       if (onSNAP(a)) return false
       if (!isCitizenEligible(a)) return false
       // Students 18-49 enrolled full-time are generally ineligible unless working 20+ hrs
       if (isStudent(a) && !isEmployed(a)) return false
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.30
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
   {
@@ -85,15 +95,19 @@ export const PROGRAMS = [
     bgColor: '#fffbeb',
     borderColor: '#fde68a',
     estimatedAnnual: () => 1800,
+    timeToBenefit: '2–6 weeks',
+    difficulty: 'Low',
     renewalMonths: 6,
     applicationUrl: 'https://www.fns.usda.gov/wic/wic-how-apply',
     documents: ['ID for each applicant', 'Proof of income', 'Proof of residence', 'Proof of pregnancy or child\'s birth certificate'],
     check: (a) => {
       // WIC: pregnant, postpartum, breastfeeding women, or children under 5
+      const annualIncome = getAnnualIncome(a)
       const qualifies = hasPregnant(a) || hasInfant(a) || hasToddler(a)
       if (!qualifies) return false
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.85
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
   {
@@ -112,9 +126,11 @@ export const PROGRAMS = [
     applicationUrl: 'https://www.fns.usda.gov/nslp',
     documents: ['Completed school meal application', 'Proof of income or SNAP/Medicaid enrollment letter'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       if (!hasChild18(a)) return false
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.85
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
 
@@ -131,16 +147,20 @@ export const PROGRAMS = [
     bgColor: '#eff6ff',
     borderColor: '#bfdbfe',
     estimatedAnnual: () => 8400,
+    timeToBenefit: '2–8 weeks',
+    difficulty: 'Medium',
     renewalMonths: 12,
     applicationUrl: 'https://www.healthcare.gov/medicaid-chip/getting-medicaid-chip/',
     documents: ['Government-issued ID', 'Proof of income', 'Proof of citizenship or immigration status', 'Social Security number'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       if (onMedicaid(a)) return false
       if (!isCitizenEligible(a)) return false
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.38
       // Pregnant women qualify up to 200% FPL in most states
       const limit = hasPregnant(a) ? getFPL(a.householdSize) * 2.0 : fplLimit
-      return (a.monthlyIncome * 12) <= limit
+      return annualIncome <= limit
     },
   },
   {
@@ -159,10 +179,11 @@ export const PROGRAMS = [
     applicationUrl: 'https://www.insurekidsnow.gov/coverage/index.html',
     documents: ['Child\'s birth certificate', 'Proof of income', 'Proof of residence', 'Social Security numbers'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       // CHIP: children under 19, income 138%-300% FPL (above Medicaid, below CHIP limit)
       if (onMedicaid(a)) return false
       if (!hasMinor(a)) return false
-      const annualIncome = a.monthlyIncome * 12
+      if (annualIncome === null) return false
       const fpl = getFPL(a.householdSize)
       // Medicaid covers up to 138% FPL; CHIP picks up from there to ~300%
       return annualIncome <= fpl * 3.0
@@ -184,10 +205,11 @@ export const PROGRAMS = [
     applicationUrl: 'https://www.healthcare.gov/apply-and-enroll/how-to-apply/',
     documents: ['Social Security numbers', 'Proof of income', 'Employer health plan information (if offered)'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       if (onMedicaid(a) || onMedicare(a)) return false
       if (a.healthCoverage === 'employer' || a.healthCoverage === 'marketplace') return false
       if (!isCitizenEligible(a)) return false
-      const annualIncome = a.monthlyIncome * 12
+      if (annualIncome === null) return false
       const fpl = getFPL(a.householdSize)
       // ACA subsidies: 100%–400% FPL (enhanced subsidies extend higher)
       return annualIncome >= fpl * 1.0 && annualIncome <= fpl * 4.0
@@ -209,11 +231,13 @@ export const PROGRAMS = [
     applicationUrl: 'https://www.medicare.gov/your-medicare-costs/get-help-paying-costs/medicare-savings-programs',
     documents: ['Medicare card', 'Proof of income', 'Bank statements', 'Social Security number'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       if (!hasSenior(a)) return false
       if (!isCitizenEligible(a)) return false
+      if (annualIncome === null) return false
       // Medicare Savings Programs: income up to 135% FPL
       const fplLimit = getFPL(a.householdSize) * 1.35
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
 
@@ -240,9 +264,10 @@ export const PROGRAMS = [
     applicationUrl: 'https://www.irs.gov/credits-deductions/individuals/earned-income-tax-credit/claim-eitc',
     documents: ['W-2 forms or 1099s', 'Social Security numbers for you and children', 'Bank account info for direct deposit'],
     check: (a) => {
+      const annual = getAnnualIncome(a)
       if (!isEmployed(a)) return false
       if (!isCitizenEligible(a)) return false
-      const annual = a.monthlyIncome * 12
+      if (annual === null) return false
       const hasKids = hasMinor(a)
       // 2024 EITC income limits
       if (!hasKids && annual <= 18591) return true
@@ -262,16 +287,20 @@ export const PROGRAMS = [
     bgColor: '#eef2ff',
     borderColor: '#c7d2fe',
     estimatedAnnual: () => 10572,
+    timeToBenefit: '4–12 weeks (medical review)',
+    difficulty: 'High',
     renewalMonths: 12,
     applicationUrl: 'https://www.ssa.gov/ssi/apply.htm',
     documents: ['Birth certificate or proof of age', 'Social Security card', 'Proof of citizenship', 'Bank statements', 'Medical records (for disability)'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       if (onSSI(a)) return false
       if (!isCitizenEligible(a)) return false
       const qualifies = hasSenior(a) || hasDisabled(a)
       if (!qualifies) return false
+      if (annualIncome === null) return false
       // SSI income limit: $1,971/month (2024)
-      return a.monthlyIncome <= 1971
+      return annualIncome <= 1971 * 12
     },
   },
   {
@@ -290,12 +319,36 @@ export const PROGRAMS = [
     applicationUrl: 'https://www.acf.hhs.gov/ofa/map/about-tanf',
     documents: ['ID for all adults', 'Birth certificates for children', 'Proof of income', 'Proof of residence', 'Social Security numbers'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
       // TANF: families with children, not employed, very low income
       if (!hasMinor(a)) return false
       if (isEmployed(a)) return false
       if (!isCitizenEligible(a)) return false
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 0.60
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
+    },
+  },
+  {
+    id: 'unemployment',
+    nameKey: 'prog_unemployment_name',
+    fullKey: 'prog_unemployment_full',
+    descKey: 'prog_unemployment_desc',
+    whyKey:  'prog_unemployment_why',
+    category: 'financial',
+    icon: '📄',
+    color: '#0ea5a4',
+    bgColor: '#ecfeff',
+    borderColor: '#bbf7d0',
+    estimatedAnnual: () => 6000,
+    timeToBenefit: '2–6 weeks',
+    difficulty: 'Medium',
+    renewalMonths: 12,
+    applicationUrl: 'https://www.careeronestop.org/LocalHelp/UnemploymentBenefits/unemployment-benefits-find-help.aspx',
+    documents: ['ID, recent pay stubs, employer information, reason for job separation'],
+    check: (a) => {
+      // Basic signal: recently unemployed or unemployed
+      return isUnemployed(a)
     },
   },
   {
@@ -320,7 +373,8 @@ export const PROGRAMS = [
       // Child Tax Credit: children under 17, income < $400k (single), effectively everyone with kids
       if (!hasMinor(a)) return false
       // Must have some earned income or file taxes
-      const annual = a.monthlyIncome * 12
+      const annual = getAnnualIncome(a)
+      if (annual === null) return false
       return annual <= 200000 // single/HOH phase-out
     },
   },
@@ -336,12 +390,16 @@ export const PROGRAMS = [
     bgColor: '#f9fafb',
     borderColor: '#e5e7eb',
     estimatedAnnual: () => 300,
+    timeToBenefit: 'Same week (seasonal)',
+    difficulty: 'Low',
     renewalMonths: 12,
     applicationUrl: 'https://www.irs.gov/individuals/free-tax-return-preparation-for-qualifying-taxpayers',
     documents: ['Government-issued ID', 'Social Security cards for all household members', 'All income documents (W-2, 1099)', 'Bank account info'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       // VITA: free tax prep for income < $67,000
-      return (a.monthlyIncome * 12) <= 67000
+      return annualIncome <= 67000
     },
   },
 
@@ -358,21 +416,25 @@ export const PROGRAMS = [
     bgColor: '#fdf2f8',
     borderColor: '#fbcfe8',
     estimatedAnnual: () => 9600,
+    timeToBenefit: 'Months–Years (waitlist)',
+    difficulty: 'High',
     renewalMonths: 12,
     waitlist: true,
     applicationUrl: 'https://www.hud.gov/topics/housing_choice_voucher_program_section_8',
     documents: ['Government-issued ID', 'Social Security cards', 'Proof of income', 'Rental history', 'Birth certificates'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       if (onHousing(a)) return false
       if (!isCitizenEligible(a)) return false
       // Section 8: income < 50% AMI. Using 50% FPL as approximation.
       const fplLimit = getFPL(a.householdSize) * 0.50
-      const incomeQualifies = (a.monthlyIncome * 12) <= fplLimit
+      const incomeQualifies = annualIncome <= fplLimit
       // Priority for homeless, disabled, elderly, veterans
       const priorityFlag = isHomeless(a) || hasDisabled(a) || hasSenior(a) || hasVeteran(a)
       // Also qualify at 80% FPL with priority factors
       const extendedLimit = getFPL(a.householdSize) * 0.80
-      return incomeQualifies || (priorityFlag && (a.monthlyIncome * 12) <= extendedLimit)
+      return incomeQualifies || (priorityFlag && annualIncome <= extendedLimit)
     },
   },
   {
@@ -387,14 +449,18 @@ export const PROGRAMS = [
     bgColor: '#fdf4ff',
     borderColor: '#f0abfc',
     estimatedAnnual: () => 3600,
+    timeToBenefit: '2–8 weeks',
+    difficulty: 'Medium',
     renewalMonths: 6,
     applicationUrl: 'https://home.treasury.gov/policy-issues/coronavirus/assistance-for-state-local-and-tribal-governments/emergency-rental-assistance-program',
     documents: ['Lease agreement', 'Proof of income', 'Government-issued ID', 'Proof of housing instability (eviction notice, past-due rent)'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       // ERA: experiencing housing instability, income < 80% AMI (~80% FPL)
       if (!isHomeless(a) && a.housingStatus !== 'renting') return false
       const fplLimit = getFPL(a.householdSize) * 0.80
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
 
@@ -415,8 +481,10 @@ export const PROGRAMS = [
     applicationUrl: 'https://www.acf.hhs.gov/ocs/map/liheap-state-and-territory-contact-listing',
     documents: ['Proof of income', 'Recent utility bills', 'ID for all household members', 'Social Security numbers'],
     check: (a) => {
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.50
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
   {
@@ -438,8 +506,10 @@ export const PROGRAMS = [
       // Lifeline: income < 135% FPL OR already on SNAP/Medicaid/SSI/VA pension/Federal housing
       const onQualifyingProgram = onSNAP(a) || onMedicaid(a) || onSSI(a) || onHousing(a)
       if (onQualifyingProgram) return true
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.35
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
 
@@ -463,8 +533,10 @@ export const PROGRAMS = [
       // Head Start: children 3-4 (toddler range), income < 100% FPL
       // Early Head Start: infants and toddlers under 3
       if (!hasToddler(a) && !hasInfant(a)) return false
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.30
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
   {
@@ -488,8 +560,10 @@ export const PROGRAMS = [
       if (!hasEligibleChild) return false
       const isWorking = isEmployed(a) || isStudent(a) || a.employment === 'recently_unemployed'
       if (!isWorking) return false
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 2.50
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
 
@@ -512,8 +586,10 @@ export const PROGRAMS = [
     check: (a) => {
       // WIOA: unemployed or low-income adults seeking job training
       if (!isUnemployed(a) && !isStudent(a)) return false
+      const annualIncome = getAnnualIncome(a)
+      if (annualIncome === null) return false
       const fplLimit = getFPL(a.householdSize) * 1.75
-      return (a.monthlyIncome * 12) <= fplLimit
+      return annualIncome <= fplLimit
     },
   },
 

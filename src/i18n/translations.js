@@ -198,7 +198,7 @@ export const translations = {
 
     // Results
     results_loading: 'Checking your eligibility...',
-    results_headline: 'You may qualify for {count} programs',
+    results_headline: 'Likely eligible for {count} programs',
     results_value: 'Up to {value}/year in benefits',
     results_none: 'Based on your answers, we didn\'t find matching programs — but your situation may qualify you for state-specific programs not in our database.',
     results_save: 'Save & Track My Applications',
@@ -304,6 +304,11 @@ export const translations = {
     prog_tanf_desc: 'Monthly cash assistance for families with children who have very low income and limited employment.',
     prog_tanf_why: 'Your household has children and qualifies for temporary cash assistance based on your income.',
 
+    prog_unemployment_name: 'Unemployment Insurance',
+    prog_unemployment_full: 'Unemployment Insurance Benefits',
+    prog_unemployment_desc: 'Temporary weekly payments for workers who lost their job through no fault of their own, administered by state agencies.',
+    prog_unemployment_why: 'You indicated recent job loss or unemployment, which may qualify you for state unemployment benefits.',
+
     prog_ctc_name: 'Child Tax Credit',
     prog_ctc_full: 'Child Tax Credit (CTC)',
     prog_ctc_desc: 'Up to $2,000 per child under 17 as a tax credit — up to $1,700 refundable even if you owe no taxes.',
@@ -406,7 +411,7 @@ export const translations = {
     results_for_name: 'Results for {name}',
     results_no_match: 'No matching programs found',
     results_per_year: 'estimated per year',
-    results_benefits_qualify: 'in benefits you may qualify for',
+    results_benefits_qualify: 'Based on your answers, you may qualify for these benefits',
     results_count_label: '{count} programs found · ranked by estimated value',
     results_dont_lose: "Don't lose your results",
     results_save_desc: 'Save to your tracker to monitor application status and get renewal reminders.',

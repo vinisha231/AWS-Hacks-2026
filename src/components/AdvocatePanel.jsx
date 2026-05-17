@@ -53,6 +53,7 @@ export function AdvocatePanel({ program, onClose }) {
   const [objections, setObjections] = useState([])
   const [chat, setChat] = useState([])
   const [input, setInput] = useState('')
+  const [backendError, setBackendError] = useState(null)
   const [copied, setCopied] = useState(false)
   const [autoSpeak, setAutoSpeak] = useState(true)
   const [listening, setListening] = useState(false)
@@ -86,6 +87,7 @@ export function AdvocatePanel({ program, onClose }) {
 
   const startLetter = async () => {
     setMode('letter')
+    setBackendError(null)
     setLoading(true)
     try {
       const data = await generateLetter({
@@ -105,6 +107,7 @@ export function AdvocatePanel({ program, onClose }) {
 
   const startRoleplay = async () => {
     setMode('roleplay')
+    setBackendError(null)
     setLoading(true)
     try {
       const data = await roleplayTurn({ programName, profile: answers || {}, message: '', history: [] })
@@ -230,8 +233,8 @@ export function AdvocatePanel({ program, onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 flex-shrink-0 rounded-t-xl">
           <div>
-            <h2 className="font-black text-gray-900 text-lg">AI Benefits Advocate</h2>
-            <p className="text-sm text-gray-500">{programFull}</p>
+              <h2 className="font-black text-gray-900 text-lg">AI Benefits Advocate — Documents, Denials, Form Help</h2>
+              <p className="text-sm text-gray-500">{programFull} · Ask for documents, common denial reasons, or practice filing.</p>
           </div>
           <div className="flex items-center gap-2">
             {mode === 'roleplay' && (
@@ -255,33 +258,33 @@ export function AdvocatePanel({ program, onClose }) {
         {!mode && (
           <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8 overflow-y-auto">
             <p className="text-gray-600 text-center text-sm max-w-sm">
-              Get professional help applying for <strong>{programName}</strong>. Choose how you'd like to prepare.
+              Get practical help for <strong>{programName}</strong>. Choose what you need: documents, denial explanations, or application prep.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
               <button
-                onClick={startLetter}
-                className="flex flex-col gap-3 p-6 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
+                onClick={() => setMode('documents')}
+                className="group flex flex-col gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
               >
-                <span className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                  </svg>
-                </span>
                 <div>
-                  <p className="font-bold text-gray-900">Generate Advocacy Letter</p>
-                  <p className="text-xs text-gray-500 mt-1">A formal persuasive letter + talking points for your caseworker meeting</p>
+                  <p className="font-bold text-gray-900">Documents Checklist</p>
+                  <p className="text-xs text-gray-500 mt-1">See the exact documents you'll need to apply</p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setMode('denials')}
+                className="group flex flex-col gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-amber-500 hover:bg-amber-50 transition-all text-left"
+              >
+                <div>
+                  <p className="font-bold text-gray-900">Explain Denial Reasons</p>
+                  <p className="text-xs text-gray-500 mt-1">Understand common reasons an application is denied and how to address them</p>
                 </div>
               </button>
 
               <button
                 onClick={startRoleplay}
-                className="flex flex-col gap-3 p-6 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
+                className="group flex flex-col gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
               >
-                <span className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
-                  </svg>
-                </span>
                 <div>
                   <p className="font-bold text-gray-900">Practice with Mock Officer</p>
                   <p className="text-xs text-gray-500 mt-1">Voice roleplay with a caseworker — speak your answers out loud</p>
@@ -438,6 +441,46 @@ export function AdvocatePanel({ program, onClose }) {
               <p className="text-xs text-gray-400 mt-1.5 text-center">
                 Mic language: {lang.toUpperCase()} · Tap mic to speak, tap again to stop
               </p>
+            </div>
+          </div>
+        )}
+        {mode === 'fallback' && (
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="rounded-2xl border border-amber-500 bg-amber-950/20 p-5 text-amber-100">
+              <p className="font-bold">AI Advocate fallback mode</p>
+              <p className="mt-2 text-sm">{backendError || 'The simulated caseworker session is unavailable right now.'}</p>
+            </div>
+            <div className="space-y-3">
+              <div className="rounded-xl border border-neutral-700 bg-neutral-900 p-4">
+                <p className="text-sm font-semibold text-white">What you can do instead</p>
+                <ul className="mt-3 space-y-2 text-sm text-neutral-300">
+                  <li>• Review the program documents checklist for this benefit.</li>
+                  <li>• Read common denial reasons before you submit.</li>
+                  <li>• Use the static Q&A below for quick help.</li>
+                </ul>
+              </div>
+              <div className="rounded-xl border border-neutral-700 bg-neutral-900 p-4 space-y-3">
+                <p className="text-sm text-neutral-400 uppercase tracking-wide">Quick help</p>
+                <div className="space-y-2 text-sm text-neutral-200">
+                  <p><strong>Q:</strong> What documentation matters most? <br /><strong>A:</strong> Income proof and program-specific eligibility evidence are the most common requirements.</p>
+                  <p><strong>Q:</strong> What if I need help today? <br /><strong>A:</strong> Use local food banks, rent relief, and 211/United Way resources while you wait.</p>
+                  <p><strong>Q:</strong> Can I still apply without the chat? <br /><strong>A:</strong> Yes — gather documents and submit through the program page.</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setMode('documents')}
+                className="flex-1 rounded-md bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-500 transition-colors"
+              >
+                View documents checklist
+              </button>
+              <button
+                onClick={() => setMode(null)}
+                className="flex-1 rounded-md border border-neutral-700 bg-neutral-900 px-4 py-3 text-sm font-semibold text-neutral-200 hover:border-neutral-500 transition-colors"
+              >
+                Continue without chat
+              </button>
             </div>
           </div>
         )}
