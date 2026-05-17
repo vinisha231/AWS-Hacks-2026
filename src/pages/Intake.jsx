@@ -97,7 +97,7 @@ function RadioButton({ selected, onClick, icon, label, sublabel }) {
 export default function Intake() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { answers, setAnswer, setResults, updateProfile } = useStore()
+  const { answers, setAnswer, setResults, setEligibilityMeta, updateProfile } = useStore()
   const [step, setStep] = useState(1)
   const [localAnswers, setLocalAnswers] = useState({ ...answers })
   const [submitting, setSubmitting] = useState(false)
@@ -152,13 +152,21 @@ export default function Intake() {
 
     let programs
     try {
-      programs = await fetchBedrockEligibility(payload)
+      const data = await fetchBedrockEligibility(payload)
+      programs = data.programs
+      setEligibilityMeta({
+        isUrgent:        data.isUrgent,
+        snapFallback:    data.snapFallback,
+        urgentResources: data.urgentResources,
+        nonprofits:      data.nonprofits,
+      })
     } catch (err) {
       console.warn('Bedrock API unavailable, using static programs:', err)
       programs = PROGRAMS.filter(p => p.check(payload)).map(p => {
         const est = p.estimatedAnnual(payload.householdSize || 1, monthlyIncome, payload)
         return { ...p, estimatedAnnual: est }
       }).sort((a, b) => b.estimatedAnnual - a.estimatedAnnual)
+      setEligibilityMeta(null)
     }
 
     setResults(programs)

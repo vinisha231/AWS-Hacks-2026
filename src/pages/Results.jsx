@@ -161,10 +161,60 @@ function ProgramCard({ program, lang, onApply }) {
   )
 }
 
+function UrgentResourceCard({ resource }) {
+  const typeColors = {
+    crisis:  'bg-red-50 border-red-200 text-red-800',
+    food:    'bg-orange-50 border-orange-200 text-orange-800',
+    shelter: 'bg-amber-50 border-amber-200 text-amber-800',
+    health:  'bg-blue-50 border-blue-200 text-blue-800',
+  }
+  const cls = typeColors[resource.type] || typeColors.crisis
+  return (
+    <div className={`rounded-lg border px-4 py-3 ${cls}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-bold text-sm">{resource.name}</p>
+          <p className="text-xs mt-0.5 opacity-80">{resource.description}</p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          {resource.phone && (
+            <a href={`tel:${resource.phone}`} className="block text-sm font-black hover:underline">{resource.phone}</a>
+          )}
+          {resource.website && (
+            <a href={resource.website} target="_blank" rel="noopener noreferrer" className="text-xs underline opacity-70 hover:opacity-100">website →</a>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function NonprofitCard({ org }) {
+  const typeIcon = { food: '🥫', housing: '🏠', health: '🩺', financial: '💵', education: '📚', crisis: '🆘' }
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex items-start gap-3 hover:border-emerald-300 transition-colors">
+      <span className="text-lg flex-shrink-0 mt-0.5">{typeIcon[org.type] || '🤝'}</span>
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-sm text-gray-900">{org.name}</p>
+        <p className="text-xs text-gray-500 mt-0.5">{org.description}</p>
+      </div>
+      <div className="text-right flex-shrink-0">
+        {org.phone && <a href={`tel:${org.phone}`} className="block text-xs font-semibold text-emerald-700 hover:underline">{org.phone}</a>}
+        {org.website && <a href={org.website} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-emerald-600">website →</a>}
+      </div>
+    </div>
+  )
+}
+
 export default function Results() {
   const { t, lang } = useTranslation()
   const navigate = useNavigate()
-  const { results, answers, addToTracker, setSavedPrograms } = useStore()
+  const { results, answers, eligibilityMeta, addToTracker, setSavedPrograms } = useStore()
+
+  const isUrgent        = eligibilityMeta?.isUrgent        ?? false
+  const snapFallback    = eligibilityMeta?.snapFallback    ?? false
+  const urgentResources = eligibilityMeta?.urgentResources ?? []
+  const nonprofits      = eligibilityMeta?.nonprofits      ?? []
   const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
 
@@ -275,6 +325,19 @@ export default function Results() {
         </div>
       )}
 
+      {/* Urgent needs banner */}
+      {isUrgent && urgentResources.length > 0 && (
+        <div className="bg-red-600 text-white px-6 py-4">
+          <div className="max-w-screen-xl mx-auto px-6 lg:px-12">
+            <p className="font-black text-lg mb-1">🚨 Immediate Help Available Now</p>
+            <p className="text-sm text-red-100 mb-4">These resources require no application and can help today or this week.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {urgentResources.map((r, i) => <UrgentResourceCard key={i} resource={r} />)}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Program cards */}
       <div className="max-w-screen-xl mx-auto px-6 lg:px-12 py-10">
         {results.length === 0 ? (
@@ -286,9 +349,35 @@ export default function Results() {
           </div>
         ) : (
           <div className="flex flex-col gap-6">
+            {/* SNAP fallback notice */}
+            {snapFallback && !results.some(p => p.category === 'food') && (
+              <div className="reveal bg-orange-50 border border-orange-200 rounded-lg px-5 py-4 flex items-start gap-3">
+                <span className="text-2xl flex-shrink-0">🥫</span>
+                <div>
+                  <p className="font-bold text-orange-800 text-sm">Your income may be slightly above SNAP limits</p>
+                  <p className="text-orange-700 text-xs mt-1">You might still get food assistance through local food banks — no income verification required. Check the nonprofits section below or call 211.</p>
+                </div>
+              </div>
+            )}
+
             {results.map(p => (
               <ProgramCard key={p.id} program={p} lang={lang} onApply={handleApply} />
             ))}
+
+            {/* Local nonprofits */}
+            {nonprofits.length > 0 && (
+              <div className="reveal">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-px flex-1 bg-gray-200" />
+                  <h3 className="font-black text-gray-900 text-sm uppercase tracking-widest">Local Nonprofits & Community Resources</h3>
+                  <div className="h-px flex-1 bg-gray-200" />
+                </div>
+                <p className="text-sm text-gray-500 mb-4 text-center">These organizations provide direct support — often with no application required.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {nonprofits.map((org, i) => <NonprofitCard key={i} org={org} />)}
+                </div>
+              </div>
+            )}
 
             {/* Bottom save CTA */}
             <div className="reveal bg-neutral-950 text-white rounded-lg p-8 text-center">

@@ -17,6 +17,11 @@ export const useStore = create(persist(
     setResults: (results) => set({ results }),
     clearResults: () => set({ results: null }),
 
+    // Smart eligibility metadata (urgency, nonprofits, fallbacks)
+    eligibilityMeta: null,
+    setEligibilityMeta: (meta) => set({ eligibilityMeta: meta }),
+    clearEligibilityMeta: () => set({ eligibilityMeta: null }),
+
     // Application tracker
     // tracker[id] = { status, updatedAt, history: [{status, timestamp, note}], snsReminderSet, snsReminderDate }
     tracker: {},

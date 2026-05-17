@@ -33,26 +33,83 @@ def lambda_handler(event, context):
         members_str  = ', '.join(members)  if members          else 'adults only'
         benefits_str = ', '.join(current_benefits) if current_benefits else 'none'
 
-        prompt = f"""US benefits expert. List the top 8 assistance programs for this household. Be specific to {state}.
+        # Server-side urgency logic — no LLM tokens needed
+        is_urgent = (
+            housing_status == 'homeless' or
+            monthly_income < 500 or
+            (monthly_income < 1200 and any(m in members for m in ['infant', 'toddler'])) or
+            (monthly_income < 800 and household_size >= 3)
+        )
 
-Profile: {state}, {household_size} people, ${monthly_income}/mo, members: {members_str}, employment: {employment}, health: {health_coverage}, housing: {housing_status}, citizenship: {citizenship}, already has: {benefits_str}.
+        # SNAP 130% FPL threshold: ~$1,580/mo for 1 person + ~$560 per additional
+        snap_threshold = 1580 + max(0, household_size - 1) * 560
+        snap_fallback = (
+            monthly_income > snap_threshold and
+            monthly_income < snap_threshold * 1.6 and
+            'snap' not in benefits_str.lower()
+        )
 
-Exclude programs they already have. Include state-specific {state} programs.
+        urgent_note = (
+            f"URGENT: housing={housing_status}, income=${monthly_income}/mo — prioritize immediate-access resources. "
+            if is_urgent else ""
+        )
 
-IMPORTANT for applicationUrl: Use ONLY these reliable URLs — never invent deep links:
-- Federal programs (SNAP, Medicaid, LIHEAP, WIC, SSI, TANF, Section 8): "https://www.benefits.gov"
-- State-specific {state} programs: use only the main homepage of the state agency (e.g. "https://dhhs.state.name.us" NOT a subpage). If unsure, use "https://www.benefits.gov".
+        prompt = f"""You are a US government benefits specialist. {urgent_note}
 
-Return ONLY a JSON array (no markdown). Each item:
-{{"id":"snap","name":"SNAP","fullName":"Supplemental Nutrition Assistance Program","category":"food","description":"Monthly food benefits.","why":"Qualifies due to income below 130% FPL.","estimatedAnnual":3600,"applicationUrl":"https://www.benefits.gov","documents":["Photo ID","Proof of income"],"renewalMonths":12,"waitlist":false,"pros":["Immediate grocery relief","Accepted at most major stores"],"cons":["Must recertify every 6-12 months","Benefits may not cover full food costs"],"steps":["Step 1: Visit benefits.gov and click Apply for SNAP","Step 2: Create or log in to your account","Step 3: Complete the online application with household and income info","Step 4: Upload proof of income and ID documents","Step 5: Attend a phone or in-person interview if scheduled","Step 6: Receive decision letter within 30 days","Step 7: Activate your EBT card when approved"]}}
+Household profile: {state}, {household_size} people, ${monthly_income}/mo income, members: {members_str}, employment: {employment}, health coverage: {health_coverage}, housing: {housing_status}, citizenship: {citizenship}, currently receiving: {benefits_str}.
 
-Categories: food, health, housing, energy, financial, education. Return JSON array only."""
+Return ONLY the following JSON object — no markdown, no explanation:
+{{
+  "programs": [
+    {{
+      "id": "snap",
+      "name": "SNAP",
+      "fullName": "Supplemental Nutrition Assistance Program",
+      "category": "food",
+      "description": "Monthly grocery benefits loaded onto an EBT card.",
+      "why": "Income of ${monthly_income}/mo is below the 130% FPL threshold for a household of {household_size}.",
+      "estimatedAnnual": 3600,
+      "applicationUrl": "https://www.benefits.gov",
+      "documents": ["Photo ID", "Proof of income", "Proof of residency"],
+      "renewalMonths": 12,
+      "waitlist": false,
+      "pros": ["Immediate grocery relief", "Accepted at 250,000+ retailers"],
+      "cons": ["Must recertify every 6-12 months", "Benefits may not cover full food costs"],
+      "steps": ["Visit benefits.gov and search SNAP", "Complete the online application with household and income details", "Upload proof of income and ID", "Attend a scheduled phone or in-person interview", "Receive a decision within 30 days", "Activate your EBT card once approved"]
+    }}
+  ],
+  "urgentResources": [
+    {{
+      "name": "211 Helpline",
+      "type": "crisis",
+      "description": "Call or text 2-1-1 for immediate referrals to food, shelter, and crisis services in {state}.",
+      "phone": "211",
+      "website": "https://www.211.org"
+    }}
+  ],
+  "nonprofits": [
+    {{
+      "name": "Feeding America – {state}",
+      "type": "food",
+      "description": "Connects families to the nearest food bank and pantry in {state}.",
+      "phone": "1-800-771-2303",
+      "website": "https://www.feedingamerica.org"
+    }}
+  ]
+}}
+
+Instructions:
+- programs: list the top 8 programs this household qualifies for in {state}. Exclude programs in "{benefits_str}". Prioritize highest estimated annual value. Include at least 1-2 {state}-specific state programs. Categories: food, health, housing, energy, financial, education.
+- applicationUrl: federal programs → "https://www.benefits.gov"; state programs → only the main agency homepage (no subpages); if unsure → "https://www.benefits.gov"
+- urgentResources: 3-5 resources available TODAY or THIS WEEK (no application required). Always include 211 first. Add {state} emergency food banks, shelters, and crisis lines. Real organizations only.
+- nonprofits: 4-6 real {state} nonprofits for longer-term support — include local United Way chapter, Salvation Army, community action agency, legal aid society, and a free health clinic if applicable.
+- Return valid minified JSON only."""
 
         response = bedrock.invoke_model(
             modelId='us.anthropic.claude-sonnet-4-6',
             body=json.dumps({
                 'anthropic_version': 'bedrock-2023-05-31',
-                'max_tokens': 3000,
+                'max_tokens': 3500,
                 'messages': [{'role': 'user', 'content': prompt}],
             }),
         )
@@ -60,11 +117,15 @@ Categories: food, health, housing, energy, financial, education. Return JSON arr
         raw = json.loads(response['body'].read())
         text = raw['content'][0]['text'].strip()
 
-        # Extract JSON array robustly
-        match = re.search(r'\[.*\]', text, re.DOTALL)
-        programs = json.loads(match.group() if match else text)
+        # Extract JSON object robustly
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        parsed = json.loads(match.group() if match else text)
 
-        # Normalize and sort
+        programs         = parsed.get('programs', [])
+        urgent_resources = parsed.get('urgentResources', [])
+        nonprofits       = parsed.get('nonprofits', [])
+
+        # Normalize programs
         for p in programs:
             p.setdefault('nameKey',  p.get('name', p.get('id', '')))
             p.setdefault('descKey',  p.get('description', ''))
@@ -73,7 +134,7 @@ Categories: food, health, housing, energy, financial, education. Return JSON arr
             p.setdefault('documents', [])
             p.setdefault('renewalMonths', 12)
             p.setdefault('waitlist', False)
-            p.setdefault('applicationUrl', 'https://benefits.gov')
+            p.setdefault('applicationUrl', 'https://www.benefits.gov')
             p.setdefault('pros', [])
             p.setdefault('cons', [])
             p.setdefault('steps', [])
@@ -87,7 +148,15 @@ Categories: food, health, housing, energy, financial, education. Return JSON arr
         return {
             'statusCode': 200,
             'headers': CORS_HEADERS,
-            'body': json.dumps({'programs': programs, 'source': 'bedrock', 'state': state}),
+            'body': json.dumps({
+                'programs':        programs,
+                'isUrgent':        is_urgent,
+                'snapFallback':    snap_fallback,
+                'urgentResources': urgent_resources,
+                'nonprofits':      nonprofits,
+                'source':          'bedrock',
+                'state':           state,
+            }),
         }
 
     except Exception as e:

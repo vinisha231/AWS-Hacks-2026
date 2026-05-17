@@ -20,10 +20,7 @@ export async function fetchBedrockEligibility(answers) {
   if (!response.ok) throw new Error(`API error: ${response.status}`)
 
   const data = await response.json()
-  const programs = data.programs || []
-
-  // Normalize fields so Results.jsx works with both Bedrock and static programs
-  return programs.map(p => ({
+  const programs = (data.programs || []).map(p => ({
     ...p,
     nameKey: p.nameKey || p.name || p.id,
     descKey: p.descKey || p.description || '',
@@ -32,7 +29,18 @@ export async function fetchBedrockEligibility(answers) {
     documents:      p.documents      || [],
     renewalMonths:  p.renewalMonths  ?? 12,
     waitlist:       p.waitlist       ?? false,
-    applicationUrl: p.applicationUrl || 'https://benefits.gov',
+    applicationUrl: p.applicationUrl || 'https://www.benefits.gov',
     estimatedAnnual: Number(p.estimatedAnnual) || 0,
+    pros:  p.pros  || [],
+    cons:  p.cons  || [],
+    steps: p.steps || [],
   }))
+
+  return {
+    programs,
+    isUrgent:        data.isUrgent        ?? false,
+    snapFallback:    data.snapFallback    ?? false,
+    urgentResources: data.urgentResources ?? [],
+    nonprofits:      data.nonprofits      ?? [],
+  }
 }
