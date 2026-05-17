@@ -31,7 +31,7 @@ function CompassIcon() {
 
 function ProgressBar({ step, total }) {
   return (
-    <div className="w-full bg-neutral-800 rounded-full h-1.5">
+    <div className="w-full bg-gray-200 rounded-full h-1.5">
       <div
         className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
         style={{ width: `${(step / total) * 100}%` }}
@@ -52,19 +52,20 @@ function ToggleButton({ selected, onClick, icon, label, sublabel }) {
   return (
     <button
       onClick={onClick}
+      style={selected ? { backgroundColor: '#059669', borderColor: '#059669', color: '#ffffff' } : {}}
       className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
         ${selected
-          ? 'bg-emerald-600 border-emerald-600 text-white'
-          : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
+          ? 'border-emerald-600'
+          : 'bg-white border-gray-300 text-gray-700 hover:border-emerald-400 hover:bg-emerald-50'
         }`}
     >
       {icon && <span className="text-xl flex-shrink-0">{icon}</span>}
       <span className="flex-1">
         {label}
-        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-emerald-200' : 'text-neutral-500'}`}>{sublabel}</span>}
+        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'opacity-80' : 'text-gray-400'}`}>{sublabel}</span>}
       </span>
       {selected && (
-        <svg className="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-5 h-5 flex-shrink-0" style={{ color: '#ffffff' }} fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
       )}
@@ -76,19 +77,23 @@ function RadioButton({ selected, onClick, icon, label, sublabel }) {
   return (
     <button
       onClick={onClick}
+      style={selected ? { backgroundColor: '#059669', borderColor: '#059669', color: '#ffffff' } : {}}
       className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
         ${selected
-          ? 'bg-emerald-600 border-emerald-600 text-white'
-          : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
+          ? 'border-emerald-600'
+          : 'bg-white border-gray-300 text-gray-700 hover:border-emerald-400 hover:bg-emerald-50'
         }`}
     >
-      <span className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected ? 'border-white bg-emerald-700' : 'border-neutral-600'}`}>
-        {selected && <span className="w-2.5 h-2.5 rounded-full bg-white" />}
+      <span
+        style={selected ? { borderColor: '#ffffff', backgroundColor: '#047857' } : {}}
+        className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected ? '' : 'border-gray-400'}`}
+      >
+        {selected && <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#ffffff' }} />}
       </span>
       {icon && <span className="text-xl flex-shrink-0">{icon}</span>}
       <span className="flex-1">
         {label}
-        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-emerald-200' : 'text-neutral-500'}`}>{sublabel}</span>}
+        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'opacity-80' : 'text-gray-400'}`}>{sublabel}</span>}
       </span>
     </button>
   )
@@ -189,16 +194,16 @@ export default function Intake() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col">
-      <div className="bg-neutral-950 border-b border-neutral-800 px-4 sm:px-6 py-4">
+    <div className="min-h-screen bg-white flex flex-col">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
         <div className="max-w-xl mx-auto flex items-center justify-between gap-4">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
             <CompassIcon />
-            <span className="font-bold text-white">Compass</span>
+            <span className="font-bold text-gray-900">Compass</span>
           </button>
           <div className="flex-1 max-w-48">
             <ProgressBar step={step} total={TOTAL} />
-            <p className="text-xs text-neutral-400 mt-1 text-right">Step {step} of {TOTAL}</p>
+            <p className="text-xs text-gray-400 mt-1 text-right">Step {step} of {TOTAL}</p>
           </div>
           <LanguagePicker />
         </div>
@@ -209,19 +214,20 @@ export default function Intake() {
           <StepContent step={step} answers={localAnswers} set={set} toggleArr={toggleArr} t={t} />
 
           <div className="flex items-center justify-between mt-10">
-            <button onClick={back} className="text-neutral-500 hover:text-neutral-200 font-medium text-sm transition-colors">
+            <button onClick={back} className="text-gray-400 hover:text-gray-700 font-medium text-sm transition-colors">
               {t('intake_back')}
             </button>
             <button
               onClick={next}
               disabled={!canProceed() || submitting}
+              style={canProceed() && !submitting ? { backgroundColor: '#059669', color: '#ffffff' } : {}}
               className={`px-8 py-3 rounded-md font-bold text-base transition-all shadow-sm flex items-center gap-2
                 ${canProceed() && !submitting
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white hover:-translate-y-0.5'
-                  : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
+                  ? 'hover:-translate-y-0.5'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
             >
-              {submitting && <span className="w-4 h-4 border-2 border-neutral-400 border-t-neutral-800 rounded-full animate-spin" />}
+              {submitting && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
               {submitting ? 'Checking eligibility...' : step === TOTAL ? t('intake_submit') : t('intake_next')}
             </button>
           </div>
@@ -236,8 +242,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 1) return (
     <div>
       <StepLabel num={1} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step1_q')}</h2>
-      <p className="text-neutral-400 mb-8">{t('step1_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step1_q')}</h2>
+      <p className="text-gray-500 mb-8">{t('step1_hint')}</p>
       <select
         value={answers.state || ''}
         onChange={e => set('state', e.target.value)}
@@ -253,8 +259,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 2) return (
     <div>
       <StepLabel num={2} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step2_q')}</h2>
-      <p className="text-neutral-400 mb-8">{t('step2_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step2_q')}</h2>
+      <p className="text-gray-500 mb-8">{t('step2_hint')}</p>
       <div className="grid grid-cols-4 gap-3">
         {[1,2,3,4,5,6,7,8].map(n => (
           <button
@@ -277,8 +283,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 3) return (
     <div>
       <StepLabel num={3} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step3_q')}</h2>
-      <p className="text-neutral-400 mb-8">{t('step3_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step3_q')}</h2>
+      <p className="text-gray-500 mb-8">{t('step3_hint')}</p>
       <div className="flex flex-col gap-2">
         {['step3_opt1','step3_opt2','step3_opt3','step3_opt4','step3_opt5','step3_opt6','step3_opt7','step3_opt8'].map(key => {
           const label = t(key)
@@ -299,8 +305,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 4) return (
     <div>
       <StepLabel num={4} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step4_new_q')}</h2>
-      <p className="text-neutral-400 mb-6">{t('step4_new_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step4_new_q')}</h2>
+      <p className="text-gray-500 mb-6">{t('step4_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
           ['infant',      '👶', t('hh_infant'),       t('hh_infant_sub')],
@@ -330,8 +336,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 5) return (
     <div>
       <StepLabel num={5} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step5_new_q')}</h2>
-      <p className="text-neutral-400 mb-6">{t('step5_new_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step5_new_q')}</h2>
+      <p className="text-gray-500 mb-6">{t('step5_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
           ['employed',            '💼', t('emp_employed'),    t('emp_employed_sub')],
@@ -358,8 +364,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 6) return (
     <div>
       <StepLabel num={6} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step6_new_q')}</h2>
-      <p className="text-neutral-400 mb-6">{t('step6_new_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step6_new_q')}</h2>
+      <p className="text-gray-500 mb-6">{t('step6_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
           ['employer',    '✅', t('health_employer'),     t('health_employer_sub')],
@@ -385,8 +391,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 7) return (
     <div>
       <StepLabel num={7} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step7_new_q')}</h2>
-      <p className="text-neutral-400 mb-6">{t('step7_new_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step7_new_q')}</h2>
+      <p className="text-gray-500 mb-6">{t('step7_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
           ['renting',   '🏠', t('housing_renting'),    t('housing_renting_sub')],
@@ -412,8 +418,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 8) return (
     <div>
       <StepLabel num={8} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step8_new_q')}</h2>
-      <p className="text-neutral-400 mb-6">{t('step8_new_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step8_new_q')}</h2>
+      <p className="text-gray-500 mb-6">{t('step8_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
           ['citizens',   '🇺🇸', t('cit_citizens'),   t('cit_citizens_sub')],
@@ -439,8 +445,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   if (step === 9) return (
     <div>
       <StepLabel num={9} total={TOTAL} t={t} />
-      <h2 className="text-3xl font-black text-white mb-2">{t('step9_new_q')}</h2>
-      <p className="text-neutral-400 mb-6">{t('step9_new_hint')}</p>
+      <h2 className="text-3xl font-black text-gray-900 mb-2">{t('step9_new_q')}</h2>
+      <p className="text-gray-500 mb-6">{t('step9_new_hint')}</p>
       <div className="flex flex-col gap-2 mb-8">
         {[
           ['snap',     '🛒', t('ben_snap')],
@@ -476,8 +482,8 @@ function StepContent({ step, answers, set, toggleArr, t }) {
 function StepLabel({ num, total, t }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <span className="w-7 h-7 rounded-full bg-white text-neutral-950 text-xs font-bold flex items-center justify-center">{num}</span>
-      <span className="text-xs text-neutral-500 font-semibold uppercase tracking-widest">{t('step_label_of', { num, total })}</span>
+      <span className="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">{num}</span>
+      <span className="text-xs text-gray-400 font-semibold uppercase tracking-widest">{t('step_label_of', { num, total })}</span>
     </div>
   )
 }
