@@ -5,16 +5,16 @@ import Layout from '../components/Layout'
 import { PROGRAMS } from '../data/programs'
 
 const STATS = [
-  { value: '$6,200', label: 'Average annual benefits missed' },
-  { value: '10+',    label: 'Programs checked at once' },
-  { value: '3 min',  label: 'Average time to complete' },
-  { value: '75+',    label: 'Languages supported' },
+  { value: '$6,200', labelKey: 'stat1_label' },
+  { value: '10+',    labelKey: 'stat2_label' },
+  { value: '3 min',  labelKey: 'stat3_label' },
+  { value: '75+',    labelKey: 'stat4_label' },
 ]
 
 const DIFFERENTIATORS = [
   {
-    title: 'Cross-program view',
-    desc: 'We show you SNAP + Medicaid + LIHEAP + EITC in one session. Most tools only check one at a time.',
+    titleKey: 'diff1_title',
+    descKey: 'diff1_desc',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
@@ -22,8 +22,8 @@ const DIFFERENTIATORS = [
     ),
   },
   {
-    title: 'Real multilingual support',
-    desc: 'Not just Spanish. We support Haitian Creole, Vietnamese, Somali, Arabic — the languages that matter most.',
+    titleKey: 'diff2_title',
+    descKey: 'diff2_desc',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
@@ -31,8 +31,8 @@ const DIFFERENTIATORS = [
     ),
   },
   {
-    title: 'Start without knowing what you need',
-    desc: "You don't have to know what to search for. Just answer a few questions and we'll find everything.",
+    titleKey: 'diff3_title',
+    descKey: 'diff3_desc',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
@@ -40,8 +40,8 @@ const DIFFERENTIATORS = [
     ),
   },
   {
-    title: 'Pre-filled applications',
-    desc: "Your answers auto-populate each form so you don't have to type the same info six times.",
+    titleKey: 'diff4_title',
+    descKey: 'diff4_desc',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -49,8 +49,8 @@ const DIFFERENTIATORS = [
     ),
   },
   {
-    title: 'Renewal reminders',
-    desc: 'We track your renewal dates and remind you before benefits lapse — a gap nobody else addresses.',
+    titleKey: 'diff5_title',
+    descKey: 'diff5_desc',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
@@ -58,8 +58,8 @@ const DIFFERENTIATORS = [
     ),
   },
   {
-    title: 'Document checklists',
-    desc: 'Know exactly what to gather before you start each application. No more abandoned forms.',
+    titleKey: 'diff6_title',
+    descKey: 'diff6_desc',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
@@ -148,10 +148,10 @@ export default function Landing() {
       <section className="bg-neutral-900 border-b border-neutral-800">
         <div className="max-w-screen-xl mx-auto px-8">
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-neutral-800">
-            {STATS.map(({ value, label }) => (
-              <div key={label} className="reveal py-14 px-8 text-center">
+            {STATS.map(({ value, labelKey }) => (
+              <div key={labelKey} className="reveal py-14 px-8 text-center">
                 <div className="text-4xl font-black text-white mb-2">{value}</div>
-                <div className="text-neutral-500 text-sm">{label}</div>
+                <div className="text-neutral-500 text-sm">{t(labelKey)}</div>
               </div>
             ))}
           </div>
@@ -216,11 +216,11 @@ export default function Landing() {
             <h2 className="text-4xl sm:text-5xl font-black text-white">What makes us different</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-neutral-800 stagger">
-            {DIFFERENTIATORS.map(({ title, desc, icon }) => (
-              <div key={title} className="reveal bg-neutral-950 p-8 hover:bg-neutral-900 transition-colors group">
+            {DIFFERENTIATORS.map(({ titleKey, descKey, icon }) => (
+              <div key={titleKey} className="reveal bg-neutral-950 p-8 hover:bg-neutral-900 transition-colors group">
                 <div className="text-neutral-700 group-hover:text-white transition-colors mb-5">{icon}</div>
-                <h3 className="font-bold text-white mb-3">{title}</h3>
-                <p className="text-neutral-500 text-sm leading-relaxed">{desc}</p>
+                <h3 className="font-bold text-white mb-3">{t(titleKey)}</h3>
+                <p className="text-neutral-500 text-sm leading-relaxed">{t(descKey)}</p>
               </div>
             ))}
           </div>
@@ -232,10 +232,10 @@ export default function Landing() {
         <div className="max-w-screen-xl mx-auto px-8 py-32 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12">
           <div className="reveal">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-neutral-950 leading-tight mb-4">
-              Ready to find<br />your benefits?
+              {t('landing_final_title')}
             </h2>
             <p className="text-neutral-600 text-base max-w-md">
-              Takes about 3 minutes. No account, no email, no personal data stored.
+              {t('landing_final_sub')}
             </p>
           </div>
           <div className="reveal flex-shrink-0">

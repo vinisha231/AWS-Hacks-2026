@@ -16,7 +16,7 @@ function CompassLogo() {
   )
 }
 
-function UserMenu({ user, onLogout }) {
+function UserMenu({ user, onLogout, t }) {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const initials = user.name
@@ -49,9 +49,9 @@ function UserMenu({ user, onLogout }) {
               <p className="text-xs text-neutral-500 truncate">{user.email}</p>
             </div>
             {[
-              { label: 'My Profile',      path: '/profile' },
-              { label: 'Settings',        path: '/settings' },
-              { label: 'My Applications', path: '/tracker' },
+              { label: t('nav_profile'), path: '/profile' },
+              { label: 'Settings',      path: '/settings' },
+              { label: t('nav_tracker'), path: '/tracker' },
             ].map(({ label, path }) => (
               <button
                 key={path}
@@ -66,7 +66,7 @@ function UserMenu({ user, onLogout }) {
                 onClick={() => { onLogout(); setOpen(false) }}
                 className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-neutral-800 transition-colors"
               >
-                Sign out
+                {t('nav_signout')}
               </button>
             </div>
           </div>
@@ -100,20 +100,31 @@ export default function Layout({ children }) {
 
           <div className="hidden sm:flex items-center gap-7">
             <NavLink to="/tracker" label={t('nav_tracker')} badge={trackerCount} active={location.pathname === '/tracker'} />
-            <NavLink to="/profile" label="My Profile" active={location.pathname === '/profile'} />
+            <NavLink to="/profile" label={t('nav_profile')} active={location.pathname === '/profile'} />
           </div>
 
           <div className="flex items-center gap-3">
             <LanguagePicker />
             {isAuthenticated && user ? (
-              <UserMenu user={user} onLogout={handleLogout} />
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/intake"
+                  className="group hidden sm:inline-flex items-center gap-1.5 bg-white hover:bg-neutral-100 text-neutral-950 text-sm font-semibold px-4 py-2 rounded-md transition-all"
+                >
+                  {t('nav_start')}
+                  <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+                <UserMenu user={user} onLogout={handleLogout} t={t} />
+              </div>
             ) : (
               <div className="flex items-center gap-3">
                 <Link
                   to="/auth"
                   className="hidden sm:block text-sm font-medium text-neutral-400 hover:text-white transition-colors"
                 >
-                  Sign in
+                  {t('nav_signin')}
                 </Link>
                 <Link
                   to="/intake"

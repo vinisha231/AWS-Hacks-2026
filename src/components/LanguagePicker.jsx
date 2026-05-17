@@ -39,21 +39,21 @@ export default function LanguagePicker() {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => { setOpen(false); setQuery('') }} />
-          <div className="absolute right-0 mt-2 w-64 bg-neutral-900 border border-neutral-800 rounded-lg shadow-2xl z-20 animate-scale-in">
-            <div className="p-2 border-b border-neutral-800">
+          <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 shadow-2xl rounded-lg z-20 animate-scale-in">
+            <div className="p-2 border-b border-gray-200">
               <input
                 autoFocus
                 type="text"
                 placeholder="Search language..."
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                className="w-full px-3 py-1.5 text-sm rounded-md bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500 focus:border-neutral-500 transition-colors"
+                className="w-full px-3 py-1.5 text-sm rounded-md bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-neutral-500 focus:border-neutral-500 transition-colors"
               />
             </div>
 
             <div className="overflow-y-auto max-h-60">
               {filtered.length === 0 && (
-                <p className="text-center text-neutral-500 text-sm py-4">No results</p>
+                <p className="text-center text-gray-500 text-sm py-4">No results</p>
               )}
               {filtered.map(lang => (
                 <button
@@ -62,7 +62,7 @@ export default function LanguagePicker() {
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left
                     ${lang.code === language
                       ? 'bg-white text-neutral-950 font-semibold'
-                      : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                      : 'text-gray-900 hover:bg-gray-100'
                     }`}
                 >
                   <span className="text-base">{lang.flag}</span>
@@ -76,7 +76,7 @@ export default function LanguagePicker() {
               ))}
             </div>
 
-            <div className="px-4 py-2 border-t border-neutral-800 text-xs text-neutral-600 text-center">
+            <div className="px-4 py-2 border-t border-gray-200 text-xs text-gray-500 text-center">
               {SUPPORTED_LANGUAGES.length} languages via Amazon Translate
             </div>
           </div>

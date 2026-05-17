@@ -3,9 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { TranslationProvider } from './contexts/TranslationContext'
 import { useDynamicTranslations } from './contexts/TranslationContext'
-import { Amplify } from 'aws-amplify';
-import awsconfig from './aws-exports'; // if you use Amplify CLI
-Amplify.configure(awsconfig);
 
 const Landing  = lazy(() => import('./pages/Landing'))
 const AuthPage = lazy(() => import('./pages/Auth'))
@@ -18,7 +15,7 @@ const Settings = lazy(() => import('./pages/Settings'))
 
 function Spinner() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
       <span className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-950 rounded-full animate-spin" />
     </div>
   )

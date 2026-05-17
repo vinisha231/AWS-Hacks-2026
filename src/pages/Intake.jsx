@@ -212,7 +212,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 1: State
   if (step === 1) return (
     <div>
-      <StepLabel num={1} total={TOTAL} />
+      <StepLabel num={1} total={TOTAL} t={t} />
       <h2 className="text-3xl font-black text-white mb-2">{t('step1_q')}</h2>
       <p className="text-neutral-400 mb-8">{t('step1_hint')}</p>
       <select
@@ -229,7 +229,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 2: Household size
   if (step === 2) return (
     <div>
-      <StepLabel num={2} total={TOTAL} />
+      <StepLabel num={2} total={TOTAL} t={t} />
       <h2 className="text-3xl font-black text-white mb-2">{t('step2_q')}</h2>
       <p className="text-neutral-400 mb-8">{t('step2_hint')}</p>
       <div className="grid grid-cols-4 gap-3">
@@ -253,7 +253,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 3: Income
   if (step === 3) return (
     <div>
-      <StepLabel num={3} total={TOTAL} />
+      <StepLabel num={3} total={TOTAL} t={t} />
       <h2 className="text-3xl font-black text-white mb-2">{t('step3_q')}</h2>
       <p className="text-neutral-400 mb-8">{t('step3_hint')}</p>
       <div className="flex flex-col gap-2">
@@ -275,20 +275,20 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 4: Who is in your household
   if (step === 4) return (
     <div>
-      <StepLabel num={4} total={TOTAL} />
-      <h2 className="text-3xl font-black text-white mb-2">Who lives in your household?</h2>
-      <p className="text-neutral-400 mb-6">Select everyone who lives with you. This determines which programs your family can access.</p>
+      <StepLabel num={4} total={TOTAL} t={t} />
+      <h2 className="text-3xl font-black text-white mb-2">{t('step4_new_q')}</h2>
+      <p className="text-neutral-400 mb-6">{t('step4_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
-          ['infant',      '👶', 'Infant (under 1 year old)',          'Qualifies for WIC, Early Head Start'],
-          ['toddler',     '🧒', 'Young child (1–4 years old)',        'Qualifies for WIC, Head Start, child care'],
-          ['school_child','🎒', 'School-age child (5–12)',            'Qualifies for free/reduced school meals, CHIP'],
-          ['teen',        '🧑', 'Teenager (13–18)',                   'Qualifies for CHIP, free school meals'],
-          ['adult',       '🧑‍💼', 'Adult (19–64)',                    'Required — select if you or another adult lives here'],
-          ['senior',      '👴', 'Senior (65 or older)',               'Qualifies for Medicare Savings, SSI'],
-          ['pregnant',    '🤱', 'Pregnant or recently gave birth',    'Qualifies for WIC, expanded Medicaid'],
-          ['disabled',    '♿', 'Someone with a disability',          'Qualifies for SSI, Medicaid, priority housing'],
-          ['veteran',     '🎖️','Veteran or active military',          'Qualifies for VA healthcare and benefits'],
+          ['infant',      '👶', t('hh_infant'),       t('hh_infant_sub')],
+          ['toddler',     '🧒', t('hh_toddler'),      t('hh_toddler_sub')],
+          ['school_child','🎒', t('hh_school_child'), t('hh_school_child_sub')],
+          ['teen',        '🧑', t('hh_teen'),         t('hh_teen_sub')],
+          ['adult',       '🧑‍💼', t('hh_adult'),      t('hh_adult_sub')],
+          ['senior',      '👴', t('hh_senior'),       t('hh_senior_sub')],
+          ['pregnant',    '🤱', t('hh_pregnant'),     t('hh_pregnant_sub')],
+          ['disabled',    '♿', t('hh_disabled'),     t('hh_disabled_sub')],
+          ['veteran',     '🎖️', t('hh_veteran'),     t('hh_veteran_sub')],
         ].map(([val, icon, label, sublabel]) => (
           <ToggleButton
             key={val}
@@ -306,17 +306,17 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 5: Employment
   if (step === 5) return (
     <div>
-      <StepLabel num={5} total={TOTAL} />
-      <h2 className="text-3xl font-black text-white mb-2">What is your current work situation?</h2>
-      <p className="text-neutral-400 mb-6">This affects eligibility for SNAP, EITC, job training, and child care programs.</p>
+      <StepLabel num={5} total={TOTAL} t={t} />
+      <h2 className="text-3xl font-black text-white mb-2">{t('step5_new_q')}</h2>
+      <p className="text-neutral-400 mb-6">{t('step5_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
-          ['employed',            '💼', 'Employed full-time or part-time',   'Working for an employer'],
-          ['self_employed',       '🏠', 'Self-employed or freelance',         'Running your own business or gig work'],
-          ['recently_unemployed', '📋', 'Recently lost a job',                'Job loss within the last 6 months'],
-          ['unemployed',          '🔍', 'Unemployed, looking for work',       'Actively job searching'],
-          ['not_working',         '🚫', 'Not working and not looking',        'Unable to work or not seeking employment'],
-          ['student',             '🎓', 'Full-time student',                  'Enrolled in school or training program'],
+          ['employed',            '💼', t('emp_employed'),    t('emp_employed_sub')],
+          ['self_employed',       '🏠', t('emp_self'),        t('emp_self_sub')],
+          ['recently_unemployed', '📋', t('emp_recent'),      t('emp_recent_sub')],
+          ['unemployed',          '🔍', t('emp_unemployed'),  t('emp_unemployed_sub')],
+          ['not_working',         '🚫', t('emp_not_working'), t('emp_not_working_sub')],
+          ['student',             '🎓', t('emp_student'),     t('emp_student_sub')],
         ].map(([val, icon, label, sublabel]) => (
           <RadioButton
             key={val}
@@ -334,16 +334,16 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 6: Health insurance
   if (step === 6) return (
     <div>
-      <StepLabel num={6} total={TOTAL} />
-      <h2 className="text-3xl font-black text-white mb-2">Do you have health insurance?</h2>
-      <p className="text-neutral-400 mb-6">This helps us identify if you qualify for Medicaid, ACA subsidies, or Medicare programs.</p>
+      <StepLabel num={6} total={TOTAL} t={t} />
+      <h2 className="text-3xl font-black text-white mb-2">{t('step6_new_q')}</h2>
+      <p className="text-neutral-400 mb-6">{t('step6_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
-          ['employer',    '✅', 'Yes — through my employer',         'Employer-sponsored health plan'],
-          ['marketplace', '📋', 'Yes — through ACA/Marketplace',    'Plan bought on healthcare.gov'],
-          ['medicare',    '🏥', 'Yes — Medicare',                   'Federal Medicare program (usually age 65+)'],
-          ['medicaid',    '💊', 'Yes — Medicaid or state plan',     'State-funded health coverage'],
-          ['none',        '❌', 'No — I am uninsured',              'No current health coverage'],
+          ['employer',    '✅', t('health_employer'),     t('health_employer_sub')],
+          ['marketplace', '📋', t('health_marketplace'),  t('health_marketplace_sub')],
+          ['medicare',    '🏥', t('health_medicare'),     t('health_medicare_sub')],
+          ['medicaid',    '💊', t('health_medicaid_cov'), t('health_medicaid_sub')],
+          ['none',        '❌', t('health_none'),         t('health_none_sub')],
         ].map(([val, icon, label, sublabel]) => (
           <RadioButton
             key={val}
@@ -361,16 +361,16 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 7: Housing status
   if (step === 7) return (
     <div>
-      <StepLabel num={7} total={TOTAL} />
-      <h2 className="text-3xl font-black text-white mb-2">What is your current housing situation?</h2>
-      <p className="text-neutral-400 mb-6">This affects eligibility for housing vouchers, emergency rental assistance, and utility programs.</p>
+      <StepLabel num={7} total={TOTAL} t={t} />
+      <h2 className="text-3xl font-black text-white mb-2">{t('step7_new_q')}</h2>
+      <p className="text-neutral-400 mb-6">{t('step7_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
-          ['renting',   '🏠', 'Renting an apartment or house',      'Month-to-month or lease'],
-          ['owning',    '🔑', 'Own my home',                        'Mortgage or paid off'],
-          ['homeless',  '🏕️', 'Experiencing homelessness',          'No stable housing — highest priority for vouchers'],
-          ['shared',    '🤝', 'Living with family or friends',       'Temporarily staying with others'],
-          ['subsidized','📋', 'Already in subsidized/public housing','In a HUD program currently'],
+          ['renting',   '🏠', t('housing_renting'),    t('housing_renting_sub')],
+          ['owning',    '🔑', t('housing_owning'),     t('housing_owning_sub')],
+          ['homeless',  '🏕️', t('housing_homeless'),  t('housing_homeless_sub')],
+          ['shared',    '🤝', t('housing_shared'),     t('housing_shared_sub')],
+          ['subsidized','📋', t('housing_subsidized'), t('housing_subsidized_sub')],
         ].map(([val, icon, label, sublabel]) => (
           <RadioButton
             key={val}
@@ -388,16 +388,16 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 8: Citizenship
   if (step === 8) return (
     <div>
-      <StepLabel num={8} total={TOTAL} />
-      <h2 className="text-3xl font-black text-white mb-2">What is your citizenship or immigration status?</h2>
-      <p className="text-neutral-400 mb-6">Many federal programs require US citizenship or legal residency. Your answer is private and never stored with your name.</p>
+      <StepLabel num={8} total={TOTAL} t={t} />
+      <h2 className="text-3xl font-black text-white mb-2">{t('step8_new_q')}</h2>
+      <p className="text-neutral-400 mb-6">{t('step8_new_hint')}</p>
       <div className="flex flex-col gap-2">
         {[
-          ['citizens',     '🇺🇸', 'All US citizens',                        'Everyone in household is a US citizen'],
-          ['lpr',          '🌿', 'Legal permanent resident(s)',              'Green card holder(s)'],
-          ['mixed',        '🏠', 'Mixed household',                         'Some citizens, some non-citizens'],
-          ['other',        '📄', 'Other immigration status',                'DACA, refugee, visa, or other'],
-          ['prefer_not',   '🤐', 'Prefer not to answer',                   'You can still see available programs'],
+          ['citizens',   '🇺🇸', t('cit_citizens'),   t('cit_citizens_sub')],
+          ['lpr',        '🌿',  t('cit_lpr'),         t('cit_lpr_sub')],
+          ['mixed',      '🏠',  t('cit_mixed'),       t('cit_mixed_sub')],
+          ['other',      '📄',  t('cit_other'),       t('cit_other_sub')],
+          ['prefer_not', '🤐',  t('cit_prefer_not'),  t('cit_prefer_not_sub')],
         ].map(([val, icon, label, sublabel]) => (
           <RadioButton
             key={val}
@@ -415,16 +415,16 @@ function StepContent({ step, answers, set, toggleArr, t }) {
   // Step 9: Current benefits + name
   if (step === 9) return (
     <div>
-      <StepLabel num={9} total={TOTAL} />
-      <h2 className="text-3xl font-black text-white mb-2">Are you already receiving any of these?</h2>
-      <p className="text-neutral-400 mb-6">We'll skip programs you already have so your results only show new opportunities.</p>
+      <StepLabel num={9} total={TOTAL} t={t} />
+      <h2 className="text-3xl font-black text-white mb-2">{t('step9_new_q')}</h2>
+      <p className="text-neutral-400 mb-6">{t('step9_new_hint')}</p>
       <div className="flex flex-col gap-2 mb-8">
         {[
-          ['snap',     '🛒', 'SNAP (food stamps)'],
-          ['medicaid', '🏥', 'Medicaid / state health insurance'],
-          ['housing',  '🏠', 'Section 8 / housing voucher'],
-          ['ssi',      '🛡️', 'SSI (Supplemental Security Income)'],
-          ['none',     '—',  'None of the above'],
+          ['snap',     '🛒', t('ben_snap')],
+          ['medicaid', '🏥', t('ben_medicaid')],
+          ['housing',  '🏠', t('ben_housing')],
+          ['ssi',      '🛡️', t('ben_ssi')],
+          ['none',     '—',  t('ben_none')],
         ].map(([val, icon, label]) => (
           <ToggleButton
             key={val}
@@ -436,25 +436,25 @@ function StepContent({ step, answers, set, toggleArr, t }) {
         ))}
       </div>
       <div className="border-t border-neutral-700 pt-6">
-        <label className="text-sm font-semibold text-neutral-400 block mb-2">Your first name (optional)</label>
+        <label className="text-sm font-semibold text-neutral-400 block mb-2">{t('intake_name_label')}</label>
         <input
           type="text"
-          placeholder="e.g. Maria"
+          placeholder={t('intake_name_placeholder')}
           value={answers.name || ''}
           onChange={e => set('name', e.target.value)}
           className="w-full border border-neutral-700 focus:border-white focus:ring-1 focus:ring-white rounded-md px-5 py-4 text-white text-base bg-neutral-800 outline-none transition-colors font-medium"
         />
-        <p className="text-neutral-500 text-sm mt-2">Used to personalize your results. Never shared.</p>
+        <p className="text-neutral-500 text-sm mt-2">{t('intake_name_hint')}</p>
       </div>
     </div>
   )
 }
 
-function StepLabel({ num, total }) {
+function StepLabel({ num, total, t }) {
   return (
     <div className="flex items-center gap-2 mb-4">
       <span className="w-7 h-7 rounded-full bg-white text-neutral-950 text-xs font-bold flex items-center justify-center">{num}</span>
-      <span className="text-xs text-neutral-500 font-semibold uppercase tracking-widest">Question {num} of {total}</span>
+      <span className="text-xs text-neutral-500 font-semibold uppercase tracking-widest">{t('step_label_of', { num, total })}</span>
     </div>
   )
 }

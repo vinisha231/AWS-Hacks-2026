@@ -4,7 +4,7 @@ import { translations } from '../i18n/translations'
 
 const TranslationContext = createContext({})
 
-const STATIC_LANGS = new Set(['en', 'es'])
+const STATIC_LANGS = new Set(['en'])
 // If VITE_API_ENDPOINT is set, use the deployed Lambda. Otherwise use a relative
 // URL so requests hit the Vite dev-server plugin (awsTranslatePlugin in vite.config.js).
 const API_BASE = import.meta.env.VITE_API_ENDPOINT || ''
