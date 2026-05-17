@@ -17,7 +17,7 @@ Instead of filling out complex forms, users answer a short conversational intake
 - "Why you qualify" explanation per program
 
 ### Conversational Intake
-- 6-step guided questionnaire (state, household size, income, situation, current benefits)
+- 9-step guided questionnaire (state, household size, income, situation, current benefits)
 - No forms, no jargon — plain language throughout
 - Free-text → structured eligibility data via Amazon Bedrock
 
