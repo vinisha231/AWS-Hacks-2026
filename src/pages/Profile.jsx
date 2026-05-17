@@ -372,7 +372,7 @@ export default function Profile() {
                   ${saved
                     ? 'bg-emerald-600 text-white'
                     : dirty
-                      ? 'bg-neutral-950 hover:bg-slate-700 text-white'
+                      ? 'bg-neutral-950 hover:bg-neutral-800 text-white'
                       : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
                   }`}
               >
