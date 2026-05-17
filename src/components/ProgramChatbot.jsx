@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { chatWithBot } from '../services/chatbotApi'
 
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/^#+\s*/gm, '')
+    .replace(/---+/g, '')
+    .trim()
+}
+
 export function ProgramChatbot({ programId, programName }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -22,7 +31,7 @@ export function ProgramChatbot({ programId, programName }) {
     setLoading(true)
     try {
       const data = await chatWithBot(text, programId, programName)
-      const reply = data.reply || data.response || 'No response received.'
+      const reply = stripMarkdown(data.reply || data.response || 'No response received.')
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
     } catch (err) {
       console.error('Chatbot error:', err)

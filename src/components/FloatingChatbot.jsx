@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { chatWithBot } from '../services/chatbotApi'
 
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/^#+\s*/gm, '')
+    .replace(/---+/g, '')
+    .trim()
+}
+
 const STARTERS = [
   'What benefits can I qualify for?',
   'How do I apply for SNAP?',
@@ -40,7 +49,7 @@ export function FloatingChatbot() {
     setLoading(true)
     try {
       const data = await chatWithBot(msg, 'general', 'Compass Benefits Assistant')
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || data.response || 'Sorry, try again.' }])
+      setMessages(prev => [...prev, { role: 'assistant', content: stripMarkdown(data.reply || data.response || 'Sorry, try again.') }])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I had trouble reaching the server. Please try again.' }])
     } finally {

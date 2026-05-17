@@ -1,6 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { generateLetter, roleplayTurn } from '../services/advocateApi'
 import { useStore } from '../store/store'
+
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/^#+\s*/gm, '')
+    .replace(/---+/g, '')
+    .trim()
+}
 
 export function AdvocatePanel({ program, onClose }) {
   const { answers } = useStore()
@@ -33,9 +43,9 @@ export function AdvocatePanel({ program, onClose }) {
         userName: answers?.name || 'the applicant',
         profile: answers || {},
       })
-      setLetter(data.letter || '')
-      setTalkingPoints(data.talking_points || [])
-      setObjections(data.objections || [])
+      setLetter(stripMarkdown(data.letter || ''))
+      setTalkingPoints((data.talking_points || []).map(stripMarkdown))
+      setObjections((data.objections || []).map(stripMarkdown))
     } catch (e) {
       setLetter('Error generating letter. Please try again.')
     } finally {
@@ -48,7 +58,7 @@ export function AdvocatePanel({ program, onClose }) {
     setLoading(true)
     try {
       const data = await roleplayTurn({ programName, profile: answers || {}, message: '', history: [] })
-      setChat([{ role: 'assistant', content: data.reply }])
+      setChat([{ role: 'assistant', content: stripMarkdown(data.reply) }])
     } catch (e) {
       setChat([{ role: 'assistant', content: 'Error starting session. Please try again.' }])
     } finally {
@@ -66,7 +76,7 @@ export function AdvocatePanel({ program, onClose }) {
     try {
       const history = newChat.slice(-6).map(m => ({ role: m.role, content: m.content }))
       const data = await roleplayTurn({ programName, profile: answers || {}, message: input, history })
-      setChat(prev => [...prev, { role: 'assistant', content: data.reply }])
+      setChat(prev => [...prev, { role: 'assistant', content: stripMarkdown(data.reply) }])
     } catch (e) {
       setChat(prev => [...prev, { role: 'assistant', content: 'Error — please try again.' }])
     } finally {
@@ -80,8 +90,8 @@ export function AdvocatePanel({ program, onClose }) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={onClose}>
+  const modal = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       {/* Modal — flex column with fixed max height so inner sections can scroll */}
@@ -258,4 +268,6 @@ export function AdvocatePanel({ program, onClose }) {
       </div>
     </div>
   )
+
+  return createPortal(modal, document.body)
 }
