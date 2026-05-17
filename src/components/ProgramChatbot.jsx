@@ -52,47 +52,48 @@ export function ProgramChatbot({ programId, programName }) {
   }
 
   return (
-    <div className="bg-neutral-800 border border-neutral-700 rounded-lg overflow-hidden flex flex-col h-96">
-      <div className="flex items-center gap-2 bg-neutral-900 px-4 py-3 border-b border-neutral-700">
-        <span className="w-6 h-6 rounded bg-emerald-900 border border-emerald-700 flex items-center justify-center flex-shrink-0">
-          <svg className="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col h-96 shadow-sm">
+      {/* Header */}
+      <div className="flex items-center gap-2 bg-gray-50 px-4 py-3 border-b border-gray-200">
+        <span className="w-6 h-6 rounded bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+          <svg className="w-3.5 h-3.5 text-emerald-700" fill="currentColor" viewBox="0 0 20 20">
             <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" />
           </svg>
         </span>
-        <span className="font-semibold text-white text-sm truncate">{programName}</span>
+        <span className="font-bold text-gray-900 text-sm truncate">Ask about {programName}</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      {/* Messages */}
+      <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
         {backendError ? (
           <div className="space-y-3">
-            <div className="rounded-xl border border-amber-600 bg-amber-950/30 p-4 text-sm text-amber-100">
-              <p className="font-semibold">Offline support activated</p>
-              <p className="mt-2 text-xs text-amber-200">{backendError}</p>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <p className="font-bold">Offline support activated</p>
+              <p className="mt-1 text-xs">{backendError}</p>
             </div>
             <div className="space-y-2">
               {FALLBACK_QA.map((item, idx) => (
-                <div key={idx} className="rounded-xl border border-neutral-700 bg-neutral-900 p-4">
-                  <p className="text-xs uppercase tracking-widest text-neutral-500 mb-2">Q</p>
-                  <p className="text-sm text-white font-semibold">{item.q}</p>
-                  <p className="mt-2 text-sm text-neutral-300">{item.a}</p>
+                <div key={idx} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Q</p>
+                  <p className="text-sm text-gray-900 font-bold">{item.q}</p>
+                  <p className="mt-1 text-sm text-gray-700">{item.a}</p>
                 </div>
               ))}
             </div>
-            <div className="text-xs text-neutral-500">You can still use the documents checklist or continue without chat mode.</div>
           </div>
         ) : (
           <>
             {messages.length === 0 && (
-              <div className="text-center text-neutral-500 text-sm mt-8">
+              <div className="text-center text-gray-400 text-sm mt-8">
                 Ask about eligibility, documents, or how to apply
               </div>
             )}
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs lg:max-w-sm px-4 py-2.5 rounded-lg text-sm leading-relaxed ${
+                <div className={`max-w-xs lg:max-w-sm px-4 py-2.5 rounded-xl text-sm leading-relaxed font-medium ${
                   msg.role === 'user'
-                    ? 'bg-emerald-700 text-white'
-                    : 'bg-neutral-700 text-neutral-100'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-900'
                 }`}>
                   {msg.content}
                 </div>
@@ -100,10 +101,10 @@ export function ProgramChatbot({ programId, programName }) {
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-neutral-700 px-4 py-2.5 rounded-lg flex gap-1">
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                <div className="bg-gray-100 px-4 py-2.5 rounded-xl flex gap-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
                 </div>
               </div>
             )}
@@ -111,24 +112,26 @@ export function ProgramChatbot({ programId, programName }) {
         )}
       </div>
 
-      <div className="border-t border-neutral-700 p-3 bg-neutral-900">
+      {/* Input */}
+      <div className="border-t border-gray-200 p-3 bg-gray-50">
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && sendMessage()}
-            placeholder={backendError ? 'Chat unavailable' : 'Ask a question...'}
+            placeholder={backendError ? 'Chat unavailable' : 'Ask a question…'}
             disabled={Boolean(backendError)}
-            className="flex-1 bg-neutral-800 border border-neutral-700 rounded-md px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
           <button
             onClick={() => sendMessage()}
             disabled={loading || !input.trim() || Boolean(backendError)}
-            className="bg-emerald-700 hover:bg-emerald-600 disabled:bg-neutral-700 disabled:text-neutral-500 text-white px-3 py-2 rounded-md transition-colors"
+            className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-200 disabled:text-gray-400 text-white px-3 py-2 rounded-lg transition-colors"
           >
+            {/* Right-pointing arrow */}
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </button>
         </div>
