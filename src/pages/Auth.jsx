@@ -164,7 +164,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-white hover:bg-neutral-100 disabled:bg-neutral-700 disabled:text-neutral-500 text-neutral-950 font-bold py-3.5 rounded-md transition-all mt-2 flex items-center justify-center gap-2"
+                className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-neutral-700 disabled:text-neutral-500 text-white font-bold py-3.5 rounded-md transition-all mt-2 flex items-center justify-center gap-2"
               >
                 {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                 {loading ? t('auth_submit_loading') : mode === 'login' ? t('auth_submit_signin') : t('auth_submit_signup')}

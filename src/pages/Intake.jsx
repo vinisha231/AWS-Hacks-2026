@@ -33,7 +33,7 @@ function ProgressBar({ step, total }) {
   return (
     <div className="w-full bg-neutral-800 rounded-full h-1.5">
       <div
-        className="bg-white h-1.5 rounded-full transition-all duration-500"
+        className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
         style={{ width: `${(step / total) * 100}%` }}
       />
     </div>
@@ -54,17 +54,17 @@ function ToggleButton({ selected, onClick, icon, label, sublabel }) {
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
         ${selected
-          ? 'bg-white border-white text-neutral-950'
+          ? 'bg-emerald-600 border-emerald-600 text-white'
           : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
         }`}
     >
       {icon && <span className="text-xl flex-shrink-0">{icon}</span>}
       <span className="flex-1">
         {label}
-        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-neutral-500' : 'text-neutral-500'}`}>{sublabel}</span>}
+        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-emerald-200' : 'text-neutral-500'}`}>{sublabel}</span>}
       </span>
       {selected && (
-        <svg className="w-5 h-5 text-neutral-950 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
       )}
@@ -78,17 +78,17 @@ function RadioButton({ selected, onClick, icon, label, sublabel }) {
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
         ${selected
-          ? 'bg-white border-white text-neutral-950'
+          ? 'bg-emerald-600 border-emerald-600 text-white'
           : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
         }`}
     >
-      <span className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected ? 'border-neutral-950 bg-neutral-950' : 'border-neutral-600'}`}>
+      <span className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected ? 'border-white bg-emerald-700' : 'border-neutral-600'}`}>
         {selected && <span className="w-2.5 h-2.5 rounded-full bg-white" />}
       </span>
       {icon && <span className="text-xl flex-shrink-0">{icon}</span>}
       <span className="flex-1">
         {label}
-        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-neutral-500' : 'text-neutral-500'}`}>{sublabel}</span>}
+        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-emerald-200' : 'text-neutral-500'}`}>{sublabel}</span>}
       </span>
     </button>
   )
@@ -209,7 +209,7 @@ export default function Intake() {
               disabled={!canProceed() || submitting}
               className={`px-8 py-3 rounded-md font-bold text-base transition-all shadow-sm flex items-center gap-2
                 ${canProceed() && !submitting
-                  ? 'bg-white hover:bg-neutral-100 text-neutral-950 hover:-translate-y-0.5'
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white hover:-translate-y-0.5'
                   : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                 }`}
             >
@@ -254,7 +254,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
             onClick={() => set('householdSize', n)}
             className={`aspect-square rounded-md font-black text-2xl border-2 transition-all
               ${answers.householdSize === n
-                ? 'bg-white border-white text-neutral-950 scale-105'
+                ? 'bg-emerald-600 border-emerald-600 text-white scale-105'
                 : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
               }`}
           >
@@ -457,7 +457,7 @@ function StepContent({ step, answers, set, toggleArr, t }) {
           placeholder={t('intake_name_placeholder')}
           value={answers.name || ''}
           onChange={e => set('name', e.target.value)}
-          className="w-full border border-neutral-700 focus:border-white focus:ring-1 focus:ring-white rounded-md px-5 py-4 text-white text-base bg-neutral-800 outline-none transition-colors font-medium"
+          className="w-full border border-neutral-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-md px-5 py-4 text-white text-base bg-neutral-800 outline-none transition-colors font-medium"
         />
         <p className="text-neutral-500 text-sm mt-2">{t('intake_name_hint')}</p>
       </div>
