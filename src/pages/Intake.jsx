@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/store'
 import { useTranslation } from '../hooks/useTranslation'
 import { PROGRAMS, INCOME_BRACKETS } from '../data/programs'
+import { fetchBedrockEligibility } from '../services/bedrockEligibility'
 import LanguagePicker from '../components/LanguagePicker'
 
 const US_STATES = [
@@ -53,16 +54,20 @@ function ToggleButton({ selected, onClick, icon, label, sublabel }) {
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
         ${selected
-          ? 'bg-neutral-950 border-neutral-950 text-white'
-          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+          ? 'bg-white border-white text-neutral-950'
+          : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
         }`}
     >
       {icon && <span className="text-xl flex-shrink-0">{icon}</span>}
       <span className="flex-1">
         {label}
-        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-neutral-300' : 'text-neutral-400'}`}>{sublabel}</span>}
+        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-neutral-500' : 'text-neutral-500'}`}>{sublabel}</span>}
       </span>
-      {selected && <CheckIcon />}
+      {selected && (
+        <svg className="w-5 h-5 text-neutral-950 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+        </svg>
+      )}
     </button>
   )
 }
@@ -73,17 +78,17 @@ function RadioButton({ selected, onClick, icon, label, sublabel }) {
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-md border-2 font-medium text-base transition-all text-left
         ${selected
-          ? 'bg-neutral-950 border-neutral-950 text-white'
-          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
+          ? 'bg-white border-white text-neutral-950'
+          : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:border-neutral-500'
         }`}
     >
-      <span className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected ? 'border-white' : 'border-neutral-300'}`}>
+      <span className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected ? 'border-neutral-950 bg-neutral-950' : 'border-neutral-600'}`}>
         {selected && <span className="w-2.5 h-2.5 rounded-full bg-white" />}
       </span>
       {icon && <span className="text-xl flex-shrink-0">{icon}</span>}
       <span className="flex-1">
         {label}
-        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-neutral-300' : 'text-neutral-400'}`}>{sublabel}</span>}
+        {sublabel && <span className={`block text-xs mt-0.5 ${selected ? 'text-neutral-500' : 'text-neutral-500'}`}>{sublabel}</span>}
       </span>
     </button>
   )
@@ -95,6 +100,7 @@ export default function Intake() {
   const { answers, setAnswer, setResults, updateProfile } = useStore()
   const [step, setStep] = useState(1)
   const [localAnswers, setLocalAnswers] = useState({ ...answers })
+  const [submitting, setSubmitting] = useState(false)
 
   const set = (key, val) => setLocalAnswers(a => ({ ...a, [key]: val }))
 
@@ -120,7 +126,8 @@ export default function Intake() {
     else navigate('/')
   }
 
-  const submit = () => {
+  const submit = async () => {
+    setSubmitting(true)
     const a = localAnswers
     const monthlyIncome = INCOME_BRACKETS[a.incomeRange] || 2500
     const payload = {
@@ -131,24 +138,31 @@ export default function Intake() {
     }
     Object.entries(payload).forEach(([k, v]) => setAnswer(k, v))
     updateProfile({
-      name:            payload.name,
-      state:           payload.state,
-      householdSize:   payload.householdSize,
-      incomeRange:     payload.incomeRange,
+      name:             payload.name,
+      state:            payload.state,
+      householdSize:    payload.householdSize,
+      incomeRange:      payload.incomeRange,
       householdMembers: payload.householdMembers,
-      employment:      payload.employment,
-      healthCoverage:  payload.healthCoverage,
-      housingStatus:   payload.housingStatus,
-      citizenship:     payload.citizenship,
-      currentBenefits: payload.currentBenefits,
+      employment:       payload.employment,
+      healthCoverage:   payload.healthCoverage,
+      housingStatus:    payload.housingStatus,
+      citizenship:      payload.citizenship,
+      currentBenefits:  payload.currentBenefits,
     })
 
-    const eligible = PROGRAMS.filter(p => p.check(payload)).map(p => {
-      const est = p.estimatedAnnual(payload.householdSize || 1, monthlyIncome, payload)
-      return { ...p, estimatedAnnual: est }
-    }).sort((a, b) => b.estimatedAnnual - a.estimatedAnnual)
+    let programs
+    try {
+      programs = await fetchBedrockEligibility(payload)
+    } catch (err) {
+      console.warn('Bedrock API unavailable, using static programs:', err)
+      programs = PROGRAMS.filter(p => p.check(payload)).map(p => {
+        const est = p.estimatedAnnual(payload.householdSize || 1, monthlyIncome, payload)
+        return { ...p, estimatedAnnual: est }
+      }).sort((a, b) => b.estimatedAnnual - a.estimatedAnnual)
+    }
 
-    setResults(eligible)
+    setResults(programs)
+    setSubmitting(false)
     navigate('/results')
   }
 
@@ -192,14 +206,15 @@ export default function Intake() {
             </button>
             <button
               onClick={next}
-              disabled={!canProceed()}
-              className={`px-8 py-3 rounded-md font-bold text-base transition-all shadow-sm
-                ${canProceed()
+              disabled={!canProceed() || submitting}
+              className={`px-8 py-3 rounded-md font-bold text-base transition-all shadow-sm flex items-center gap-2
+                ${canProceed() && !submitting
                   ? 'bg-white hover:bg-neutral-100 text-neutral-950 hover:-translate-y-0.5'
                   : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
                 }`}
             >
-              {step === TOTAL ? t('intake_submit') : t('intake_next')}
+              {submitting && <span className="w-4 h-4 border-2 border-neutral-400 border-t-neutral-800 rounded-full animate-spin" />}
+              {submitting ? 'Checking eligibility...' : step === TOTAL ? t('intake_submit') : t('intake_next')}
             </button>
           </div>
         </div>
