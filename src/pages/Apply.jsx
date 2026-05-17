@@ -26,8 +26,18 @@ export default function Apply() {
 
   useRevealAll()
 
-  const program = PROGRAMS.find(p => p.id === programId)
+  const staticProgram = PROGRAMS.find(p => p.id === programId)
   const resultProgram = results?.find(p => p.id === programId)
+  const program = staticProgram || (resultProgram ? {
+    id: resultProgram.id,
+    category: resultProgram.category || 'financial',
+    nameKey: resultProgram.nameKey || resultProgram.name || resultProgram.id,
+    fullKey: resultProgram.fullKey || resultProgram.fullName || resultProgram.name || '',
+    documents: resultProgram.documents || [],
+    applicationUrl: resultProgram.applicationUrl || 'https://benefits.gov',
+    waitlist: resultProgram.waitlist ?? false,
+    renewalMonths: resultProgram.renewalMonths ?? 12,
+  } : null)
 
   const [marked, setMarked] = useState(false)
   const [docChecked, setDocChecked] = useState({})
@@ -89,7 +99,7 @@ export default function Apply() {
           {prefilled.length > 0 && (
             <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="bg-white text-neutral-950 text-xs font-bold px-3 py-1 rounded-md">
+                <div className="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-md">
                   {t('apply_autofill_badge')}
                 </div>
                 <span className="text-neutral-500 text-sm">{t('apply_prefilled')}</span>
@@ -154,11 +164,11 @@ export default function Apply() {
 
           {/* Waitlist warning */}
           {program.waitlist && (
-            <div className="reveal bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex gap-3">
+            <div className="reveal bg-amber-950/30 border border-amber-800/50 rounded-lg p-4 mb-6 flex gap-3">
               <span className="text-amber-500 flex-shrink-0 mt-0.5"><WarningIcon /></span>
               <div>
-                <p className="font-semibold text-amber-800 text-sm">{t('apply_waitlist_title')}</p>
-                <p className="text-amber-700 text-sm">{t('apply_waitlist_desc')}</p>
+                <p className="font-semibold text-amber-400 text-sm">{t('apply_waitlist_title')}</p>
+                <p className="text-amber-300 text-sm">{t('apply_waitlist_desc')}</p>
               </div>
             </div>
           )}
@@ -167,7 +177,7 @@ export default function Apply() {
           <div className="reveal flex flex-col gap-3">
             <button
               onClick={handleOpenApp}
-              className="w-full py-4 rounded-md font-bold text-base text-neutral-950 bg-white hover:bg-neutral-100 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              className="w-full py-4 rounded-md font-bold text-base bg-emerald-600 hover:bg-emerald-500 text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
             >
               {t('apply_open')}
             </button>

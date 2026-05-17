@@ -25,7 +25,7 @@ function ProgramCard({ program, lang, onApply }) {
       <div className="p-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-md bg-white flex items-center justify-center text-xs font-black text-neutral-950 flex-shrink-0">
+            <span className="w-10 h-10 rounded-md bg-emerald-900 border border-emerald-700 flex items-center justify-center text-xs font-black text-emerald-400 flex-shrink-0">
               {program.category[0].toUpperCase()}
             </span>
             <div>
@@ -53,8 +53,8 @@ function ProgramCard({ program, lang, onApply }) {
         <p className="text-neutral-400 text-sm leading-relaxed mb-4">{t(program.descKey)}</p>
 
         {/* Why you qualify */}
-        <div className="text-xs rounded-md px-4 py-3 mb-4 flex items-start gap-2 bg-neutral-800 border border-neutral-700 text-neutral-300">
-          <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
+        <div className="text-xs rounded-md px-4 py-3 mb-4 flex items-start gap-2 bg-emerald-950/40 border border-emerald-800/50 text-emerald-200">
+          <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
           <span className="font-medium">{t(program.whyKey)}</span>
@@ -75,7 +75,7 @@ function ProgramCard({ program, lang, onApply }) {
           <ul className="mb-4 space-y-1.5 animate-fade-in">
             {program.documents.map(doc => (
               <li key={doc} className="flex items-start gap-2 text-sm text-neutral-400">
-                <span className="text-neutral-600 mt-0.5">—</span>
+                <span className="text-emerald-600 mt-0.5 font-bold">•</span>
                 {doc}
               </li>
             ))}
@@ -93,7 +93,7 @@ function ProgramCard({ program, lang, onApply }) {
         <div className="flex gap-3">
           <button
             onClick={() => setChatOpen(!chatOpen)}
-            className="flex-1 py-3 rounded-md font-bold text-sm text-white bg-blue-600 hover:bg-blue-700 transition-all"
+            className="flex-1 py-3 rounded-md font-bold text-sm text-white bg-emerald-700 hover:bg-emerald-600 transition-all"
           >
             {chatOpen ? 'Close Chat' : 'Ask Questions'}
           </button>
@@ -213,7 +213,7 @@ export default function Results() {
                 className={`text-sm font-bold px-4 py-2 rounded-md transition-all
                   ${saved
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-white hover:bg-neutral-100 text-neutral-950'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white'
                   }`}
               >
                 {saved ? t('results_redirecting') : t('results_save')}
@@ -244,7 +244,7 @@ export default function Results() {
               <p className="text-neutral-400 text-sm mb-4">{t('results_save_desc')}</p>
               <button
                 onClick={handleSave}
-                className="bg-white hover:bg-neutral-100 text-neutral-950 font-bold px-6 py-3 rounded-md transition-colors"
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-md transition-colors"
               >
                 {saved ? t('results_saved') : t('results_save')}
               </button>
