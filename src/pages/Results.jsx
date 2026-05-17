@@ -62,30 +62,29 @@ function ProgramCard({ program, lang, onApply }) {
         </div>
 
         {/* Pros & Cons */}
-        {(program.pros?.length > 0 || program.cons?.length > 0) && (
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="rounded-md px-3 py-2.5 bg-emerald-50 border border-emerald-200">
-              <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-1.5">Pros</p>
-              <ul className="space-y-1">
-                {(program.pros || []).map((pro, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-emerald-800">
-                    <span className="text-emerald-600 font-bold mt-0.5 flex-shrink-0">+</span>{pro}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-md px-3 py-2.5 bg-amber-50 border border-amber-200">
-              <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-1.5">Cons</p>
-              <ul className="space-y-1">
-                {(program.cons || []).map((con, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-amber-800">
-                    <span className="text-amber-600 font-bold mt-0.5 flex-shrink-0">−</span>{con}
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {/* Pros & Cons — always show; fall back to generic if Bedrock didn't return them */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="rounded-md px-3 py-2.5 border" style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}>
+            <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: '#15803d' }}>Pros</p>
+            <ul className="space-y-1">
+              {(program.pros?.length ? program.pros : ['Can provide meaningful financial relief', 'Reduces household financial stress']).map((pro, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-xs" style={{ color: '#166534' }}>
+                  <span className="font-bold mt-0.5 flex-shrink-0" style={{ color: '#16a34a' }}>+</span>{pro}
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
+          <div className="rounded-md px-3 py-2.5 border" style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
+            <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: '#b45309' }}>Cons</p>
+            <ul className="space-y-1">
+              {(program.cons?.length ? program.cons : ['Requires periodic renewal', 'Application process can take time']).map((con, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-xs" style={{ color: '#92400e' }}>
+                  <span className="font-bold mt-0.5 flex-shrink-0" style={{ color: '#d97706' }}>−</span>{con}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
         {/* Chatbot */}
         {chatOpen && (

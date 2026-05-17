@@ -36,7 +36,7 @@ export function ProgramChatbot({ programId, programName }) {
   }
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden flex flex-col h-80">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden flex flex-col" style={{ height: 420 }}>
       {/* Header */}
       <div className="flex items-center gap-2 bg-emerald-700 px-4 py-2.5 flex-shrink-0">
         <svg className="w-4 h-4 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
