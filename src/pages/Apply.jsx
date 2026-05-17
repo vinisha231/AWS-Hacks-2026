@@ -36,8 +36,8 @@ export default function Apply() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-          <p className="text-neutral-600 mb-4">{t('apply_not_found')}</p>
-          <button onClick={() => navigate('/results')} className="text-neutral-600 font-medium hover:underline">
+          <p className="text-neutral-400 mb-4">{t('apply_not_found')}</p>
+          <button onClick={() => navigate('/results')} className="text-neutral-400 font-medium hover:text-white hover:underline transition-colors">
             {t('apply_back')}
           </button>
         </div>
@@ -69,27 +69,27 @@ export default function Apply() {
           {/* Back */}
           <button
             onClick={() => navigate('/results')}
-            className="text-neutral-500 hover:text-neutral-700 font-medium text-sm mb-8 flex items-center gap-1 transition-colors"
+            className="text-neutral-500 hover:text-neutral-200 font-medium text-sm mb-8 flex items-center gap-1 transition-colors"
           >
             ← {t('apply_back')}
           </button>
 
           {/* Header */}
           <div className="reveal flex items-center gap-4 mb-8">
-            <span className="w-12 h-12 rounded-lg bg-neutral-100 flex items-center justify-center text-sm font-bold text-neutral-600 flex-shrink-0">
+            <span className="w-12 h-12 rounded-lg bg-neutral-800 flex items-center justify-center text-sm font-bold text-neutral-200 flex-shrink-0">
               {program.category[0].toUpperCase()}
             </span>
             <div>
-              <h1 className="text-3xl font-black text-neutral-950">{t('apply_headline', { program: t(program.nameKey) })}</h1>
-              <p className="text-neutral-500">{t(program.fullKey)}</p>
+              <h1 className="text-3xl font-black text-white">{t('apply_headline', { program: t(program.nameKey) })}</h1>
+              <p className="text-neutral-400">{t(program.fullKey)}</p>
             </div>
           </div>
 
           {/* Pre-filled form */}
           {prefilled.length > 0 && (
-            <div className="reveal bg-white border border-neutral-200 rounded-lg p-6 mb-6">
+            <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="bg-neutral-950 text-white text-xs font-bold px-3 py-1 rounded-md">
+                <div className="bg-white text-neutral-950 text-xs font-bold px-3 py-1 rounded-md">
                   {t('apply_autofill_badge')}
                 </div>
                 <span className="text-neutral-500 text-sm">{t('apply_prefilled')}</span>
@@ -98,7 +98,7 @@ export default function Apply() {
                 {prefilled.map(({ label, value }) => (
                   <div key={label}>
                     <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wide block mb-1">{label}</label>
-                    <div className="border border-neutral-200 bg-neutral-50 rounded-md px-4 py-3 text-neutral-900 font-medium text-sm flex items-center justify-between gap-2">
+                    <div className="border border-neutral-700 bg-neutral-800 rounded-md px-4 py-3 text-neutral-200 font-medium text-sm flex items-center justify-between gap-2">
                       <span>{value}</span>
                       <svg className="w-4 h-4 text-neutral-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -107,19 +107,19 @@ export default function Apply() {
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-neutral-400 mt-4">
+              <p className="text-xs text-neutral-500 mt-4">
                 {t('apply_clipboard_hint')}
               </p>
             </div>
           )}
 
           {/* Document checklist */}
-          <div className="reveal bg-white border border-neutral-200 rounded-lg p-6 mb-6">
+          <div className="reveal bg-neutral-900 border border-neutral-800 rounded-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-neutral-950">{t('apply_docs_title')}</h2>
+              <h2 className="font-bold text-white">{t('apply_docs_title')}</h2>
               <span className="text-sm text-neutral-500 font-medium">{checkedCount}/{program.documents.length}</span>
             </div>
-            <p className="text-neutral-500 text-sm mb-4">{t('apply_docs_hint')}</p>
+            <p className="text-neutral-400 text-sm mb-4">{t('apply_docs_hint')}</p>
             <div className="flex flex-col gap-2">
               {program.documents.map(doc => (
                 <button
@@ -127,15 +127,15 @@ export default function Apply() {
                   onClick={() => toggleDoc(doc)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-md border text-left transition-all
                     ${docChecked[doc]
-                      ? 'border-neutral-950 bg-neutral-950 text-white'
-                      : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'
+                      ? 'border-white bg-white text-neutral-950'
+                      : 'border-neutral-700 bg-neutral-800 text-neutral-300 hover:border-neutral-500'
                     }`}
                 >
                   <div className={`w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors
-                    ${docChecked[doc] ? 'border-white bg-white' : 'border-neutral-300'}`}
+                    ${docChecked[doc] ? 'border-neutral-950 bg-neutral-950' : 'border-neutral-600'}`}
                   >
                     {docChecked[doc] && (
-                      <svg className="w-3 h-3 text-neutral-950" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -145,7 +145,7 @@ export default function Apply() {
               ))}
             </div>
             {allDocsChecked && (
-              <div className="mt-4 text-center text-neutral-700 font-semibold text-sm animate-fade-in flex items-center justify-center gap-1.5">
+              <div className="mt-4 text-center text-neutral-300 font-semibold text-sm animate-fade-in flex items-center justify-center gap-1.5">
                 <CheckIcon />
                 {t('apply_all_docs_ready')}
               </div>
@@ -167,7 +167,7 @@ export default function Apply() {
           <div className="reveal flex flex-col gap-3">
             <button
               onClick={handleOpenApp}
-              className="w-full py-4 rounded-md font-bold text-base text-white bg-neutral-950 hover:bg-neutral-800 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              className="w-full py-4 rounded-md font-bold text-base text-neutral-950 bg-white hover:bg-neutral-100 transition-all hover:-translate-y-0.5 hover:shadow-lg"
             >
               {t('apply_open')}
             </button>
@@ -175,8 +175,8 @@ export default function Apply() {
               onClick={handleMarkProgress}
               className={`w-full py-3.5 rounded-md font-semibold text-sm border-2 transition-all
                 ${marked
-                  ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                  : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500'
+                  ? 'border-emerald-600 bg-emerald-900/30 text-emerald-400'
+                  : 'border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-neutral-500'
                 }`}
             >
               {marked ? t('apply_marked') : t('apply_track')}
