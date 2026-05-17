@@ -7,7 +7,10 @@ Rta is an AWS-powered platform that helps underserved individuals discover and a
 Instead of filling out complex forms, users answer a short conversational intake. Rta checks 10+ programs at once, ranks results by estimated annual dollar value, and guides users all the way through to applied, tracked, and renewed. All interactions are translated in real time across 75+ languages via Amazon Translate.
 
 ---
+## Architecture diagram 
 
+
+---
 ## Features
 
 ### Benefits Discovery
