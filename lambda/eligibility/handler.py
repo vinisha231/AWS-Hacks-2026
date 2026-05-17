@@ -39,7 +39,11 @@ Profile: {state}, {household_size} people, ${monthly_income}/mo, members: {membe
 
 Exclude programs they already have. Include state-specific {state} programs.
 
-Return ONLY a JSON array (no markdown). Each item: {{"id":"snap","name":"SNAP","fullName":"Supplemental Nutrition Assistance Program","category":"food","description":"Monthly food benefits.","why":"Qualifies due to income below 130% FPL.","estimatedAnnual":3600,"applicationUrl":"https://benefits.gov","documents":["ID","Proof of income"],"renewalMonths":12,"waitlist":false}}
+IMPORTANT for applicationUrl: Use ONLY these reliable URLs — never invent deep links:
+- Federal programs (SNAP, Medicaid, LIHEAP, WIC, SSI, TANF, Section 8): "https://www.benefits.gov"
+- State-specific {state} programs: use only the main homepage of the state agency (e.g. "https://dhhs.state.name.us" NOT a subpage). If unsure, use "https://www.benefits.gov".
+
+Return ONLY a JSON array (no markdown). Each item: {{"id":"snap","name":"SNAP","fullName":"Supplemental Nutrition Assistance Program","category":"food","description":"Monthly food benefits.","why":"Qualifies due to income below 130% FPL.","estimatedAnnual":3600,"applicationUrl":"https://www.benefits.gov","documents":["Photo ID","Proof of income"],"renewalMonths":12,"waitlist":false}}
 
 Categories: food, health, housing, energy, financial, education. Return JSON array only."""
 

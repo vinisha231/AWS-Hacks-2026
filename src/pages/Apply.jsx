@@ -62,7 +62,8 @@ export default function Apply() {
 
   const handleOpenApp = () => {
     setTrackerStatus(program.id, 'in_progress')
-    window.open(program.applicationUrl, '_blank', 'noopener')
+    const url = program.applicationUrl || 'https://www.benefits.gov'
+    window.open(url, '_blank', 'noopener')
   }
 
   const toggleDoc = (doc) => setDocChecked(d => ({ ...d, [doc]: !d[doc] }))
