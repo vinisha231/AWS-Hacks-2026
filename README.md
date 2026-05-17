@@ -1,92 +1,119 @@
-# Rta — Benefits Navigator
+# Rta — AI Benefits Navigator
 
-> **AWS Hacks 2026**
+> **AWS Hacks 2026** · Built entirely on AWS
 
-Rta is an AWS-powered platform that helps underserved individuals discover and apply for government assistance programs — including SNAP, Medicaid, LIHEAP, Section 8, WIC, CHIP, EITC, Head Start, and more — without needing to understand the bureaucracy behind them.
+Rta helps underserved individuals discover and apply for government assistance programs — SNAP, Medicaid, LIHEAP, Section 8, WIC, CHIP, EITC, Head Start, and more — without needing to understand the bureaucracy behind them.
 
-Instead of filling out complex forms, users answer a short conversational intake. Rta checks 10+ programs at once, ranks results by estimated annual dollar value, and guides users all the way through to applied, tracked, and renewed. All interactions are translated in real time across 75+ languages via Amazon Translate.
-
----
-## Architecture diagram 
-<img width="2689" height="737" alt="bLRDRXit4BxlKmoKYuDOY6qbJQ134TdM9W8SmUWcy4KNQfUIM5EaIdBjAas1dle0HT-bzpvAdgJVB5UhNSj6M_XWYVpccxzlXdhdWt2XN6iwbqOkLF1JSQUM8bYN9FvMcOrmOarpaTykdIrDSM6rTVGi7V5V2-5a7eHPQac_94Jd3_7ZSJf8p_d6kaAw-dIGlZaRfJXDhGdrsUdfsUMhSNsMgI-IJi-INrkUX7FsllBo_rXEEYp6X…-2" src="https://github.com/user-attachments/assets/5a41334c-bee6-461a-b492-0f7b51d33051" />
+Users answer a short conversational intake. Rta checks 10+ programs simultaneously, ranks results by estimated annual dollar value, and guides users from discovery all the way through to applied, tracked, and renewed. Every part of the experience is available in 18+ languages, including Tamil, Arabic, Hindi, and Chinese, powered by Amazon Translate and Amazon Bedrock.
 
 ---
+
+## Architecture Diagram
+
+<img width="2689" height="737" alt="Rta Architecture" src="https://github.com/user-attachments/assets/5a41334c-bee6-461a-b492-0f7b51d33051" />
+
+---
+
 ## Features
 
 ### Benefits Discovery
-- Cross-program eligibility check (SNAP, Medicaid, CHIP, WIC, LIHEAP, Section 8, EITC, Head Start, Free School Meals, SSI)
-- Results ranked by estimated annual value
-- Real 2025 Federal Poverty Level thresholds
-- "Why you qualify" explanation per program
+- Cross-program eligibility check across 10+ programs (SNAP, Medicaid, CHIP, WIC, LIHEAP, Section 8, EITC, Head Start, Free School Meals, SSI)
+- Results ranked by estimated annual dollar value
+- Real 2025 Federal Poverty Level thresholds baked into eligibility logic
+- "Why you qualify / why you don't" explanation per program
+- Pros, cons, and estimated time-to-benefit per result
 
 ### Conversational Intake
-- 9-step guided questionnaire (state, household size, income, situation, current benefits)
+- 9-step guided questionnaire — state, household size, income, employment, dependents, current benefits, special circumstances
 - No forms, no jargon — plain language throughout
-- Free-text → structured eligibility data via Amazon Bedrock
+- Structured eligibility data extracted by Amazon Bedrock
+
+### AI Advocate (powered by Amazon Bedrock + Polly)
+- **Generate Advocacy Letter** — Claude writes a personalized letter in the user's language (PDF + DOCX download)
+- **Documents Checklist** — program-specific list of documents needed to apply
+- **Explain Denial Reasons** — common reasons for denial and how to appeal
+- **Practice with Mock Officer** — Claude role-plays as a government caseworker; responses spoken aloud via Amazon Polly in 13 languages
+
+### Multilingual AI Chatbots
+- **Floating assistant** — answers general benefits questions in the selected language
+- **Program chatbot** — deep Q&A on a specific program (eligibility, timeline, documents)
+- Both chatbots respond natively in the user's language via Bedrock; Amazon Translate used as fallback
+- Mic input via Web Speech API — speak your question, get an answer, entirely in your language
+
+### Full UI Translation (18 Languages)
+English, Spanish, French, German, Hindi, Arabic, Chinese (Simplified), Tamil, Telugu, Bengali, Vietnamese, Turkish, Polish, Ukrainian, Swahili, Korean, Japanese, Portuguese
+
+All UI strings batch-translated via Amazon Translate on first language switch; results cached in localStorage. Pros/cons and chatbot replies translate dynamically.
 
 ### Application Assistance
 - Pre-filled form fields from intake answers
 - Document checklist per program
-- Document upload (pay stubs, ID, lease agreements) stored securely in Amazon S3
-- Direct links to official applications
+- Direct links to official government applications
 
 ### Application Tracker
-- Track status: Not started → In progress → Applied → Approved
+- Track status: Not Started → In Progress → Applied → Approved
 - Renewal date countdowns with 30-day alerts via Amazon SNS
 - Full application history
 
-### Auth & Account (Amazon Cognito)
+### Auth & Profile (Amazon Cognito)
 - Sign up / sign in with persistent sessions
-- Delete account
+- Name, state, household size, income, language preference — all persisted
+- Email and SMS notification preferences
 
-### Profile
-- Name, state/location, household size, number of dependents
-- Income details, employment status
-- Preferred language (persists across sessions)
+---
 
-### Settings
-- Email and SMS notification preferences (Amazon SNS)
-- Language preference
-- Privacy / data sharing settings
+## AWS Services
 
-### Multilingual
-- Full English + Spanish support
-- Instant language switching — no page reload
-- Vietnamese, Haitian Creole, Arabic, Somali scaffolded (Amazon Translate-ready)
-- SMS fallback — full flow works over text message (no smartphone required)
+| Service | Feature |
+|---|---|
+| **Amazon Bedrock** (`claude-sonnet-4-6`) | AI chatbots, advocacy letter generation, mock officer roleplay, NLP intake |
+| **AWS Lambda** (Python 3.12) | All backend logic — 6 functions: chat, advocate, eligibility, translate, polly, session |
+| **API Gateway** (REST) | Single HTTPS entry point with API key auth and CORS |
+| **Amazon Translate** | Full UI translation + dynamic chatbot/pros-cons translation across 18 languages |
+| **Amazon Polly** | Text-to-speech for mock officer roleplay in 13 languages (Neural TTS) |
+| **Aurora Serverless v2** (PostgreSQL) | User session and answer persistence via RDS Data API |
+| **Amazon SNS** | Renewal reminder notifications (email + SMS) |
+| **Amazon S3** | Polly audio storage with presigned URL delivery |
+| **AWS Amplify** | Frontend hosting + CI/CD from GitHub (auto-deploy on push) |
+| **Amazon CloudWatch** | Structured JSON logging across all Lambda functions |
+
+> Full details on every service, voice map, language list, and architecture diagram in [`aws.md`](./aws.md)
 
 ---
 
 ## Tech Stack
 
-| Layer | Service |
+| Layer | Technology |
 |---|---|
-| Frontend | React + Vite, Tailwind CSS, Zustand |
+| Frontend | React 18 + Vite, Tailwind CSS, Zustand |
 | Auth | Amazon Cognito |
-| AI Intake | Amazon Bedrock |
-| Translation | Amazon Translate (75+ languages) |
-| Notifications | Amazon SNS (email + SMS renewals) |
-| Document Storage | Amazon S3 |
-| Database | Amazon Aurora Serverless (PostgreSQL) |
-| API | AWS API Gateway + Lambda |
+| AI | Amazon Bedrock (Claude Sonnet 4.6) |
+| Voice | Amazon Polly (Neural TTS) + Web Speech API |
+| Translation | Amazon Translate (18 languages) |
+| Notifications | Amazon SNS |
+| Database | Aurora Serverless v2 (PostgreSQL) |
+| API | API Gateway + Lambda (Python 3.12) |
+| Hosting | AWS Amplify |
 
 ---
 
 ## Architecture
 
 ```
-User Browser
-    │
-    └── React Frontend (Vite + Tailwind)
-          ├── Zustand store (persisted locally)
-          ├── Amazon Cognito — auth sessions
-          │
-          └── AWS API Gateway
-                ├── /intake      → Lambda + Bedrock (NLP intake)
-                ├── /eligibility → Lambda + Aurora (eligibility logic)
-                ├── /translate   → Amazon Translate (75+ languages)
-                ├── /application → Lambda + S3 + Aurora (apply, upload, track)
-                └── /notify      → Amazon SNS (renewal reminders)
+Browser (React + Vite on Amplify)
+        │
+        │ HTTPS + x-api-key
+        ▼
+  API Gateway (REST)
+        │
+   ┌────┴──────┬──────────┬──────────┬──────────┬─────────┐
+   ▼           ▼          ▼          ▼          ▼         ▼
+Lambda      Lambda     Lambda     Lambda     Lambda   Lambda
+/chat      /advocate  /translate  /polly   /session  /eligibility
+   │           │          │          │          │
+   ▼           ▼          ▼          ▼          ▼
+Bedrock     Bedrock   Translate   Polly     Aurora
+(Claude)    (Claude)              → S3    Serverless
 ```
 
 ---
@@ -95,65 +122,78 @@ User Browser
 
 ```
 Rta/
-├── src/                        # React frontend
-│   ├── pages/                  # Intake, Results, Apply, Tracker, Auth, Profile, Settings
-│   ├── components/             # Layout, LanguagePicker
-│   ├── contexts/               # AuthContext
-│   ├── store/                  # Zustand store
-│   ├── services/               # auth.js (Cognito-ready)
-│   ├── i18n/                   # translations.js (EN + ES)
-│   └── data/                   # programs.js (eligibility data)
-├── intake/
-│   └── handler.py              # Conversational intake Lambda
-├── eligibility/
-│   ├── thresholds.py           # 2025 federal income limits for all 7 programs
-│   ├── programs.py             # Cross-program eligibility logic
-│   └── handler.py              # Eligibility Lambda
-├── application/
-│   ├── autofill.py             # Maps intake data to form fields per program
-│   ├── documents.py            # S3 upload and document management
-│   └── handler.py              # Application Lambda (create, submit, upload, status)
-├── db/
-│   ├── schema.sql              # Aurora PostgreSQL schema
-│   ├── connection.py           # DB connection utility
-│   └── seed.sql                # Demo seed data
-├── utils/
-│   ├── translate.py            # Amazon Translate helper
-│   ├── bedrock.py              # Amazon Bedrock helper
-│   └── response.py             # Shared HTTP response helpers
-├── api/
-│   └── routes.py               # API route definitions
-└── template.yaml               # AWS SAM deployment template
+├── src/
+│   ├── pages/            # Landing, Intake, Results, Apply, Tracker, Auth, Profile, Settings
+│   ├── components/       # Layout, FloatingChatbot, ProgramChatbot, AdvocatePanel, LanguagePicker
+│   ├── contexts/         # AuthContext, TranslationContext
+│   ├── hooks/            # useTranslation
+│   ├── store/            # Zustand store (language, answers, auth)
+│   ├── services/         # chatbotApi, advocateApi, translate, pollyApi
+│   ├── i18n/             # translations.js (EN source + 17 auto-translated)
+│   └── data/             # programs.js (eligibility rules, FPL thresholds)
+├── lambda/
+│   ├── advocate/         # Letter generation + roleplay (Bedrock)
+│   ├── eligibility/      # Cross-program eligibility scoring
+│   ├── polly/            # TTS synthesis + S3
+│   ├── session/          # Aurora read/write
+│   ├── sns/              # Renewal reminders
+│   └── translate/        # Amazon Translate wrapper
+├── aws.md                # Full AWS service documentation
+└── README.md
 ```
 
 ---
 
 ## Running Locally
 
-**Frontend:**
+**1. Clone and install:**
 ```bash
+git clone https://github.com/vinisha231/AWS-Hacks-2026.git
+cd AWS-Hacks-2026
 npm install
-npm run dev
 ```
 
-**Backend (Lambda):**
+**2. Set environment variables:**
 ```bash
-pip install -r requirements.txt
-cp .env.example .env
-sam build && sam deploy --guided
+cp .env.example .env.local
+# Fill in:
+# VITE_API_ENDPOINT=https://<api-id>.execute-api.us-east-1.amazonaws.com/prod
+# VITE_API_KEY=<your API Gateway key>
+```
+
+**3. Run:**
+```bash
+npm run dev
+# → http://localhost:5173
 ```
 
 ---
 
-## Competitors
+## Deploying to AWS Amplify
+
+1. Go to [Amplify Console](https://console.aws.amazon.com/amplify) → **New App** → **Host web app**
+2. Connect GitHub → `vinisha231/AWS-Hacks-2026` → branch: `main`
+3. Build settings (auto-detected):
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+4. Add environment variables:
+   ```
+   VITE_API_ENDPOINT = https://<api-id>.execute-api.us-east-1.amazonaws.com/prod
+   VITE_API_KEY      = <your API Gateway key>
+   ```
+5. Deploy — every push to `main` auto-deploys.
+
+---
+
+## Competitive Landscape
 
 | Tool | Gap |
 |---|---|
-| Benefits.gov | Official but hard to navigate |
+| Benefits.gov | Official but hard to navigate, no eligibility check |
 | mRelief | SNAP only, no application help |
-| Aunt Bertha / Findhelp.org | Directory only, no eligibility or auto-fill |
+| Aunt Bertha / Findhelp.org | Directory only — no eligibility or auto-fill |
 | GetYourBenefits.org | Eligibility only, no tracking |
 | BenefitsCal | California only |
 | Propel (Fresh EBT) | SNAP balance tracking, not a full navigator |
 
-Rta is the only tool that covers intake → eligibility → auto-fill → document upload → status tracking → renewal reminders in one flow, across 10+ programs, in 75+ languages.
+**Rta is the only tool** that covers intake → AI eligibility → auto-fill → document checklist → AI advocate → status tracking → renewal reminders → multilingual voice support — in one flow, across 10+ programs, in 18+ languages.
