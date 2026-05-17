@@ -5,9 +5,10 @@ import { translations } from '../i18n/translations'
 const TranslationContext = createContext({})
 
 const STATIC_LANGS = new Set(['en', 'es'])
+// If VITE_API_ENDPOINT is set, use the deployed Lambda. Otherwise use a relative
+// URL so requests hit the Vite dev-server plugin (awsTranslatePlugin in vite.config.js).
 const API_BASE = import.meta.env.VITE_API_ENDPOINT || ''
 
-// Cache key includes the string count so adding new keys auto-invalidates old caches
 const KEY_COUNT = Object.keys(translations.en).length
 const CACHE_PREFIX = `compass_t_${KEY_COUNT}_`
 
@@ -25,37 +26,27 @@ async function batchTranslate(texts, target) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ texts, source: 'en', target })
   })
-  if (!res.ok) throw new Error('translate failed')
+  if (!res.ok) throw new Error(`translate failed: ${res.status}`)
   const data = await res.json()
-  return data.translated // array
+  return data.translated
 }
 
 export function TranslationProvider({ children }) {
   const lang = useStore(s => s.language)
   const [dynamicDict, setDynamicDict] = useState({})
   const [loading, setLoading] = useState(false)
-  const [noApi, setNoApi] = useState(false)
 
   useEffect(() => {
-    if (STATIC_LANGS.has(lang)) { setDynamicDict({}); setLoading(false); setNoApi(false); return }
+    if (STATIC_LANGS.has(lang)) { setDynamicDict({}); setLoading(false); return }
 
     const cached = getCached(lang)
-    if (cached) { setDynamicDict(cached); setLoading(false); setNoApi(false); return }
+    if (cached) { setDynamicDict(cached); setLoading(false); return }
 
-    if (!API_BASE) {
-      setLoading(false)
-      setNoApi(true)
-      setDynamicDict({})
-      return
-    }
-
-    setNoApi(false)
     let alive = true
     setLoading(true)
 
-    const enDict = translations.en
-    const keys = Object.keys(enDict)
-    const values = Object.values(enDict)
+    const keys = Object.keys(translations.en)
+    const values = Object.values(translations.en)
 
     batchTranslate(values, lang)
       .then(translated => {
@@ -74,7 +65,7 @@ export function TranslationProvider({ children }) {
   }, [lang])
 
   return (
-    <TranslationContext.Provider value={{ dynamicDict, loading, noApi, lang }}>
+    <TranslationContext.Provider value={{ dynamicDict, loading, noApi: false, lang }}>
       {children}
     </TranslationContext.Provider>
   )
