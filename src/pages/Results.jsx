@@ -7,6 +7,7 @@ import { useRevealAll } from '../hooks/useReveal'
 import { ProgramChatbot } from '../components/ProgramChatbot'
 import { AdvocatePanel } from '../components/AdvocatePanel'
 import { saveSession } from '../services/sessionApi'
+import { translateText } from '../services/translate'
 
 const CATEGORY_LABELS = {
   food: 'Food', health: 'Health', housing: 'Housing',
@@ -57,6 +58,24 @@ function ProgramCard({ program, lang, onApply, answers }) {
   const [chatOpen, setChatOpen] = useState(false)
   const [advocateOpen, setAdvocateOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
+
+  // Translated pros/cons — auto-update when language changes
+  const rawPros = program.pros?.length ? program.pros : ['Can provide meaningful financial relief', 'Reduces household financial stress']
+  const rawCons = program.cons?.length ? program.cons : ['Requires periodic renewal', 'Application process can take time']
+  const [translatedPros, setTranslatedPros] = useState(rawPros)
+  const [translatedCons, setTranslatedCons] = useState(rawCons)
+
+  useEffect(() => {
+    if (lang === 'en') { setTranslatedPros(rawPros); setTranslatedCons(rawCons); return }
+    let cancelled = false
+    const translateAll = async () => {
+      const pros = await Promise.all(rawPros.map(p => translateText(p, lang, 'en').catch(() => p)))
+      const cons = await Promise.all(rawCons.map(c => translateText(c, lang, 'en').catch(() => c)))
+      if (!cancelled) { setTranslatedPros(pros); setTranslatedCons(cons) }
+    }
+    translateAll()
+    return () => { cancelled = true }
+  }, [lang, program.id])
 
   const confidence = program.scores?.eligibility ?? 0
   const eligLabel = confidence >= 4 ? 'Likely eligible' : confidence >= 3 ? 'Possible eligibility' : 'Eligibility uncertain'
@@ -128,12 +147,12 @@ function ProgramCard({ program, lang, onApply, answers }) {
           </div>
         </div>
 
-        {/* Pros & Cons */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* Pros & Cons — translated */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <div className="rounded-md px-3 py-2.5 bg-emerald-50 border border-emerald-100">
             <p className="text-xs font-bold uppercase tracking-widest mb-1.5 text-emerald-700">Pros</p>
             <ul className="space-y-1">
-              {(program.pros?.length ? program.pros : ['Can provide meaningful financial relief', 'Reduces household financial stress']).map((pro, i) => (
+              {translatedPros.map((pro, i) => (
                 <li key={i} className="flex items-start gap-1.5 text-xs text-emerald-800">
                   <span className="font-bold mt-0.5 flex-shrink-0 text-emerald-600">+</span>{pro}
                 </li>
@@ -143,7 +162,7 @@ function ProgramCard({ program, lang, onApply, answers }) {
           <div className="rounded-md px-3 py-2.5 bg-amber-50 border border-amber-100">
             <p className="text-xs font-bold uppercase tracking-widest mb-1.5 text-amber-700">Cons</p>
             <ul className="space-y-1">
-              {(program.cons?.length ? program.cons : ['Requires periodic renewal', 'Application process can take time']).map((con, i) => (
+              {translatedCons.map((con, i) => (
                 <li key={i} className="flex items-start gap-1.5 text-xs text-amber-800">
                   <span className="font-bold mt-0.5 flex-shrink-0 text-amber-600">−</span>{con}
                 </li>
