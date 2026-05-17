@@ -8,7 +8,7 @@ Instead of filling out complex forms, users answer a short conversational intake
 
 ---
 ## Architecture diagram 
-
+<img width="2689" height="737" alt="bLRDRXit4BxlKmoKYuDOY6qbJQ134TdM9W8SmUWcy4KNQfUIM5EaIdBjAas1dle0HT-bzpvAdgJVB5UhNSj6M_XWYVpccxzlXdhdWt2XN6iwbqOkLF1JSQUM8bYN9FvMcOrmOarpaTykdIrDSM6rTVGi7V5V2-5a7eHPQac_94Jd3_7ZSJf8p_d6kaAw-dIGlZaRfJXDhGdrsUdfsUMhSNsMgI-IJi-INrkUX7FsllBo_rXEEYp6X…-2" src="https://github.com/user-attachments/assets/5a41334c-bee6-461a-b492-0f7b51d33051" />
 
 ---
 ## Features
