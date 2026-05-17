@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { chatWithBot } from '../services/chatbotApi'
+import { translateText } from '../services/translate'
+import { langToBCP47 } from '../services/pollyApi'
+import { useStore } from '../store/store'
 
 function stripMarkdown(text) {
   return text
@@ -10,20 +13,37 @@ function stripMarkdown(text) {
     .trim()
 }
 
-const STARTERS = [
-  'What benefits can I qualify for?',
-  'How do I apply for SNAP?',
-  'What documents do I need?',
-  'How long does approval take?',
-]
+// Starter questions keyed by language code
+const STARTERS_MAP = {
+  en: ['What benefits can I qualify for?', 'How do I apply for SNAP?', 'What documents do I need?', 'How long does approval take?'],
+  es: ['¿Qué beneficios puedo obtener?', '¿Cómo solicito SNAP?', '¿Qué documentos necesito?', '¿Cuánto tarda la aprobación?'],
+  fr: ['Quelles aides puis-je obtenir?', 'Comment demander le SNAP?', 'Quels documents faut-il?', 'Combien de temps dure l\'approbation?'],
+  hi: ['मुझे कौन से लाभ मिल सकते हैं?', 'SNAP के लिए कैसे आवेदन करें?', 'कौन से दस्तावेज़ चाहिए?', 'अनुमोदन में कितना समय लगता है?'],
+  ar: ['ما المزايا التي يمكنني الحصول عليها؟', 'كيف أتقدم لـ SNAP؟', 'ما المستندات المطلوبة؟', 'كم تستغرق الموافقة؟'],
+  zh: ['我能获得哪些福利？', '如何申请SNAP？', '需要哪些文件？', '审批需要多长时间？'],
+  ta: ['என்ன நலன்கள் கிடைக்கும்?', 'SNAP க்கு எப்படி விண்ணப்பிப்பது?', 'என்ன ஆவணங்கள் தேவை?', 'அனுமதிக்கு எவ்வளவு நேரம் ஆகும்?'],
+}
+
+const GREETING_MAP = {
+  en: "Hi! I'm your Rta benefits assistant. Ask me anything about government programs, eligibility, or how to apply.",
+  es: '¡Hola! Soy tu asistente de beneficios Rta. Pregúntame sobre programas gubernamentales, elegibilidad o cómo aplicar.',
+  fr: 'Bonjour! Je suis votre assistant Rta. Posez-moi des questions sur les programmes gouvernementaux, l\'éligibilité ou comment postuler.',
+  hi: 'नमस्ते! मैं आपका Rta लाभ सहायक हूँ। सरकारी कार्यक्रमों, पात्रता, या आवेदन के बारे में पूछें।',
+  ar: 'مرحباً! أنا مساعد Rta للمزايا. اسألني عن البرامج الحكومية والأهلية وكيفية التقديم.',
+  zh: '您好！我是您的Rta福利助手。请询问有关政府计划、资格或如何申请的问题。',
+  ta: 'வணக்கம்! நான் உங்கள் Rta நலன்கள் உதவியாளர். அரசு திட்டங்கள், தகுதி அல்லது விண்ணப்பிப்பது பற்றி கேளுங்கள்.',
+}
 
 export function FloatingChatbot() {
+  const lang = useStore(s => s.language) || 'en'
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [listening, setListening] = useState(false)
   const containerRef = useRef(null)
   const inputRef = useRef(null)
+  const recognitionRef = useRef(null)
 
   useEffect(() => {
     if (containerRef.current) {
@@ -31,15 +51,14 @@ export function FloatingChatbot() {
     }
   }, [messages, loading])
 
+  // Reset greeting when language changes or chat opens
   useEffect(() => {
-    if (open && messages.length === 0) {
-      setMessages([{
-        role: 'assistant',
-        content: "Hi! I'm your Rta benefits assistant. Ask me anything about government programs, eligibility, or how to apply.",
-      }])
+    if (open) {
+      const greeting = GREETING_MAP[lang] || GREETING_MAP.en
+      setMessages([{ role: 'assistant', content: greeting }])
+      setTimeout(() => inputRef.current?.focus(), 100)
     }
-    if (open) setTimeout(() => inputRef.current?.focus(), 100)
-  }, [open])
+  }, [open, lang])
 
   const send = async (text = input) => {
     const msg = text.trim()
@@ -48,8 +67,13 @@ export function FloatingChatbot() {
     setInput('')
     setLoading(true)
     try {
-      const data = await chatWithBot(msg, 'general', 'Rta Benefits Assistant')
-      setMessages(prev => [...prev, { role: 'assistant', content: stripMarkdown(data.reply || data.response || 'Sorry, try again.') }])
+      const data = await chatWithBot(msg, 'general', 'Rta Benefits Assistant', lang)
+      let reply = stripMarkdown(data.reply || data.response || 'Sorry, try again.')
+      // Translate to selected language if not English
+      if (lang !== 'en') {
+        reply = await translateText(reply, lang, 'en').catch(() => reply)
+      }
+      setMessages(prev => [...prev, { role: 'assistant', content: reply }])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I had trouble reaching the server. Please try again.' }])
     } finally {
@@ -57,31 +81,59 @@ export function FloatingChatbot() {
     }
   }
 
+  const startRecognition = (langCode) => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return
+    const rec = new SR()
+    rec.lang = langCode
+    rec.continuous = false     // Safari compatible
+    rec.interimResults = false // Only final results
+    rec.maxAlternatives = 1
+    recognitionRef.current = rec
+    rec.onresult = (e) => {
+      const transcript = e.results[0][0].transcript
+      setInput(transcript)
+      send(transcript)
+    }
+    rec.onend = () => setListening(false)
+    rec.onerror = (e) => {
+      if (e.error === 'language-not-supported' && langCode !== 'en-US') {
+        startRecognition('en-US')
+      } else {
+        setListening(false)
+      }
+    }
+    try { rec.start(); setListening(true) } catch { setListening(false) }
+  }
+
+  const toggleListen = () => {
+    if (listening) { recognitionRef.current?.stop(); setListening(false); return }
+    startRecognition(langToBCP47(lang))
+  }
+
+  const starters = STARTERS_MAP[lang] || STARTERS_MAP.en
+  const hasUserMessage = messages.some(m => m.role === 'user')
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-      {/* Chat panel */}
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
       {open && (
         <div
           className="bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-scale-in"
-          style={{ width: 360, height: 500 }}
+          style={{ width: 'min(360px, calc(100vw - 2rem))', height: 'min(520px, calc(100vh - 6rem))' }}
         >
           {/* Header */}
           <div className="bg-emerald-600 px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" />
-                </svg>
-              </div>
+              <span
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white font-black text-sm"
+                style={{ background: 'linear-gradient(135deg,#fbbf24,#fb923c,#fb7185)', fontFamily: 'system-ui,sans-serif' }}
+              >ऋ</span>
               <div>
                 <p className="text-white font-bold text-sm leading-tight">Rta Assistant</p>
-                <p className="text-emerald-200 text-xs">Benefits help · always available</p>
+                <p className="text-emerald-200 text-xs">{lang.toUpperCase()} · Benefits help</p>
               </div>
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              className="text-white/70 hover:text-white transition-colors"
-            >
+            <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -99,10 +151,10 @@ export function FloatingChatbot() {
                     </svg>
                   </div>
                 )}
-                <div className={`max-w-[240px] px-3 py-2 rounded-xl text-sm leading-relaxed ${
+                <div className={`max-w-[240px] px-3 py-2 rounded-xl text-sm leading-relaxed font-medium ${
                   msg.role === 'user'
                     ? 'bg-emerald-600 text-white rounded-br-sm'
-                    : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm shadow-sm'
+                    : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm shadow-sm'
                 }`}>
                   {msg.content}
                 </div>
@@ -119,10 +171,10 @@ export function FloatingChatbot() {
             )}
           </div>
 
-          {/* Quick starters — only show before any user message */}
-          {messages.filter(m => m.role === 'user').length === 0 && (
+          {/* Quick starters */}
+          {!hasUserMessage && (
             <div className="px-3 pb-2 bg-gray-50 flex gap-1.5 flex-wrap flex-shrink-0">
-              {STARTERS.map(s => (
+              {starters.map(s => (
                 <button
                   key={s}
                   onClick={() => send(s)}
@@ -134,16 +186,30 @@ export function FloatingChatbot() {
             </div>
           )}
 
-          {/* Input */}
+          {/* Input + mic */}
           <div className="border-t border-gray-200 p-3 bg-white flex-shrink-0">
             <div className="flex gap-2">
+              <button
+                onClick={toggleListen}
+                title={listening ? 'Stop' : `Speak in ${lang.toUpperCase()}`}
+                className={`px-2.5 py-2 rounded-lg border transition-colors flex-shrink-0 ${
+                  listening
+                    ? 'border-red-400 bg-red-50 text-red-600 animate-pulse'
+                    : 'border-gray-300 text-gray-400 hover:border-emerald-400 hover:text-emerald-600'
+                }`}
+              >
+                <svg className="w-4 h-4" fill={listening ? 'currentColor' : 'none'} viewBox="0 0 20 20" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 2a3 3 0 013 3v5a3 3 0 01-6 0V5a3 3 0 013-3z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 14.93A6 6 0 0013 14.93M10 17v2M8 19h4" />
+                </svg>
+              </button>
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && send()}
-                placeholder="Ask about benefits..."
+                placeholder={listening ? `Listening (${lang.toUpperCase()})…` : 'Ask about benefits…'}
                 className="flex-1 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500"
               />
               <button
@@ -152,7 +218,7 @@ export function FloatingChatbot() {
                 className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-200 text-white px-3 py-2 rounded-lg transition-colors flex-shrink-0"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </button>
             </div>
