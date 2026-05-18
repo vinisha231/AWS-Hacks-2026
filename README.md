@@ -40,8 +40,8 @@ Users answer a short conversational intake. Rta checks 10+ programs simultaneous
 - Both chatbots respond natively in the user's language via Bedrock; Amazon Translate used as fallback
 - Mic input via Web Speech API — speak your question, get an answer, entirely in your language
 
-### Full UI Translation (18 Languages)
-English, Spanish, French, German, Hindi, Arabic, Chinese (Simplified), Tamil, Telugu, Bengali, Vietnamese, Turkish, Polish, Ukrainian, Swahili, Korean, Japanese, Portuguese
+### Full UI Translation (75+ Languages)
+English, Spanish, French, German, Hindi, Arabic, Chinese (Simplified), Tamil, Telugu, Bengali, Vietnamese, Turkish, Polish, Ukrainian, Swahili, Korean, Japanese, Portuguese, and many more 
 
 All UI strings batch-translated via Amazon Translate on first language switch; results cached in localStorage. Pros/cons and chatbot replies translate dynamically.
 
@@ -70,7 +70,7 @@ All UI strings batch-translated via Amazon Translate on first language switch; r
 | **AWS Lambda** (Python 3.12) | All backend logic — 6 functions: chat, advocate, eligibility, translate, polly, session |
 | **API Gateway** (REST) | Single HTTPS entry point with API key auth and CORS |
 | **Amazon Translate** | Full UI translation + dynamic chatbot/pros-cons translation across 18 languages |
-| **Amazon Polly** | Text-to-speech for mock officer roleplay in 13 languages (Neural TTS) |
+| **Amazon Polly** | Text-to-speech for mock officer roleplay in 75+ languages (Neural TTS) |
 | **Aurora Serverless v2** (PostgreSQL) | User session and answer persistence via RDS Data API |
 | **Amazon SNS** | Renewal reminder notifications (email + SMS) |
 | **Amazon S3** | Polly audio storage with presigned URL delivery |
