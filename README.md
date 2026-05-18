@@ -1,4 +1,5 @@
-# Rta — AI Benefits Navigator https://main.d5yz7gwlym2o0.amplifyapp.com
+# Rta — AI Benefits Navigator 🏆 2nd place AWS HACKS 2026 Serverless with Lambda
+https://main.d5yz7gwlym2o0.amplifyapp.com
 
 > **AWS Hacks 2026** · Built entirely on AWS
 
