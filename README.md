@@ -1,4 +1,4 @@
-# Rta — AI Benefits Navigator
+# Rta — AI Benefits Navigator https://main.d5yz7gwlym2o0.amplifyapp.com
 
 > **AWS Hacks 2026** · Built entirely on AWS
 
